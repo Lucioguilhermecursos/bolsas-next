@@ -1,0 +1,32 @@
+{
+  "name": "bolsas-next",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+
+    "//": "Os testes de navegador rodam contra o BUILD, não contra o dev — é o que a visitante recebe. `npm test` compila antes.",
+    "test": "npm run build && npm run test:only",
+    "test:only": "npm run test:paridade && npm run test:fluxo && npm run test:estilos && npm run test:contraste && npm run test:estrutura",
+    "test:paridade": "node tests/paridade.test.mjs",
+    "test:fluxo": "node tests/fluxo.test.mjs",
+    "test:estilos": "node tests/estilos.test.mjs",
+    "test:contraste": "node tests/contraste.test.mjs",
+    "test:estrutura": "node tests/estrutura.test.mjs"
+  },
+  "dependencies": {
+    "next": "16.3.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.0",
+    "playwright": "^1.62.1",
+    "tailwindcss": "^4"
+  }
+}
