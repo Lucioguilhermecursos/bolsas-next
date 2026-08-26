@@ -15,7 +15,7 @@ const problemas = [];
 const anota = (pagina, tipo, msg) => problemas.push({ pagina, tipo, msg });
 
 const PAGINAS = [
-  ["/", "home"], ["/catalogo", "catálogo"], ["/produto/tote-raffia-natural", "produto"],
+  ["/", "home"], ["/catalogo", "catálogo"], ["/produto/tabby-shoulder-preta", "produto"],
   ["/carrinho", "sacola"], ["/busca?q=couro", "busca"], ["/conta", "conta"],
   ["/sobre", "sobre"], ["/ajuda", "ajuda"],
 ];
