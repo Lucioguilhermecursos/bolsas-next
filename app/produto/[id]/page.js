@@ -135,6 +135,7 @@ export default async function PaginaProduto({ params }) {
                       key={p.id}
                       className="color-opt"
                       href={"/produto/" + p.id}
+                      replace
                       aria-label={"Ver esta peça em " + p.cor}
                       title={p.cor}
                     >
