@@ -7,7 +7,7 @@
    ========================================================================= */
 
 import Link from "next/link";
-import { maisVendidos, novidades, porCategoria, formatarPreco } from "@/lib/catalog";
+import { maisVendidos, novidades, cores, porCor, formatarPreco } from "@/lib/catalog";
 import { GradeProdutos } from "@/components/CartaoProduto";
 import { MidiaProduto, Placeholder } from "@/components/Placeholder";
 import Newsletter from "@/components/Newsletter";
@@ -33,11 +33,6 @@ const PROMESSAS = [
   { Icone: IconeVolta, titulo: "Troca em 30 dias", texto: "Peça sem uso, com etiqueta" },
   { Icone: IconeCostura, titulo: "Couro legítimo", texto: "Ficha técnica aberta em cada peça" },
   { Icone: IconeAtendimento, titulo: "Atendimento direto", texto: "Dúvida respondida por quem conhece a peça" },
-];
-
-const COLECOES = [
-  { cat: "tote", titulo: "Tote", rotulo: "Para o dia inteiro" },
-  { cat: "ombro", titulo: "De ombro", rotulo: "Corpo mole" },
 ];
 
 const MATERIAIS = [
@@ -121,59 +116,38 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ==== Mais vendidos ==== */}
-      <section className="section">
-        <div className="container">
-          <div className="section-head">
-            <div>
-              <h2>As mais levadas</h2>
-              <p className="lead">
-                As peças que saem primeiro, e o motivo costuma ser o mesmo: couro que aguenta uso
-                diário.
-              </p>
-            </div>
-            <Link className="link-arrow" href="/catalogo">
-              Ver catálogo
-              <IconeSeta />
-            </Link>
-          </div>
-          <GradeProdutos
-            produtos={maisVendidos(5)}
-            className="grid-products--5"
-            eager
-            reveal
-          />
-        </div>
-      </section>
-
       {/* ==== Coleções — grid assimétrico ==== */}
       <section className="section field-deep">
         <div className="container">
           <div className="section-head">
             <div>
-              <h2>Por formato</h2>
-              <p className="lead">Escolha pelo jeito que você carrega, não pela estação.</p>
+              <h2>Por cores</h2>
+              <p className="lead">Escolha pelo tom que combina com você, não pela estação.</p>
             </div>
           </div>
 
           <div className="collections">
-            {COLECOES.map((c) => {
-              const n = porCategoria(c.cat).length;
+            {cores().map((c) => {
+              const n = porCor(c.nome).length;
               return (
                 <Link
-                  key={c.cat}
-                  className={"collection" + (c.destaque ? " collection--lead" : "")}
-                  href={"/catalogo?cat=" + c.cat}
+                  key={c.nome}
+                  className="collection"
+                  href={"/catalogo?cor=" + encodeURIComponent(c.nome)}
                 >
-                  <Placeholder
-                    proporcao={c.destaque ? "tall" : "wide"}
-                    rotulo={"Foto da coleção " + c.titulo}
-                  />
+                  <Placeholder proporcao="wide" rotulo={"Foto da coleção " + c.nome} />
                   <div className="collection-body">
                     <div>
-                      <h3>{c.titulo}</h3>
+                      <h3>
+                        <span
+                          className="swatch swatch--filtro"
+                          style={{ background: c.hex }}
+                          aria-hidden="true"
+                        />
+                        {c.nome}
+                      </h3>
                       <p>
-                        {c.rotulo} · {n} {n === 1 ? "peça" : "peças"}
+                        {n} {n === 1 ? "peça" : "peças"}
                       </p>
                     </div>
                     <IconeSeta />

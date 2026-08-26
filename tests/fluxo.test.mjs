@@ -28,12 +28,12 @@ p.on("pageerror", (e) => erros.push("pageerror: " + e.message));
 
 // ---------- 1. Home ----------
 await p.goto(BASE, { waitUntil: "networkidle" });
-t("home: cartões na vitrine", (await p.locator(".card").count()) >= 9,
+t("home: cartões na vitrine", (await p.locator(".card").count()) >= 2,
   (await p.locator(".card").count()) + " cartões");
 t("home: hero em campo verde", await p.locator(".hero").isVisible());
 t("home: régua de latão", (await p.locator(".label-rule-lg").count()) > 0);
 t("home: 4 garantias", (await p.locator(".promise").count()) === 4);
-t("home: 3 coleções", (await p.locator(".collection").count()) === 3);
+t("home: 6 coleções de cor", (await p.locator(".collection").count()) === 6);
 
 // ---------- 2. Adicionar à sacola ----------
 await p.goto(BASE + "/produto/tote-raffia-natural", { waitUntil: "networkidle" });

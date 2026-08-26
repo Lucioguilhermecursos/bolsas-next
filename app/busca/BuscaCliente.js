@@ -7,7 +7,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { buscar, maisVendidos } from "@/lib/catalog";
+import { buscar } from "@/lib/catalog";
 import { GradeProdutos } from "@/components/CartaoProduto";
 import { IconeBusca } from "@/components/Icones";
 import Revelar from "@/components/Revelar";
@@ -99,13 +99,6 @@ function Resultados({ termo }) {
                 (&quot;preto&quot;, &quot;conhaque&quot;) ou por formato (&quot;tote&quot;,
                 &quot;ombro&quot;).
               </p>
-            </div>
-
-            <div className="mt-14">
-              <h2 className="h-section mb-8">
-                As mais levadas
-              </h2>
-              <GradeProdutos produtos={maisVendidos(4)} reveal />
             </div>
           </>
         )}
