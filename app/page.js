@@ -128,12 +128,19 @@ export default function Home() {
 
           <div className="collections">
             {cores().map((c) => {
-              const n = porCor(c.nome).length;
+              const produtosDaCor = porCor(c.nome);
+              const n = produtosDaCor.length;
+              /* Uma peça só nessa cor: vai direto pra ela — não faz sentido
+                 passar por uma lista de um item só quando dá pra comprar
+                 daqui. Mais de uma, mantém o filtro do catálogo. */
+              const destino = n === 1
+                ? "/produto/" + produtosDaCor[0].id
+                : "/catalogo?cor=" + encodeURIComponent(c.nome);
               return (
                 <Link
                   key={c.nome}
                   className="collection"
-                  href={"/catalogo?cor=" + encodeURIComponent(c.nome)}
+                  href={destino}
                 >
                   <Placeholder proporcao="wide" rotulo={"Foto da coleção " + c.nome} />
                   <div className="collection-body">
