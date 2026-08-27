@@ -36,8 +36,8 @@ t("home: 4 garantias", (await p.locator(".promise").count()) === 4);
 t("home: 6 coleções de cor", (await p.locator(".collection").count()) === 6);
 
 // ---------- 2. Adicionar à sacola ----------
-await p.goto(BASE + "/produto/tabby-shoulder-preta", { waitUntil: "networkidle" });
-t("produto: h1 correto", (await p.locator("h1").innerText()) === "Tabby Shoulder Bag");
+await p.goto(BASE + "/produto/tote-raffia-natural", { waitUntil: "networkidle" });
+t("produto: h1 correto", (await p.locator("h1").innerText()) === "Bolsa Tote Raffia");
 t("produto: ficha técnica visível", await p.locator(".specs").isVisible());
 
 await p.locator('button:has-text("Adicionar à sacola")').click();
@@ -115,7 +115,7 @@ t(
 
 // ---------- 3. Persistência entre páginas ----------
 await p.evaluate(() => localStorage.removeItem("acbolsa:carrinho"));
-await p.goto(BASE + "/produto/tabby-shoulder-preta", { waitUntil: "networkidle" });
+await p.goto(BASE + "/produto/tote-raffia-natural", { waitUntil: "networkidle" });
 await p.locator('button:has-text("Adicionar à sacola")').click();
 await p.waitForTimeout(700);
 await p.locator('button[aria-label="Aumentar quantidade"]').click();
@@ -167,11 +167,11 @@ await p.goto(BASE + "/catalogo?min=99999", { waitUntil: "networkidle" });
 t("catálogo: estado vazio honesto", await p.locator("text=Nada com esses filtros").isVisible());
 
 // ---------- 5. Busca ----------
-await p.goto(BASE + "/busca?q=tabby", { waitUntil: "networkidle" });
-t("busca: acha tabby", (await p.locator(".card").count()) >= 1);
+await p.goto(BASE + "/busca?q=raffia", { waitUntil: "networkidle" });
+t("busca: acha raffia", (await p.locator(".card").count()) >= 1);
 await p.goto(BASE + "/busca?q=zzzznada", { waitUntil: "networkidle" });
 t("busca: sem resultado sugere alternativas", await p.locator("text=Nada com esse termo").isVisible());
-t("busca: mostra mais vendidas", (await p.locator(".card").count()) === 3);
+t("busca: mostra mais vendidas", (await p.locator(".card").count()) === 4);
 
 // ---------- 6. Checkout: validação ----------
 await p.goto(BASE + "/produto/clutch-couro-preta", { waitUntil: "networkidle" });
@@ -260,7 +260,7 @@ const m = await ctx.newPage();
 const errosM = [];
 m.on("pageerror", (e) => errosM.push(e.message));
 await m.setViewportSize({ width: 390, height: 844 });
-await m.goto(BASE + "/produto/tabby-shoulder-preta", { waitUntil: "networkidle" });
+await m.goto(BASE + "/produto/tote-raffia-natural", { waitUntil: "networkidle" });
 const larguraDoc = await m.evaluate(() => document.documentElement.scrollWidth);
 t("mobile 390px: sem scroll horizontal", larguraDoc <= 390, "scrollWidth=" + larguraDoc);
 
