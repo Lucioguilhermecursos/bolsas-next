@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# material de trabalho, não entra no site (ver FOTOS.md)
+/Imagens bolsas/

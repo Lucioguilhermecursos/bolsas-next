@@ -36,8 +36,8 @@ t("home: 4 garantias", (await p.locator(".promise").count()) === 4);
 t("home: 6 coleções de cor", (await p.locator(".collection").count()) === 6);
 
 // ---------- 2. Adicionar à sacola ----------
-await p.goto(BASE + "/produto/tote-raffia-natural", { waitUntil: "networkidle" });
-t("produto: h1 correto", (await p.locator("h1").innerText()) === "Bolsa Tote Raffia");
+await p.goto(BASE + "/produto/tabby-shoulder-preto", { waitUntil: "networkidle" });
+t("produto: h1 correto", (await p.locator("h1").innerText()) === "Tabby Shoulder Bag");
 t("produto: ficha técnica visível", await p.locator(".specs").isVisible());
 
 await p.locator('button:has-text("Adicionar à sacola")').click();
@@ -56,7 +56,7 @@ t("carrinho: contador = 3", (await p.locator(".cart-count").innerText()) === "3"
 // ---------- 2b. Comprar agora ----------
 // Leva a peça para a sacola E segue ao checkout, num clique só.
 await p.evaluate(() => localStorage.removeItem("acbolsa:carrinho"));
-await p.goto(BASE + "/produto/clutch-couro-preta", { waitUntil: "networkidle" });
+await p.goto(BASE + "/produto/tabby-shoulder-vinho", { waitUntil: "networkidle" });
 t("produto: os dois botões de compra", (await p.locator(".buy-row .btn").count()) === 2);
 
 const principal = await p.locator('button:has-text("Comprar agora")').evaluate(
@@ -80,10 +80,11 @@ t(
 );
 
 // Estoque insuficiente NÃO pode navegar: a pessoa precisa poder corrigir.
+// tabby-shoulder-branco-gelo tem estoque 3; 3 na sacola + 1 = 4 > 3.
 await p.evaluate(() =>
-  localStorage.setItem("acbolsa:carrinho", JSON.stringify([{ id: "mochila-couro-preta", qtd: 3 }]))
+  localStorage.setItem("acbolsa:carrinho", JSON.stringify([{ id: "tabby-shoulder-branco-gelo", qtd: 3 }]))
 );
-await p.goto(BASE + "/produto/mochila-couro-preta", { waitUntil: "networkidle" });
+await p.goto(BASE + "/produto/tabby-shoulder-branco-gelo", { waitUntil: "networkidle" });
 await p.locator('button:has-text("Comprar agora")').click();
 await p.waitForTimeout(900);
 t("comprar agora: sem estoque, continua no produto", p.url().includes("/produto/"));
@@ -98,7 +99,7 @@ t(
 
 // Clique repetido não deve multiplicar o item.
 await p.evaluate(() => localStorage.removeItem("acbolsa:carrinho"));
-await p.goto(BASE + "/produto/clutch-couro-preta", { waitUntil: "networkidle" });
+await p.goto(BASE + "/produto/tabby-shoulder-vinho", { waitUntil: "networkidle" });
 const botaoSacola = p.locator('button:has-text("Adicionar à sacola")');
 await botaoSacola.click();
 await botaoSacola.click({ force: true });
@@ -110,12 +111,12 @@ const itensAposCliques = await p.evaluate(() =>
 t(
   "cliques repetidos não multiplicam o item",
   JSON.stringify(itensAposCliques),
-  '[{"id":"clutch-couro-preta","qtd":1}]'
+  '[{"id":"tabby-shoulder-vinho","qtd":1}]'
 );
 
 // ---------- 3. Persistência entre páginas ----------
 await p.evaluate(() => localStorage.removeItem("acbolsa:carrinho"));
-await p.goto(BASE + "/produto/tote-raffia-natural", { waitUntil: "networkidle" });
+await p.goto(BASE + "/produto/tabby-shoulder-preto", { waitUntil: "networkidle" });
 await p.locator('button:has-text("Adicionar à sacola")').click();
 await p.waitForTimeout(700);
 await p.locator('button[aria-label="Aumentar quantidade"]').click();
@@ -126,7 +127,7 @@ await p.waitForSelector(".cart-item", { timeout: 5000 });
 t("sacola: 1 linha de item", (await p.locator(".cart-item").count()) === 1);
 t("sacola: qtd 3 preservada", (await p.locator(".cart-item input[type=number]").inputValue()) === "3");
 const totalTxt = await p.locator(".summary-total .v").innerText();
-t("sacola: total = 3 × 285 = 855", totalTxt.replace(/ /g, " ").includes("855,00"), totalTxt);
+t("sacola: total = 3 × 890 = 2670", totalTxt.replace(/ /g, " ").includes("2.670,00"), totalTxt);
 
 // campo verde do resumo
 const bg = await p.locator(".summary").evaluate((el) => getComputedStyle(el).backgroundColor);
@@ -140,41 +141,42 @@ t("sacola: vazia após remover", await p.locator("text=Sua sacola está vazia").
 // ---------- 4. Catálogo: filtros e URL ----------
 await p.goto(BASE + "/catalogo", { waitUntil: "networkidle" });
 const totalCards = await p.locator(".card").count();
-t("catálogo: 12 por página", totalCards === 12, totalCards + " cartões");
-t("catálogo: paginação presente", (await p.locator(".pagination button").count()) > 0);
+t("catalogo: 8 por pagina", totalCards === 8, totalCards + " cartoes");
+t("catalogo: paginacao presente", (await p.locator(".pagination button").count()) > 0);
 
-await p.goto(BASE + "/catalogo?cat=tote", { waitUntil: "networkidle" });
-t("catálogo: filtro cat=tote no h1", (await p.locator("h1").innerText()) === "Bolsas tote");
-const nTote = await p.locator(".card").count();
-t("catálogo: 5 totes (como no catálogo)", nTote === 5, nTote + " cartões");
+await p.goto(BASE + "/catalogo?pagina=2", { waitUntil: "networkidle" });
+t("catalogo: pagina 2 tem as 4 cores restantes", (await p.locator(".card").count()) === 4);
 
-// filtro por clique altera a URL
-await p.locator('.filter-list label:has-text("Mini bolsas") input').click();
+// filtro por cor altera a URL
+await p.goto(BASE + "/catalogo", { waitUntil: "networkidle" });
+await p.locator('.filter-list label:has-text("Vinho") input').click();
 await p.waitForTimeout(600);
-t("catálogo: clique escreve na URL", p.url().includes("cat="), p.url());
+t("catalogo: clique escreve na URL", p.url().includes("cor=Vinho"), p.url());
+t("catalogo: filtro de cor reduz a grade", (await p.locator(".card").count()) === 1);
 const chips = await p.locator(".chip").count();
-t("catálogo: marcadores de filtro", chips >= 2, chips + " chips");
+t("catalogo: marcador de filtro", chips >= 1, chips + " chips");
 
-// ordenação
+// ordenacao carrega sem erro
 await p.goto(BASE + "/catalogo?ordem=preco-asc", { waitUntil: "networkidle" });
 const precos = await p.locator(".card-price").allInnerTexts();
 const num = (s) => Number(s.replace(/ /g, " ").replace(/[^\d,]/g, "").replace(",", "."));
 const asc = precos.map(num);
-t("catálogo: ordena por menor preço", asc[0] <= asc[asc.length - 1], asc[0] + " → " + asc[asc.length - 1]);
+t("catalogo: ordenacao carrega (precos iguais, 8 cartoes)", asc.length === 8, asc.length + " precos");
 
 // vazio
 await p.goto(BASE + "/catalogo?min=99999", { waitUntil: "networkidle" });
 t("catálogo: estado vazio honesto", await p.locator("text=Nada com esses filtros").isVisible());
 
 // ---------- 5. Busca ----------
-await p.goto(BASE + "/busca?q=raffia", { waitUntil: "networkidle" });
-t("busca: acha raffia", (await p.locator(".card").count()) >= 1);
+await p.goto(BASE + "/busca?q=tabby", { waitUntil: "networkidle" });
+t("busca: acha pelo nome do modelo", (await p.locator(".card").count()) >= 1);
+await p.goto(BASE + "/busca?q=vinho", { waitUntil: "networkidle" });
+t("busca: acha por cor", (await p.locator(".card").count()) >= 1);
 await p.goto(BASE + "/busca?q=zzzznada", { waitUntil: "networkidle" });
 t("busca: sem resultado sugere alternativas", await p.locator("text=Nada com esse termo").isVisible());
-t("busca: mostra mais vendidas", (await p.locator(".card").count()) === 4);
 
-// ---------- 6. Checkout: validação ----------
-await p.goto(BASE + "/produto/clutch-couro-preta", { waitUntil: "networkidle" });
+// ---------- 6. Checkout: validacao ----------
+await p.goto(BASE + "/produto/tabby-shoulder-preto", { waitUntil: "networkidle" });
 await p.locator('button:has-text("Adicionar à sacola")').click();
 await p.waitForTimeout(700);
 await p.goto(BASE + "/checkout", { waitUntil: "networkidle" });
@@ -202,12 +204,12 @@ t("checkout: máscara de CPF", (await p.inputValue("#cpf")) === "529.982.247-25"
 await p.fill("#tel", "11987654321");
 t("checkout: máscara de telefone", (await p.inputValue("#tel")) === "(11) 98765-4321", await p.inputValue("#tel"));
 
-// frete pelo CEP
+// frete pelo CEP — uma Tabby (R$ 890) passa do piso de frete grátis (R$ 500)
 await p.fill("#cep", "01310100");
 await p.waitForTimeout(400);
 t("checkout: máscara de CEP", (await p.inputValue("#cep")) === "01310-100");
 const freteTxt = await p.locator(".summary-row").nth(1).innerText();
-t("checkout: calcula frete pelo CEP", freteTxt.includes("24,90"), freteTxt.replace(/\n/g, " "));
+t("checkout: frete grátis acima do piso", /gr[aá]tis/i.test(freteTxt), freteTxt.replace(/\n/g, " "));
 
 // cartão: campos só existem quando escolhido
 t("checkout: cartão oculto por padrão", (await p.locator("#cartao-num").count()) === 0);
@@ -260,7 +262,7 @@ const m = await ctx.newPage();
 const errosM = [];
 m.on("pageerror", (e) => errosM.push(e.message));
 await m.setViewportSize({ width: 390, height: 844 });
-await m.goto(BASE + "/produto/tote-raffia-natural", { waitUntil: "networkidle" });
+await m.goto(BASE + "/produto/tabby-shoulder-preto", { waitUntil: "networkidle" });
 const larguraDoc = await m.evaluate(() => document.documentElement.scrollWidth);
 t("mobile 390px: sem scroll horizontal", larguraDoc <= 390, "scrollWidth=" + larguraDoc);
 

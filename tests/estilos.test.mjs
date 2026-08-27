@@ -50,7 +50,7 @@ t("material--topo: alinha ao topo", await css(".material--topo", "alignItems"), 
 t("h-page no h1", (await css("h1.h-page", "fontSize")).endsWith("px"), true);
 
 // ---- Carrinho ----
-await p.goto(BASE + "/produto/clutch-couro-preta", { waitUntil: "networkidle" });
+await p.goto(BASE + "/produto/tabby-shoulder-preto", { waitUntil: "networkidle" });
 await p.locator('button:has-text("Adicionar à sacola")').click();
 await p.waitForTimeout(700);
 await p.goto(BASE + "/carrinho", { waitUntil: "networkidle" });
@@ -79,7 +79,7 @@ t("busca-resultados: py 56/96", await css(".busca-resultados", "paddingTop"), "5
 t("empty h2 (dentro de bloco): 24px", await css(".empty h2", "fontSize"), "24px");
 
 // ---- Checkout ----
-await p.goto(BASE + "/produto/clutch-couro-preta", { waitUntil: "networkidle" });
+await p.goto(BASE + "/produto/tabby-shoulder-preto", { waitUntil: "networkidle" });
 await p.locator('button:has-text("Adicionar à sacola")').click();
 await p.waitForTimeout(700);
 await p.goto(BASE + "/checkout", { waitUntil: "networkidle" });

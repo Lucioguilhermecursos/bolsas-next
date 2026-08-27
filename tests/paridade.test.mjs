@@ -1,134 +1,83 @@
 /* =========================================================================
-   acbolsa — paridade com a versão HTML
+   acbolsa — sanidade do catálogo
    =========================================================================
 
-   Compara `lib/catalog.js` com o catálogo original em
-   `d:\Antigravity\bolsas\js\catalog.js`, produto a produto e helper a
-   helper. Carrega os dois de verdade — não conta linha com regex.
+   O catálogo deixou de ser um port da versão HTML: agora é um único modelo,
+   a Tabby Shoulder Bag, em várias cores (decisão do usuário, 25/08/2026).
+   Este teste protege as invariantes desse formato e as restrições que
+   continuam valendo. Não precisa de navegador.
 
-   Se a versão HTML de referência não existir mais nesta máquina, o teste
-   avisa e passa: a paridade já foi verificada, e a ausência da pasta não é
-   falha do projeto.
+   O nome do script continua `test:paridade` só para não mexer no
+   package.json e no fluxo de quem já roda os testes.
    ========================================================================= */
 
-import fs from "node:fs";
-import vm from "node:vm";
 import { pathToFileURL } from "node:url";
 import path from "node:path";
 import { criarRelatorio } from "./servidor.mjs";
 
-const HTML = "d:/Antigravity/bolsas/js/catalog.js";
 const NEXT = path.resolve(import.meta.dirname, "../lib/catalog.js");
+const c = await import(pathToFileURL(NEXT).href);
+const r = criarRelatorio("sanidade do catálogo");
 
-const r = criarRelatorio("paridade do catálogo");
+/* ---- Estrutura ---- */
+r.t("tem produtos", c.PRODUTOS.length > 0);
+r.t("chaves de CATEGORIAS", JSON.stringify(Object.keys(c.CATEGORIAS)), '["ombro"]');
+r.t("ORDEM_CATEGORIAS", JSON.stringify(c.ORDEM_CATEGORIAS), '["ombro"]');
 
-if (!fs.existsSync(HTML)) {
-  console.log("aviso: " + HTML + " não encontrado — pulando a comparação.");
-  process.exit(0);
-}
-
-/* A versão HTML é um script global: avalia num contexto e colhe as consts. */
-const ctx = { console };
-vm.createContext(ctx);
-vm.runInContext(
-  fs.readFileSync(HTML, "utf8") +
-    "\n;globalThis.__out = { PRODUTOS, CATEGORIAS, ORDEM_CATEGORIAS, Catalogo, formatarPreco };",
-  ctx
-);
-const velho = ctx.__out;
-const novo = await import(pathToFileURL(NEXT).href);
-
-r.t("mesma quantidade de produtos", novo.PRODUTOS.length, velho.PRODUTOS.length);
-r.t("21 produtos", novo.PRODUTOS.length, 21);
-r.t(
-  "chaves de CATEGORIAS",
-  JSON.stringify(Object.keys(novo.CATEGORIAS)),
-  JSON.stringify(Object.keys(velho.CATEGORIAS))
-);
-r.t(
-  "ORDEM_CATEGORIAS",
-  JSON.stringify(novo.ORDEM_CATEGORIAS),
-  JSON.stringify(velho.ORDEM_CATEGORIAS)
-);
-
-/* ---- Produto a produto, campo a campo ---- */
 const CAMPOS = [
-  "id", "nome", "cat", "preco", "precoDe", "cor", "hex", "material", "medidas",
-  "alca", "detalhes", "cuidados", "descricao", "estoque", "novo", "destaque",
-  "vendas", "linha", "fotos",
+  "id", "nome", "cat", "preco", "cor", "hex", "material", "medidas", "alca",
+  "detalhes", "cuidados", "descricao", "estoque", "linha", "fotos",
 ];
-
-let divergencias = 0;
-velho.PRODUTOS.forEach((a, i) => {
-  const b = novo.PRODUTOS[i];
-  if (!b) return r.anota("falta o produto " + a.id);
-  for (const c of CAMPOS) {
-    const x = JSON.stringify(a[c] ?? null);
-    const y = JSON.stringify(b[c] ?? null);
-    if (x !== y) {
-      divergencias++;
-      r.anota(a.id + "." + c + ": " + x + " != " + y);
-    }
+let faltando = [];
+c.PRODUTOS.forEach((p) => {
+  for (const campo of CAMPOS) {
+    if (p[campo] === undefined || p[campo] === null) faltando.push(p.id + "." + campo);
   }
 });
-r.t("todos os campos de todos os produtos batem", divergencias, 0);
+r.t("todos os produtos têm os campos obrigatórios", faltando.join(", ") || "(ok)", "(ok)");
 
-/* ---- Helpers devolvem o mesmo ---- */
-const C = velho.Catalogo;
-const ids = (arr) => arr.map((p) => p.id).join(",");
+/* ---- Um modelo, várias cores ---- */
+const ids = c.PRODUTOS.map((p) => p.id);
+r.t("ids únicos", new Set(ids).size, ids.length);
+r.t("todos são 'Tabby Shoulder Bag'", c.PRODUTOS.every((p) => p.nome === "Tabby Shoulder Bag"));
+r.t("todos na categoria 'ombro'", c.PRODUTOS.every((p) => p.cat === "ombro"));
+r.t("todos compartilham a mesma linha", new Set(c.PRODUTOS.map((p) => p.linha)).size, 1);
 
-const pares = [
-  ["todos()", ids(C.todos()), ids(novo.todos())],
-  ["porCategoria(tote)", ids(C.porCategoria("tote")), ids(novo.porCategoria("tote"))],
-  ["porCategoria(bolsas)", ids(C.porCategoria("bolsas")), ids(novo.porCategoria("bolsas"))],
-  ["porCategoria(acessorios)", ids(C.porCategoria("acessorios")), ids(novo.porCategoria("acessorios"))],
-  ["novidades()", ids(C.novidades()), ids(novo.novidades())],
-  ["destaques()", ids(C.destaques()), ids(novo.destaques())],
-  ["maisVendidos(5, true)", ids(C.maisVendidos(5, true)), ids(novo.maisVendidos(5, true))],
-  ["maisVendidos(5)", ids(C.maisVendidos(5)), ids(novo.maisVendidos(5))],
-  ["buscar(couro)", ids(C.buscar("couro")), ids(novo.buscar("couro"))],
-  ["buscar(preto)", ids(C.buscar("preto")), ids(novo.buscar("preto"))],
-  ["buscar(sem correspondência)", ids(C.buscar("zzz")), ids(novo.buscar("zzz"))],
-  [
-    "variantesDeCor(hobo)",
-    ids(C.variantesDeCor(C.porId("hobo-couro-castanho"))),
-    ids(novo.variantesDeCor(novo.porId("hobo-couro-castanho"))),
-  ],
-  [
-    "variantesDeCor(peça única)",
-    ids(C.variantesDeCor(C.porId("tote-raffia-natural"))),
-    ids(novo.variantesDeCor(novo.porId("tote-raffia-natural"))),
-  ],
-  [
-    "relacionados()",
-    ids(C.relacionados(C.porId("tote-raffia-natural"))),
-    ids(novo.relacionados(novo.porId("tote-raffia-natural"))),
-  ],
-  ["faixaDePreco()", JSON.stringify(C.faixaDePreco()), JSON.stringify(novo.faixaDePreco())],
-  ["formatarPreco(285)", velho.formatarPreco(285), novo.formatarPreco(285)],
-];
-
-for (const [nome, a, b] of pares) r.t("helper " + nome, b, a);
-
-/* ---- As restrições duras do projeto ---- */
-const PROIBIDOS =
-  /herm[eè]s|louis vuitton|gucci|prada|coach|bottega|valentino|dior|chanel|picotin|monogram|tabby|strathberry/i;
-const sujos = novo.PRODUTOS.filter((p) =>
-  PROIBIDOS.test([p.nome, p.descricao, p.material, p.cor].join(" "))
+/* ---- Helpers ---- */
+const qualquer = c.PRODUTOS[0];
+r.t(
+  "variantesDeCor devolve as outras cores",
+  c.variantesDeCor(qualquer).length,
+  c.PRODUTOS.length - 1
 );
-r.t("nenhum nome de outra casa de moda", sujos.map((p) => p.id).join(",") || "(nenhum)", "(nenhum)");
+r.t("porId acha", c.porId(qualquer.id)?.id, qualquer.id);
+r.t("porId com id inexistente devolve null", c.porId("nao-existe"), null);
+r.t("buscar('tabby') acha o modelo", c.buscar("tabby").length > 0);
+r.t("buscar('zzz') não acha nada", c.buscar("zzz").length, 0);
+r.t(
+  "cores() = número de cores distintas",
+  c.cores().length,
+  new Set(c.PRODUTOS.map((p) => p.cor)).size
+);
+r.t("porCor filtra pela cor", c.porCor(qualquer.cor).every((p) => p.cor === qualquer.cor));
 
-/* As fotos podem (e devem) ser preenchidas um dia. O que NÃO pode é apontar
-   para a pasta assets/ da versão anterior, que é campanha da Strathberry. */
-const fotosProibidas = novo.PRODUTOS.flatMap((p) =>
+/* ---- Restrições que continuam valendo ---- */
+/* A decisão do usuário liberou SÓ o nome "Tabby Shoulder Bag" (Coach).
+   Nenhum outro nome de casa de moda pode entrar sem nova confirmação. */
+const OUTRAS_CASAS =
+  /herm[eè]s|louis vuitton|gucci|prada|bottega|valentino|dior|chanel|picotin|strathberry/i;
+const sujos = c.PRODUTOS.filter((p) =>
+  OUTRAS_CASAS.test([p.nome, p.descricao, p.material, p.cor].join(" "))
+);
+r.t("nenhum outro nome de casa de moda", sujos.map((p) => p.id).join(",") || "(nenhum)", "(nenhum)");
+
+/* As fotos podem ser preenchidas quando existirem — nunca apontando para os
+   assets da versão anterior (campanha da Strathberry). */
+const fotosProibidas = c.PRODUTOS.flatMap((p) =>
   (p.fotos || [])
     .filter((f) => /assets\//i.test(f) || /strathberry/i.test(f))
     .map((f) => p.id + ": " + f)
 );
-r.t(
-  "nenhuma foto apontando para os assets da versão anterior",
-  fotosProibidas.join(", ") || "(nenhuma)",
-  "(nenhuma)"
-);
+r.t("nenhuma foto nos assets da versão anterior", fotosProibidas.join(", ") || "(nenhuma)", "(nenhuma)");
 
 process.exit(r.fechar() ? 1 : 0);

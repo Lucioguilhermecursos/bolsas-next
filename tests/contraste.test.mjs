@@ -18,9 +18,9 @@ const { base: BASE, encerrar } = await subirServidor();
 const PAGINAS = [
   ["/", "home"],
   ["/catalogo", "catálogo"],
-  ["/catalogo?cat=tote", "catálogo filtrado"],
-  ["/produto/tote-raffia-natural", "produto"],
-  ["/produto/hobo-couro-castanho", "produto em oferta"],
+  ["/catalogo?cor=Vinho", "catálogo filtrado"],
+  ["/produto/tabby-shoulder-preto", "produto"],
+  ["/produto/tabby-shoulder-jacquard-azul", "produto jacquard"],
   ["/carrinho", "sacola vazia"],
   ["/busca?q=couro", "busca"],
   ["/busca?q=zzz", "busca sem resultado"],
@@ -115,7 +115,7 @@ for (const [url, nome] of PAGINAS) {
 
 /* Estados que só existem depois de interação. */
 console.log("\n### estados interativos");
-await p.goto(BASE + "/produto/clutch-couro-preta", { waitUntil: "networkidle" });
+await p.goto(BASE + "/produto/tabby-shoulder-preto", { waitUntil: "networkidle" });
 await p.locator('button:has-text("Adicionar à sacola")').click();
 await p.waitForTimeout(800);
 for (const [url, nome] of [["/carrinho", "sacola com item"], ["/checkout", "checkout"]]) {

@@ -5,7 +5,7 @@
    Sem atendente no fluxo: material, medidas e construção aparecem antes da
    decisão, não escondidos atrás de um link. Ver PRODUCT.md.
 
-   As 21 páginas são geradas na build por `generateStaticParams` — o catálogo
+   As páginas (uma por cor) são geradas na build por `generateStaticParams` — o catálogo
    é um arquivo, então não há motivo para renderizar isto a cada visita.
    ========================================================================= */
 

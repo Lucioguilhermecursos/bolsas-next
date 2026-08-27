@@ -127,7 +127,7 @@ export default function Home() {
           </div>
 
           <div className="collections">
-            {cores().map((c) => {
+            {cores().slice(0, 6).map((c) => {
               const n = porCor(c.nome).length;
               return (
                 <Link

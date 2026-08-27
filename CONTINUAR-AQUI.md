@@ -33,10 +33,12 @@ couro em várias delas. Não foram copiadas para cá e **não devem ser**. Todo
 espaço de imagem usa um placeholder marcado ("Foto a substituir") na proporção
 final correta.
 
-**2. Nenhum produto sob nome de outra casa de moda.**
-O site antigo vendia "Hermès Picotin Lock", "All In BB Monogram", "Coach
-Tabby". É o problema central que a reconstrução resolve. Os 21 produtos usam
-nome próprio descrevendo material e formato.
+**2. Nome de modelo de outra marca — só a Tabby Shoulder Bag.**
+A regra original era não usar nome de outra casa de moda (o site antigo
+vendia "Hermès Picotin Lock", "Coach Tabby"). Decisão do usuário em
+25/08/2026: o catálogo passou a ser um único modelo, a **Tabby Shoulder Bag
+(Coach)**, em várias cores, com o nome de modelo real. Vale só para essa
+decisão — não é licença para copiar outro nome sem confirmar.
 
 **3. O checkout não cobra nada.**
 Sem servidor não há pagamento. A confirmação diz "Pedido registrado", nunca
@@ -54,7 +56,7 @@ produção passa e a paridade com a versão HTML foi verificada.
 
 ```
 lib/
-  catalog.js      21 produtos, CATEGORIAS, helpers (paridade verificada)
+  catalog.js      Tabby Shoulder Bag em 12 cores (tabela CORES), CATEGORIAS, helpers
   carrinho.js     armazenamento e operações puras da sacola
   formulario.js   máscaras, CPF com dígito verificador, frete, pedidos
 components/
@@ -155,7 +157,7 @@ agora é `.texto-suave`.
   exibido virou o real; quem mostra contagem precisa esperar por ele.
 - **`useHidratado()`** — mesmo mecanismo, para `localStorage` e `location.hash`
   na página de conta.
-- **21 páginas de produto pré-renderadas** por `generateStaticParams`.
+- **Uma página de produto por cor, pré-renderada** por `generateStaticParams`.
 - **Campos de cartão não existem no DOM** quando a forma escolhida não é
   cartão. Mais forte que o `disabled` da versão HTML.
 - **Dois botões na página de produto** — "Comprar agora" (conhaque chapado,
@@ -193,9 +195,10 @@ agora é `.texto-suave`.
   nível pela aparência. Agora casa por `:is(h2, h3, h4)` e o nível voltou a
   ser decisão de estrutura. O rodapé e a grade de busca ganharam um `h2` em
   `.sr-only` para as seções filhas não saltarem do `h1`.
-- **Paridade do catálogo**: os 21 produtos comparados campo a campo com
-  `d:\Antigravity\bolsas\js\catalog.js`, e os 16 helpers devolvendo resultados
-  idênticos.
+- **Catálogo**: a partir de 27/08/2026 deixou de ser o port da versão HTML —
+  virou um único modelo, a Tabby Shoulder Bag, em 12 cores (tabela `CORES` em
+  `lib/catalog.js`). `test:paridade` passou a validar as invariantes desse
+  formato em vez de comparar com a versão HTML.
 
 ### O que sobrou para depois
 
@@ -297,7 +300,8 @@ Estas não são código — são dados que só a dona da loja tem:
 - **Transportadora e prazos reais** (os de `checkout.html` são de exemplo)
 - **Gateway de pagamento e bandeiras**
 - **Endereço para devolução**
-- **Conferir os preços** — os 21 produtos têm preços de demonstração
+- **Conferir preço e ficha técnica** — `PRECO` e `FICHA` em `lib/catalog.js`
+  são de exemplo / da ficha pública do modelo
 - **Fotografar as peças** — a lista do que precisa está no
   `d:\Antigravity\bolsas\README.md`
 
@@ -321,7 +325,7 @@ ninguém perceber) e o derrubam no fim, mesmo se o teste quebrar.
 
 | Suíte | O que protege |
 |---|---|
-| `npm run test:paridade` | Os 21 produtos e os 16 helpers idênticos à versão HTML, e as restrições duras do projeto. Não precisa de navegador |
+| `npm run test:paridade` | Sanidade do catálogo: formato "um modelo, várias cores", helpers e as restrições que continuam valendo. Não precisa de navegador |
 | `npm run test:fluxo` | O site como a visitante usa: comprar, filtrar, buscar, finalizar. Inclui 390px e as armadilhas conhecidas |
 | `npm run test:estilos` | Cada classe que substituiu um `style` inline resolve para os mesmos pixels |
 | `npm run test:contraste` | Contraste medido elemento a elemento (WCAG AA) |
@@ -355,12 +359,16 @@ python -m http.server 8000
 
 1. **Preencher os dados do negócio** — a lista está acima. Os pontos
    aparecem marcados com `[PREENCHER]` em `app/ajuda/page.js`.
-2. **Conferir os 21 preços** em `lib/catalog.js`, um a um.
+2. **Conferir preço, estoque e ficha técnica** em `lib/catalog.js` — o
+   catálogo é a Tabby Shoulder Bag em 12 cores; `PRECO`, `FICHA` e a tabela
+   `CORES` estão marcados com `[CONFERIR]`. Os nomes de cor foram derivados
+   do nome de cada pasta de origem.
 3. **Trocar os valores de frete** em `lib/formulario.js` pelos da
    transportadora real — os atuais são de exemplo.
-4. **Fotografar as peças**, colocar os arquivos em `public/` e preencher
-   `fotos: []` no catálogo. O placeholder some sozinho, e a galeria com
-   miniaturas entra no lugar.
+4. **Fotografar as peças** e seguir o `FOTOS.md` na raiz: arquivos em
+   `public/fotos/produtos/` nomeados pelo `slug` da cor, e o campo `fotos`
+   preenchido na tabela `CORES` do catálogo. O placeholder some sozinho, e a
+   galeria com miniaturas entra no lugar.
 5. **Remover a fita de aviso** (`.demo-note` em `app/layout.js`) e o texto de
    "site em construção" em `app/ajuda/page.js`.
 6. **Ligar o pagamento** — o objeto montado em `finalizar()`, no

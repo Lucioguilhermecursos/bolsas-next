@@ -95,9 +95,9 @@ function Resultados({ termo }) {
               <IconeBusca />
               <h2>Nada com esse termo</h2>
               <p>
-                Tente por material (&quot;couro&quot;, &quot;raffia&quot;), por cor
-                (&quot;preto&quot;, &quot;conhaque&quot;) ou por formato (&quot;tote&quot;,
-                &quot;ombro&quot;).
+                Tente pelo nome do modelo (&quot;Tabby&quot;), por cor
+                (&quot;preto&quot;, &quot;vinho&quot;, &quot;marrom&quot;) ou por
+                material (&quot;couro&quot;, &quot;jacquard&quot;).
               </p>
             </div>
           </>

@@ -15,7 +15,7 @@ const problemas = [];
 const anota = (pagina, tipo, msg) => problemas.push({ pagina, tipo, msg });
 
 const PAGINAS = [
-  ["/", "home"], ["/catalogo", "catálogo"], ["/produto/tote-raffia-natural", "produto"],
+  ["/", "home"], ["/catalogo", "catálogo"], ["/produto/tabby-shoulder-preto", "produto"],
   ["/carrinho", "sacola"], ["/busca?q=couro", "busca"], ["/conta", "conta"],
   ["/sobre", "sobre"], ["/ajuda", "ajuda"],
 ];
@@ -187,7 +187,7 @@ const devolvidoBusca = await p.evaluate(() => document.activeElement.getAttribut
 if (devolvidoBusca !== "Buscar produtos") anota("busca", "foco devolvido", "após Esc: " + devolvidoBusca);
 
 /* ---- Formulário: erro é anunciado e o foco vai para o campo ---- */
-await p.goto(BASE + "/produto/clutch-couro-preta", { waitUntil: "networkidle" });
+await p.goto(BASE + "/produto/tabby-shoulder-preto", { waitUntil: "networkidle" });
 await p.locator('button:has-text("Adicionar à sacola")').click();
 await p.waitForTimeout(700);
 await p.goto(BASE + "/checkout", { waitUntil: "networkidle" });

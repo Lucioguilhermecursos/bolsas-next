@@ -25,7 +25,7 @@ import { GradeProdutos } from "@/components/CartaoProduto";
 import { IconeCaixa, IconeFechar } from "@/components/Icones";
 import Revelar from "@/components/Revelar";
 
-const POR_PAGINA = 12;
+const POR_PAGINA = 8;
 
 const CATS_BOLSAS = Object.keys(CATEGORIAS).filter((k) => CATEGORIAS[k].pai === "bolsas");
 

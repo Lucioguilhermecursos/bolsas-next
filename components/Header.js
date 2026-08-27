@@ -33,7 +33,6 @@ export const MENU = [
     href: "/catalogo?cat=bolsas",
     sub: [
       { rotulo: "Todas as bolsas", href: "/catalogo?cat=bolsas" },
-      { rotulo: "Bolsas tote", href: "/catalogo?cat=tote" },
       { rotulo: "Bolsas de ombro", href: "/catalogo?cat=ombro" },
     ],
   },
