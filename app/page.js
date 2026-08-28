@@ -35,6 +35,10 @@ const PROMESSAS = [
   { Icone: IconeAtendimento, titulo: "Atendimento direto", texto: "Dúvida respondida por quem conhece a peça" },
 ];
 
+/* Cores cuja 1ª foto não pode ir pra vitrine (marca d'água, embalagem de
+   outra marca). Some daqui quando a foto for substituída por uma própria. */
+const FOTO_VETADA_NA_HOME = new Set(["tabby-shoulder-jacquard-azul"]);
+
 const MATERIAIS = [
   {
     termo: "Curtimento",
@@ -129,14 +133,34 @@ export default function Home() {
 
           <div className="collections">
             {cores().slice(0, 6).map((c) => {
-              const n = porCor(c.nome).length;
+              const doCatalogo = porCor(c.nome);
+              const n = doCatalogo.length;
+              const peca = doCatalogo[0];
+              /* A foto da cor entra aqui quando existe. Exceção: a foto de
+                 Jacquard Azul traz caixas da Coach e a marca d'água "réplica"
+                 — não pode ir pra vitrine. Trocar por foto própria e remover
+                 daqui. */
+              const foto =
+                peca && !FOTO_VETADA_NA_HOME.has(peca.id) ? peca.fotos?.[0] : null;
               return (
                 <Link
                   key={c.nome}
                   className="collection"
                   href={"/catalogo?cor=" + encodeURIComponent(c.nome)}
                 >
-                  <Placeholder proporcao="wide" rotulo={"Foto da coleção " + c.nome} />
+                  {foto ? (
+                    <div className="ph ph--wide">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={foto}
+                        alt={"Tabby Shoulder Bag na cor " + c.nome}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                  ) : (
+                    <Placeholder proporcao="wide" rotulo={"Foto da coleção " + c.nome} />
+                  )}
                   <div className="collection-body">
                     <div>
                       <h3>
