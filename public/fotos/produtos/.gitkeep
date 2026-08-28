@@ -1,4 +1,5 @@
-# Coloque aqui as fotos das peças.
-# Nome do arquivo: <slug-da-cor>-01.webp, <slug-da-cor>-02.webp, ...
-# Ex.: tabby-shoulder-vinho-01.webp
-# A lista de slugs e o passo a passo estão em FOTOS.md, na raiz do projeto.
+# Fotos dos produtos. Arquivos soltos, sem subpastas.
+# Nome: <slug-da-cor>-01.jpg, <slug-da-cor>-02.jpg, ...
+# Ex.: tabby-shoulder-vinho-01.jpg
+# Depois de add/trocar arquivos, ajuste `nFotos` da cor em lib/catalog.js.
+# Guia completo: FOTOS.md, na raiz do projeto.
