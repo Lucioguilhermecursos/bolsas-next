@@ -6,7 +6,7 @@ tem seu próprio conjunto de fotos.
 **Estado atual:** as 12 cores já têm pelo menos uma foto ligada (copiadas de
 `Imagens bolsas/`). Este guia é para **trocar** ou **acrescentar** fotos.
 
-Com `nFotos: 0` numa cor, o site mostra um placeholder marcado na proporção
+Com `fotos: []` numa cor, o site mostra um placeholder marcado na proporção
 certa — nada quebra por faltar imagem.
 
 ## Passo a passo (por cor)
@@ -20,17 +20,20 @@ certa — nada quebra por faltar imagem.
    public/fotos/produtos/tabby-shoulder-vinho-03.jpg
    ```
 
-2. **Ajuste `nFotos`** daquela cor em `lib/catalog.js` (tabela `CORES`) para
-   o número de arquivos que você salvou:
+2. **Liste os sufixos** no campo `fotos` daquela cor em `lib/catalog.js`
+   (tabela `CORES`), na ordem em que devem aparecer:
 
    ```js
-   { slug: 'tabby-shoulder-vinho', cor: 'Vinho', ..., estoque: 5, nFotos: 3 },
+   { slug: 'tabby-shoulder-vinho', cor: 'Vinho', ..., estoque: 5, fotos: ['01.jpg', '02.jpg', '03.jpg'] },
    ```
+
+   `jpgs(3)` é atalho para `['01.jpg','02.jpg','03.jpg']`. Com um `.gif` no
+   fim: `[...jpgs(3), '04.gif']`.
 
 3. Salve. Em `npm run dev` a imagem aparece na hora; para produção, `npm run build`.
 
-Os arquivos são `.jpg`. Para usar `.webp`, mude a extensão na função
-`fotosDe()`, no topo da lista de produtos em `lib/catalog.js`.
+Funcionam `.jpg` e `.gif`. Para `.webp`, é só listar o sufixo com a
+extensão certa (ex. `'01.webp'`).
 
 ## Onde cada foto aparece
 
@@ -43,7 +46,7 @@ A galeria com miniaturas só aparece quando a cor tem duas ou mais fotos.
 
 ## Formato recomendado
 
-- **Extensão:** `.jpg` (ou `.webp`, ajustando `fotosDe()`)
+- **Extensão:** `.jpg` (ou `.webp` / `.gif` — basta listar o sufixo certo)
 - **Proporção:** 4:5 (retrato). O site recorta para o centro nessa proporção,
   então deixe folga nas bordas. As fotos atuais têm proporções variadas e
   algumas vão cortar mais do que o ideal — vale refazer com enquadramento 4:5.
@@ -59,11 +62,11 @@ Os nomes de cor foram derivados do nome da pasta — para trocar, mude o campo
 
 | Cor | `slug` / prefixo do arquivo | Pasta de origem | Fotos ligadas |
 |---|---|---|---|
-| Preto | `tabby-shoulder-preto` | black black | 1 |
-| Preto e Dourado | `tabby-shoulder-preto-dourado` | Black Gold | 9 |
+| Preto | `tabby-shoulder-preto` | black black | 2 (1 jpg + 1 gif) |
+| Preto e Dourado | `tabby-shoulder-preto-dourado` | Black Gold | 10 (9 jpg + 1 gif) |
 | Preto Fosco | `tabby-shoulder-preto-fosco` | Black Par | 8 |
 | Preto Metalizado | `tabby-shoulder-preto-metal` | Blk+meta | 10 |
-| Marrom | `tabby-shoulder-marrom` | Brow | 8 |
+| Marrom | `tabby-shoulder-marrom` | Brow | 9 (8 jpg + 1 gif) |
 | Marrom Escuro | `tabby-shoulder-marrom-escuro` | Brow parse | 2 |
 | Jacquard Azul | `tabby-shoulder-jacquard-azul` | Jacquard Blue | 1 |
 | Jacquard Marrom | `tabby-shoulder-jacquard-marrom` | Jacquard brow | 1 |
@@ -72,11 +75,12 @@ Os nomes de cor foram derivados do nome da pasta — para trocar, mude o campo
 | Branco Off | `tabby-shoulder-branco-off` | White + | 1 |
 | Branco Gelo | `tabby-shoulder-branco-gelo` | White parse | 1 |
 
-As 6 cores com 1 foto (Preto, os dois Jacquard, Vinho, Branco, Branco Off,
-Branco Gelo) só tinham **um arquivo** na pasta de origem. Para ter galeria
-nessas, é adicionar mais fotos seguindo o passo a passo acima.
+47 arquivos no total — **tudo que havia nas pastas**, incluindo os `.gif`
+(miniaturas animadas 600×600, entram por último na galeria dessas 3 cores).
 
-Os arquivos `.gif` das pastas (miniaturas animadas 600×600) foram ignorados.
+As 6 cores com 1 foto (Jacquard Azul/Marrom, Vinho, Branco, Branco Off,
+Branco Gelo) só tinham **um arquivo** na pasta. Para ter galeria nelas, é
+adicionar mais fotos seguindo o passo a passo acima.
 
 ## Observações
 
