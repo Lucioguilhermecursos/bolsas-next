@@ -7,17 +7,18 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-
-    "//": "Os testes de navegador rodam contra o BUILD, não contra o dev — é o que a visitante recebe. `npm test` compila antes.",
-    "test": "npm run build && npm run test:only",
-    "test:only": "npm run test:paridade && npm run test:fluxo && npm run test:estilos && npm run test:contraste && npm run test:estrutura",
+    "//": "Os testes rodam contra o BUILD. `npm test` (tests/rodar.mjs) lê .env.test, compila com o projeto Supabase de teste e roda tudo. Para uma suíte isolada, exporte as vars de .env.test antes.",
+    "test": "node tests/rodar.mjs",
     "test:paridade": "node tests/paridade.test.mjs",
+    "test:auth": "node tests/auth.test.mjs",
     "test:fluxo": "node tests/fluxo.test.mjs",
     "test:estilos": "node tests/estilos.test.mjs",
     "test:contraste": "node tests/contraste.test.mjs",
     "test:estrutura": "node tests/estrutura.test.mjs"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.5",
+    "@supabase/supabase-js": "^2.112.4",
     "next": "16.3.0",
     "react": "19.2.8",
     "react-dom": "19.2.8"

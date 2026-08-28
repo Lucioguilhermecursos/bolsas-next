@@ -1,21 +1,17 @@
 "use client";
 
 /* =========================================================================
-   acbolsa — minha conta
+   acbolsa — minha conta (interface)
    =========================================================================
 
-   Sem login: lê os pedidos que o checkout gravou neste navegador. O aviso no
-   topo da página diz isso à cliente em vez de deixá-la achar que perdeu o
-   histórico ao trocar de aparelho.
+   Recebe pedidos e perfil já resolvidos do servidor (app/conta/page.js). Aqui
+   só mora o estado de interface: qual aba está aberta e a busca de rastreio.
    ========================================================================= */
 
 import { useState } from "react";
 import Link from "next/link";
 import { formatarPreco } from "@/lib/catalog";
-import { CHAVE_PEDIDOS, lerPedidos } from "@/lib/formulario";
-import { useToast } from "@/components/ToastContexto";
-import useHidratado from "@/components/useHidratado";
-import { IconeAlerta, IconeCaixa, IconeCaminhao, IconeConta } from "@/components/Icones";
+import { IconeCaixa, IconeCaminhao, IconeConta } from "@/components/Icones";
 
 const ABAS = [
   { id: "pedidos", rotulo: "Meus pedidos", Icone: IconeCaixa },
@@ -31,88 +27,56 @@ function dataBR(iso) {
   });
 }
 
-/* localStorage e `location.hash` não existem no servidor. Enquanto não
-   hidrata, renderiza a mesma coisa que o servidor renderizou; depois disso o
-   `key` troca e o componente de dentro nasce já com os valores certos — sem
-   um efeito sincronizando estado depois do primeiro render. */
-export default function ContaCliente() {
-  const hidratado = useHidratado();
-
-  if (!hidratado) return <Conta pedidos={[]} abaInicial="pedidos" pronto={false} key="servidor" />;
-
-  const alvo = window.location.hash.replace("#", "");
-  return (
-    <Conta
-      key="cliente"
-      pedidos={lerPedidos()}
-      abaInicial={ABAS.some((a) => a.id === alvo) ? alvo : "pedidos"}
-      pronto
-    />
-  );
-}
-
-function Conta({ pedidos, abaInicial, pronto }) {
-  const [aba, setAba] = useState(abaInicial);
+export default function ContaCliente({ pedidos, perfil, email }) {
+  const [aba, setAba] = useState("pedidos");
 
   function abrirAba(id) {
     setAba(id);
-    /* `replaceState` em vez de push: alternar aba não é navegação que a
-       pessoa espera desfazer com o botão voltar. */
     window.history.replaceState(null, "", "#" + id);
   }
 
   return (
-    <>
-      <div className="notice mt-8">
-        <IconeAlerta />
-        <p>
-          <strong>Esta área ainda não tem login.</strong> Sem servidor, os pedidos ficam guardados
-          apenas neste navegador — quem abrir o site em outro aparelho não os verá.
-        </p>
+    <div className="account">
+      <nav className="account-nav" aria-label="Seções da conta">
+        {ABAS.map(({ id, rotulo, Icone }) => (
+          <button
+            key={id}
+            type="button"
+            aria-current={aba === id ? "true" : undefined}
+            onClick={() => abrirAba(id)}
+          >
+            <Icone />
+            {rotulo}
+          </button>
+        ))}
+      </nav>
+
+      <div>
+        <section className="panel" hidden={aba !== "pedidos"} aria-labelledby="t-pedidos">
+          <h2 id="t-pedidos" className="h-section mb-8">
+            Meus pedidos
+          </h2>
+          <ListaPedidos pedidos={pedidos} />
+        </section>
+
+        <section className="panel" hidden={aba !== "rastreio"} aria-labelledby="t-rastreio">
+          <h2 id="t-rastreio" className="h-section mb-4">
+            Rastrear entrega
+          </h2>
+          <p className="lead mb-8">
+            Informe o código do pedido para ver a situação da entrega.
+          </p>
+          <Rastreio pedidos={pedidos} />
+        </section>
+
+        <section className="panel" hidden={aba !== "dados"} aria-labelledby="t-dados">
+          <h2 id="t-dados" className="h-section mb-8">
+            Meus dados
+          </h2>
+          <MeusDados perfil={perfil} email={email} ultimo={pedidos[0]} />
+        </section>
       </div>
-
-      <div className="account">
-        <nav className="account-nav" aria-label="Seções da conta">
-          {ABAS.map(({ id, rotulo, Icone }) => (
-            <button
-              key={id}
-              type="button"
-              aria-current={aba === id ? "true" : undefined}
-              onClick={() => abrirAba(id)}
-            >
-              <Icone />
-              {rotulo}
-            </button>
-          ))}
-        </nav>
-
-        <div>
-          <section className="panel" hidden={aba !== "pedidos"} aria-labelledby="t-pedidos">
-            <h2 id="t-pedidos" className="h-section mb-8">
-              Meus pedidos
-            </h2>
-            {pronto && <ListaPedidos pedidos={pedidos} />}
-          </section>
-
-          <section className="panel" hidden={aba !== "rastreio"} aria-labelledby="t-rastreio">
-            <h2 id="t-rastreio" className="h-section mb-4">
-              Rastrear entrega
-            </h2>
-            <p className="lead mb-8">
-              Informe o código do pedido para ver a situação da entrega.
-            </p>
-            <Rastreio pedidos={pedidos} />
-          </section>
-
-          <section className="panel" hidden={aba !== "dados"} aria-labelledby="t-dados">
-            <h2 id="t-dados" className="h-section mb-8">
-              Meus dados
-            </h2>
-            {pronto && <MeusDados ultimo={pedidos[0]} />}
-          </section>
-        </div>
-      </div>
-    </>
+    </div>
   );
 }
 
@@ -159,6 +123,12 @@ function ListaPedidos({ pedidos }) {
       <p className="field-hint mt-3">
         Entrega em {p.entrega.cidade}/{p.entrega.uf} · {p.entrega.prazo}
       </p>
+
+      {p.checkoutUrl && p.status === "registrado" && (
+        <a className="btn btn-primary btn-sm mt-4" href={p.checkoutUrl}>
+          Ir para o pagamento
+        </a>
+      )}
     </article>
   ));
 }
@@ -181,9 +151,7 @@ function Rastreio({ pedidos }) {
 
     const pedido = pedidos.find((p) => p.codigo.toUpperCase() === busca);
     if (!pedido) {
-      setErro(
-        "Não encontramos esse código neste navegador. Confira o código no e-mail de confirmação."
-      );
+      setErro("Não encontramos esse código na sua conta. Confira o código no e-mail de confirmação.");
       return;
     }
     setAchado(pedido);
@@ -217,8 +185,6 @@ function Rastreio({ pedidos }) {
         {erro}
       </p>
 
-      {/* Sem integração com transportadora: mostra o que a loja realmente
-          sabe, e diz de onde virá o resto. */}
       {achado && (
         <div className="mt-10">
           <div className="order-box order-box--solto">
@@ -255,14 +221,16 @@ function Rastreio({ pedidos }) {
   );
 }
 
-function MeusDados({ ultimo }) {
-  const mostrarToast = useToast();
+function MeusDados({ perfil, email, ultimo }) {
+  const nome = perfil?.nome || ultimo?.cliente?.nome;
+  const telefone = perfil?.telefone || ultimo?.cliente?.telefone;
+  const endereco = perfil?.endereco || ultimo?.entrega;
 
-  if (!ultimo) {
+  if (!nome && !endereco) {
     return (
       <div className="empty py-14">
         <IconeConta />
-        <h3>Nenhum dado salvo</h3>
+        <h3>Nada por aqui ainda</h3>
         <p>
           Seus dados de entrega ficam guardados aqui depois do primeiro pedido, para você não
           digitar tudo de novo.
@@ -271,62 +239,42 @@ function MeusDados({ ultimo }) {
     );
   }
 
-  function apagar() {
-    if (
-      !window.confirm(
-        "Apagar todos os pedidos e dados guardados neste navegador? Isso não pode ser desfeito."
-      )
-    ) {
-      return;
-    }
-    try {
-      window.localStorage.removeItem(CHAVE_PEDIDOS);
-    } catch {
-      /* Armazenamento indisponível: não havia o que apagar. */
-    }
-    mostrarToast("Dados apagados deste navegador.");
-    setTimeout(() => window.location.reload(), 800);
-  }
-
   return (
     <>
       <div className="order-box order-box--solto">
         <dl>
           <div className="spec-row">
             <dt>Nome</dt>
-            <dd>{ultimo.cliente.nome}</dd>
+            <dd>{nome || "—"}</dd>
           </div>
           <div className="spec-row">
             <dt>E-mail</dt>
-            <dd>{ultimo.cliente.email}</dd>
+            <dd>{email}</dd>
           </div>
           <div className="spec-row">
             <dt>Telefone</dt>
-            <dd>{ultimo.cliente.telefone}</dd>
+            <dd>{telefone || "—"}</dd>
           </div>
-          <div className="spec-row">
-            <dt>Endereço</dt>
-            <dd>
-              {ultimo.entrega.rua}, {ultimo.entrega.numero}
-              {ultimo.entrega.complemento && " — " + ultimo.entrega.complemento}
-              <br />
-              {ultimo.entrega.bairro}
-              <br />
-              {ultimo.entrega.cidade}/{ultimo.entrega.uf} — {ultimo.entrega.cep}
-            </dd>
-          </div>
+          {endereco && (
+            <div className="spec-row">
+              <dt>Endereço</dt>
+              <dd>
+                {endereco.rua}, {endereco.numero}
+                {endereco.complemento && " — " + endereco.complemento}
+                <br />
+                {endereco.bairro}
+                <br />
+                {endereco.cidade}/{endereco.uf} — {endereco.cep}
+              </dd>
+            </div>
+          )}
         </dl>
       </div>
 
       <p className="field-hint mt-4">
-        Dados do último pedido, guardados neste navegador.
+        Guardado da sua conta e do último pedido. Para corrigir, é só preencher no próximo
+        checkout.
       </p>
-
-      {/* LGPD: a pessoa precisa conseguir apagar o que foi guardado sobre
-          ela, sem depender de e-mail para a loja. */}
-      <button className="btn btn-ghost mt-6" type="button" onClick={apagar}>
-        Apagar meus dados deste navegador
-      </button>
     </>
   );
 }

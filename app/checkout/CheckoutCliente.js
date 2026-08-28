@@ -4,20 +4,17 @@
    acbolsa — checkout
    =========================================================================
 
-   O formulário é completo e valida de verdade, mas NÃO processa pagamento:
-   não há servidor. A confirmação diz que o pedido foi REGISTRADO, nunca que
-   foi cobrado. Ver PRODUCT.md — princípio "não afirmar o que não se pode
-   cumprir".
+   O formulário coleta contato e entrega e registra o pedido no Supabase
+   (atrelado à conta logada). O PAGAMENTO acontece num checkout externo: a
+   tela de confirmação leva a `checkout_url`. Enquanto `EXTERNAL_CHECKOUT_BASE_URL`
+   não estiver configurada, a confirmação diz isso com honestidade em vez de
+   um botão que não leva a lugar nenhum.
 
-   Dados de cartão nunca são gravados: os campos ficam `disabled` enquanto
-   ocultos (assim não entram em FormData nem na validação do navegador), e o
-   objeto do pedido guarda apenas `{ forma, parcelas }`.
-
-   Para ligar a um backend depois: o objeto `pedido` montado em `finalizar()`
-   é o que precisa ser enviado.
+   Nenhum dado de pagamento passa por aqui — quem cuida disso é o provedor
+   externo.
    ========================================================================= */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { formatarPreco } from "@/lib/catalog";
 import {
@@ -26,20 +23,16 @@ import {
   calcularFrete,
   cpfValido,
   emailValido,
-  gravarPedido,
   mascaraCEP,
   mascaraCPF,
-  mascaraCartao,
   mascaraTelefone,
-  mascaraValidade,
-  validadeCartaoValida,
 } from "@/lib/formulario";
+import { criarPedido } from "./acoes";
 import { useCarrinho } from "@/components/CarrinhoContexto";
 import { useToast } from "@/components/ToastContexto";
+import { Campo, paraId } from "@/components/Campo";
 import { MidiaProduto } from "@/components/Placeholder";
 import { IconeAlerta, IconeCheck, IconeSacola } from "@/components/Icones";
-
-const FORMAS_NOME = { pix: "PIX", cartao: "Cartão de crédito", boleto: "Boleto bancário" };
 
 const CAMPOS_INICIAIS = {
   nome: "",
@@ -53,15 +46,9 @@ const CAMPOS_INICIAIS = {
   bairro: "",
   cidade: "",
   uf: "",
-  cartaoNum: "",
-  cartaoNome: "",
-  cartaoVal: "",
-  cartaoCvv: "",
-  parcelas: "1",
 };
 
-/* Cada mensagem nomeia o problema E o que fazer — "CPF inválido" não ajuda
-   ninguém a corrigir. */
+/* Cada mensagem nomeia o problema E o que fazer. */
 const REGRAS = [
   ["nome", (v) => v.length >= 3 && v.includes(" "), "Escreva seu nome completo, como está no documento."],
   ["email", emailValido, "Esse e-mail parece incompleto. Confira se falta o @ ou o final do domínio."],
@@ -75,41 +62,27 @@ const REGRAS = [
   ["uf", (v) => v !== "", "Escolha o estado."],
 ];
 
-const REGRAS_CARTAO = [
-  ["cartaoNum", (v) => v.replace(/\D/g, "").length === 16, "O número do cartão tem 16 dígitos."],
-  ["cartaoNome", (v) => v.length >= 3, "Escreva o nome exatamente como está impresso no cartão."],
-  [
-    "cartaoVal",
-    validadeCartaoValida,
-    "Validade no formato MM/AA, e o cartão precisa estar dentro do prazo.",
-  ],
-  ["cartaoCvv", (v) => v.length >= 3, "O CVV tem 3 ou 4 dígitos, atrás do cartão."],
-];
-
 const MASCARAS = {
   cep: mascaraCEP,
   cpf: mascaraCPF,
   tel: mascaraTelefone,
-  cartaoNum: mascaraCartao,
-  cartaoVal: mascaraValidade,
-  cartaoCvv: (v) => v.replace(/\D/g, "").slice(0, 4),
 };
 
-export default function CheckoutCliente() {
+export default function CheckoutCliente({ inicial }) {
   const { detalhados, subtotal, pronto, limpar } = useCarrinho();
   const mostrarToast = useToast();
 
-  const [campos, setCampos] = useState(CAMPOS_INICIAIS);
+  const [campos, setCampos] = useState({ ...CAMPOS_INICIAIS, ...(inicial || {}) });
   const [erros, setErros] = useState({});
-  const [pagamento, setPagamento] = useState("pix");
   const [termos, setTermos] = useState(false);
   const [erroTermos, setErroTermos] = useState("");
-  const [enviando, setEnviando] = useState(false);
+  const [enviando, iniciarEnvio] = useTransition();
   const [pedido, setPedido] = useState(null);
 
   const formRef = useRef(null);
 
-  const frete = campos.cep.replace(/\D/g, "").length === 8 ? calcularFrete(campos.cep, subtotal) : null;
+  const frete =
+    campos.cep.replace(/\D/g, "").length === 8 ? calcularFrete(campos.cep, subtotal) : null;
   const total = subtotal + (frete ? frete.valor : 0);
 
   useEffect(() => {
@@ -119,18 +92,14 @@ export default function CheckoutCliente() {
   function mudar(nome, valor) {
     const mascara = MASCARAS[nome];
     setCampos((atuais) => ({ ...atuais, [nome]: mascara ? mascara(valor) : valor }));
-    /* O erro some assim que a pessoa corrige, não só no próximo envio. */
     if (erros[nome]) setErros((atuais) => ({ ...atuais, [nome]: "" }));
   }
 
   function validar() {
     const novos = {};
-    const regras = pagamento === "cartao" ? REGRAS.concat(REGRAS_CARTAO) : REGRAS;
-
-    regras.forEach(([nome, teste, mensagem]) => {
+    REGRAS.forEach(([nome, teste, mensagem]) => {
       if (!teste(String(campos[nome] ?? "").trim())) novos[nome] = mensagem;
     });
-
     setErros(novos);
 
     const faltaTermos = !termos;
@@ -164,56 +133,37 @@ export default function CheckoutCliente() {
       return;
     }
 
-    setEnviando(true);
-    setTimeout(finalizar, 700);
-  }
+    iniciarEnvio(async () => {
+      const resultado = await criarPedido({
+        itens: detalhados.map((i) => ({ id: i.produto.id, qtd: i.qtd })),
+        contato: {
+          nome: campos.nome,
+          email: campos.email,
+          telefone: campos.tel,
+          cpf: campos.cpf,
+        },
+        entrega: {
+          cep: campos.cep,
+          rua: campos.rua,
+          numero: campos.numero,
+          complemento: campos.compl || null,
+          bairro: campos.bairro,
+          cidade: campos.cidade,
+          uf: campos.uf,
+        },
+      });
 
-  function finalizar() {
-    /* Este é o objeto a enviar ao backend, quando houver um. */
-    const novo = {
-      codigo: "AC" + Date.now().toString().slice(-8),
-      data: new Date().toISOString(),
-      cliente: {
-        nome: campos.nome,
-        email: campos.email,
-        telefone: campos.tel,
-        cpf: campos.cpf,
-      },
-      entrega: {
-        cep: campos.cep,
-        rua: campos.rua,
-        numero: campos.numero,
-        complemento: campos.compl || null,
-        bairro: campos.bairro,
-        cidade: campos.cidade,
-        uf: campos.uf,
-        regiao: frete.regiao,
-        prazo: frete.prazo,
-      },
-      /* Dados de cartão NÃO entram no pedido salvo: sem servidor e sem
-         gateway, guardá-los no navegador seria irresponsável. */
-      pagamento: {
-        forma: pagamento,
-        parcelas: pagamento === "cartao" ? Number(campos.parcelas || 1) : 1,
-      },
-      itens: detalhados.map((i) => ({
-        id: i.produto.id,
-        nome: i.produto.nome,
-        cor: i.produto.cor,
-        preco: i.produto.preco,
-        qtd: i.qtd,
-      })),
-      valores: { subtotal, frete: frete.valor, total: subtotal + frete.valor },
-      status: "registrado",
-    };
+      if (resultado?.erro) {
+        mostrarToast(resultado.erro, "erro");
+        return;
+      }
 
-    /* O `pedido` já carrega uma cópia dos itens, então a confirmação
-       continua de pé depois de esvaziar a sacola. */
-    gravarPedido(novo);
-    limpar();
-    setEnviando(false);
-    setPedido(novo);
-    window.scrollTo(0, 0);
+      /* O `pedido` já carrega uma cópia dos itens, então a confirmação
+         continua de pé depois de esvaziar a sacola. */
+      limpar();
+      setPedido(resultado.pedido);
+      window.scrollTo(0, 0);
+    });
   }
 
   /* ---- Confirmação ---- */
@@ -390,106 +340,14 @@ export default function CheckoutCliente() {
           {/* ---- 3. Pagamento ---- */}
           <section className="form-section">
             <h2>Pagamento</h2>
-
             <div className="notice mb-6">
               <IconeAlerta />
               <p>
-                <strong>Esta loja ainda não processa pagamentos.</strong> O pedido é registrado e
-                você recebe o resumo, mas nenhuma cobrança é feita e nenhum dado de cartão é enviado
-                a lugar nenhum.
+                O pagamento é feito em uma página segura do nosso parceiro de checkout. Ao
+                registrar o pedido você é levada até lá — <strong>nenhum dado de cartão passa
+                por este site</strong>.
               </p>
             </div>
-
-            <div className="pay-list" role="radiogroup" aria-label="Forma de pagamento">
-              {[
-                { valor: "pix", titulo: "PIX", nota: "Aprovação imediata. O código aparece após a confirmação." },
-                { valor: "cartao", titulo: "Cartão de crédito", nota: "Parcelamento em até 6× sem juros." },
-                { valor: "boleto", titulo: "Boleto bancário", nota: "Compensação em até 3 dias úteis." },
-              ].map((opcao) => (
-                <label className="pay-opt" key={opcao.valor} data-selected={pagamento === opcao.valor}>
-                  <input
-                    type="radio"
-                    name="pagamento"
-                    value={opcao.valor}
-                    checked={pagamento === opcao.valor}
-                    onChange={() => setPagamento(opcao.valor)}
-                  />
-                  <span>
-                    <span className="titulo">{opcao.titulo}</span>
-                    <span className="nota">{opcao.nota}</span>
-                  </span>
-                </label>
-              ))}
-            </div>
-
-            {/* Campos de cartão — só existem no DOM quando a opção é
-                escolhida. Não basta escondê-los: enquanto ocultos eles não
-                podem ser preenchidos, validados nem enviados, e a promessa
-                de que o dado não sai daqui vira estrutura, não intenção. */}
-            {pagamento === "cartao" && (
-              <div className="pay-detail">
-                <div className="form-grid">
-                  <Campo
-                    nome="cartaoNum"
-                    rotulo="Número do cartão"
-                    obrigatorio
-                    erro={erros.cartaoNum}
-                  >
-                    <input
-                      className="input"
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="off"
-                      placeholder="0000 0000 0000 0000"
-                      {...campoProps("cartaoNum")}
-                    />
-                  </Campo>
-
-                  <Campo
-                    nome="cartaoNome"
-                    rotulo="Nome impresso no cartão"
-                    obrigatorio
-                    erro={erros.cartaoNome}
-                  >
-                    <input className="input" type="text" autoComplete="off" {...campoProps("cartaoNome")} />
-                  </Campo>
-
-                  <Campo nome="cartaoVal" rotulo="Validade" obrigatorio erro={erros.cartaoVal} largura={1}>
-                    <input
-                      className="input"
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="off"
-                      placeholder="MM/AA"
-                      {...campoProps("cartaoVal")}
-                    />
-                  </Campo>
-
-                  <Campo nome="cartaoCvv" rotulo="CVV" obrigatorio erro={erros.cartaoCvv} largura={1}>
-                    <input
-                      className="input"
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="off"
-                      placeholder="000"
-                      maxLength={4}
-                      {...campoProps("cartaoCvv")}
-                    />
-                  </Campo>
-
-                  <Campo nome="parcelas" rotulo="Parcelas">
-                    <select className="select" {...campoProps("parcelas")}>
-                      {[1, 2, 3, 4, 5, 6].map((n) => (
-                        <option key={n} value={n}>
-                          {n}× de {formatarPreco(total / n)}
-                          {n === 1 ? " à vista" : " sem juros"}
-                        </option>
-                      ))}
-                    </select>
-                  </Campo>
-                </div>
-              </div>
-            )}
           </section>
 
           <label className="checkbox mt-10">
@@ -521,13 +379,10 @@ export default function CheckoutCliente() {
           <button
             className={"btn btn-primary btn-lg btn-block mt-6" + (enviando ? " btn-loading" : "")}
             type="submit"
+            disabled={enviando}
           >
-            Registrar pedido
+            Registrar pedido e ir para o pagamento
           </button>
-
-          <p className="field-hint mt-3 text-center">
-            Nenhuma cobrança será feita.
-          </p>
         </form>
 
         {/* ---- Resumo ---- */}
@@ -572,37 +427,6 @@ export default function CheckoutCliente() {
   );
 }
 
-/* Nomes de estado em camelCase viram ids em kebab: `cartaoNum` -> `cartao-num`,
-   preservando os ids da versão anterior. */
-function paraId(nome) {
-  return nome.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
-}
-
-function Campo({ nome, rotulo, obrigatorio, erro, dica, largura = 2, children }) {
-  const id = paraId(nome);
-  return (
-    <div className={"field" + (largura === 2 ? " span-2" : "")}>
-      <label className="field-label" htmlFor={id}>
-        {rotulo}
-        {obrigatorio && (
-          <span className="req" aria-hidden="true">
-            *
-          </span>
-        )}
-      </label>
-      {children}
-      {dica && (
-        <p className="field-hint" id={"d-" + id}>
-          {dica}
-        </p>
-      )}
-      <p className="field-error" id={"e-" + id} role="alert">
-        {erro}
-      </p>
-    </div>
-  );
-}
-
 function Confirmacao({ pedido }) {
   return (
     <div className="confirm">
@@ -611,9 +435,10 @@ function Confirmacao({ pedido }) {
       </div>
       <h1>Pedido registrado</h1>
       <p className="lead mx-auto mt-4">
-        Guardamos os dados do seu pedido. Como esta loja ainda não processa pagamentos,{" "}
-        <strong>nenhuma cobrança foi feita</strong> — a acbolsa entra em contato pelo e-mail
-        informado para combinar o pagamento e o envio.
+        Guardamos o pedido <strong>{pedido.codigo}</strong> na sua conta.{" "}
+        {pedido.checkoutUrl
+          ? "Falta o pagamento — o botão abaixo leva à página segura do checkout."
+          : "O pagamento externo ainda não está configurado; a acbolsa entra em contato pelo e-mail informado para combinar o pagamento e o envio."}
       </p>
 
       <div className="order-box">
@@ -648,14 +473,6 @@ function Confirmacao({ pedido }) {
             <dd>{pedido.entrega.prazo}</dd>
           </div>
           <div className="spec-row">
-            <dt>Pagamento</dt>
-            <dd>
-              {FORMAS_NOME[pedido.pagamento.forma] || pedido.pagamento.forma}
-              {pedido.pagamento.parcelas > 1 && " em " + pedido.pagamento.parcelas + "×"}{" "}
-              <span className="texto-suave">(a combinar)</span>
-            </dd>
-          </div>
-          <div className="spec-row">
             <dt>Total</dt>
             <dd>
               <strong>{formatarPreco(pedido.valores.total)}</strong>
@@ -665,11 +482,17 @@ function Confirmacao({ pedido }) {
       </div>
 
       <div className="confirm-acoes">
-        <Link className="btn btn-primary" href="/conta#pedidos">
+        {pedido.checkoutUrl ? (
+          <a className="btn btn-primary" href={pedido.checkoutUrl}>
+            Ir para o pagamento
+          </a>
+        ) : (
+          <button className="btn btn-primary" type="button" disabled>
+            Pagamento externo em configuração
+          </button>
+        )}
+        <Link className="btn btn-ghost" href="/conta#pedidos">
           Ver meus pedidos
-        </Link>
-        <Link className="btn btn-ghost" href="/catalogo">
-          Continuar comprando
         </Link>
       </div>
     </div>

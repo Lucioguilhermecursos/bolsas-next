@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# acbolsa — loja
 
-## Getting Started
+Next.js 16 (App Router) + Supabase (login/senha e pedidos). O catálogo é
+editado em `lib/catalog.js`; cores, preços e frete têm comentários no próprio
+arquivo. O pagamento acontece num **checkout externo** — o site registra o
+pedido e leva a cliente até lá.
 
-First, run the development server:
+## Configuração
+
+1. **Supabase — projeto de produção/dev**
+   - Criar o projeto e pegar Project URL + chave publishable (`sb_publishable_…`).
+   - `Authentication → Providers → Email`: "Confirm email" **ON**.
+   - `Authentication → URL Configuration`: Site URL de produção + redirect URLs
+     (`http://localhost:3000/**`, `http://localhost:3187/**` e a de produção).
+   - `Authentication → Email Templates` — apontar os links para o route handler:
+     - *Confirm signup*: `{{ .SiteURL }}/auth/confirmar?token_hash={{ .TokenHash }}&type=email&next=/conta`
+     - *Reset password*: `{{ .SiteURL }}/auth/confirmar?token_hash={{ .TokenHash }}&type=recovery&next=/redefinir-senha`
+   - `SQL Editor`: rodar `supabase/migrations/0001_auth_pedidos.sql`.
+   - Produção: configurar SMTP próprio (o embutido do Supabase é só para teste).
+   - **Login com Google**: no Google Cloud, criar um OAuth client "Web
+     application" com redirect URI `https://<PROJECT>.supabase.co/auth/v1/callback`;
+     em Authentication → Providers → Google, colar Client ID + Secret e habilitar.
+     O `redirect_to` da volta (`/auth/callback`) já está coberto pelos Redirect
+     URLs `/**`. Sem isso, o botão "Entrar com o Google" aparece mas o Google
+     recusa.
+
+2. **Env**
+   ```bash
+   cp .env.example .env.local   # e preencher com o projeto acima
+   ```
+
+3. **Instalar e rodar**
+   ```bash
+   npm install
+   npm run dev            # http://localhost:3000
+   ```
+
+## Testes
+
+`npm test` compila e roda a suíte inteira contra um **segundo projeto Supabase,
+só de teste** (nunca o de produção — os testes criam pedidos de verdade).
+
+- Criar esse projeto, rodar a mesma migração nele, criar um usuário já
+  confirmado (`Add user` com "Auto Confirm User").
+- Preencher `.env.test` (modelo e passos no próprio arquivo).
+- `npm test`
+
+## Deploy — Vercel
+
+Sem mudança de código. Import do repo na Vercel e, em **Settings → Environment
+Variables** (Production + Preview):
+
+| Variável | Valor |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | do projeto Supabase de produção |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | idem |
+| `NEXT_PUBLIC_SITE_URL` | a URL final, ex. `https://bolsas-next.vercel.app` (sem barra no fim) |
+| `EXTERNAL_CHECKOUT_BASE_URL` | quando houver checkout externo |
+
+Não setar `BUILD_STANDALONE` (é só para o Docker).
+
+Depois do 1º deploy, no Supabase:
+- **URL Configuration** → Site URL = a URL da Vercel; Redirect URLs = adicionar
+  `https://<projeto>.vercel.app/**` (e o domínio próprio, se houver).
+
+Google Cloud **não muda** — o redirect URI continua sendo o do Supabase.
+
+## Deploy — container (alternativa)
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker build \
+  --build-arg NEXT_PUBLIC_SUPABASE_URL=... \
+  --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=... \
+  --build-arg EXTERNAL_CHECKOUT_BASE_URL=... \
+  -t acbolsa .
+docker run -p 3000:3000 acbolsa
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+O `Dockerfile` liga `output: "standalone"` via `BUILD_STANDALONE`.

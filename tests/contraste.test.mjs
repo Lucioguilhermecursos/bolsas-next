@@ -12,9 +12,13 @@
 
 import { chromium } from "playwright";
 import { subirServidor } from "./servidor.mjs";
+import { entrar, exigirCredenciais } from "./auth.mjs";
+
+exigirCredenciais();
 
 const { base: BASE, encerrar } = await subirServidor();
 
+/* /conta é medida à parte, já logada (ver abaixo). */
 const PAGINAS = [
   ["/", "home"],
   ["/catalogo", "catálogo"],
@@ -24,7 +28,9 @@ const PAGINAS = [
   ["/carrinho", "sacola vazia"],
   ["/busca?q=couro", "busca"],
   ["/busca?q=zzz", "busca sem resultado"],
-  ["/conta", "conta"],
+  ["/entrar", "entrar"],
+  ["/criar-conta", "criar conta"],
+  ["/recuperar-senha", "recuperar senha"],
   ["/sobre", "sobre"],
   ["/ajuda", "ajuda"],
 ];
@@ -100,6 +106,24 @@ const MEDIDOR = `(() => {
 let total = 0;
 for (const [url, nome] of PAGINAS) {
   await p.goto(BASE + url, { waitUntil: "networkidle" });
+  const achados = await p.evaluate(MEDIDOR);
+  if (achados.length) {
+    console.log("\n### " + nome + "  (" + url + ")");
+    for (const a of achados) {
+      total++;
+      console.log(
+        "  " + a.razao + ":1 (min " + a.minimo + ")  " + a.px + "px/" + a.peso +
+        "  ." + a.classe + "\n      \"" + a.texto + "\"\n      " + a.cor + " sobre " + a.fundo
+      );
+    }
+  }
+}
+
+/* Páginas atrás de login. */
+await entrar(p, BASE);
+for (const [url, nome] of [["/conta", "conta"]]) {
+  await p.goto(BASE + url, { waitUntil: "networkidle" });
+  await p.waitForTimeout(400);
   const achados = await p.evaluate(MEDIDOR);
   if (achados.length) {
     console.log("\n### " + nome + "  (" + url + ")");

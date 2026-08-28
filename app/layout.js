@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ProvedorCarrinho } from "@/components/CarrinhoContexto";
 import { ProvedorToast } from "@/components/ToastContexto";
+import { ProvedorSessao } from "@/components/SessaoContexto";
 
 /* As variáveis precisam bater com os nomes usados no @theme do globals.css. */
 const cormorant = Cormorant_Garamond({
@@ -36,28 +37,30 @@ export default function RootLayout({ children }) {
     <html lang="pt-BR" className={`${cormorant.variable} ${karla.variable}`}>
       <body>
         <ProvedorToast>
-          <ProvedorCarrinho>
-            <a className="skip-link" href="#conteudo">
-              Pular para o conteúdo
-            </a>
+          <ProvedorSessao>
+            <ProvedorCarrinho>
+              <a className="skip-link" href="#conteudo">
+                Pular para o conteúdo
+              </a>
 
-            {/* Enquanto o catálogo usa dados de demonstração e placeholders.
-                Remover quando entrarem produtos e fotos reais. */}
-            <p className="demo-note">
-              Site de demonstração. Os produtos e preços são <strong>exemplos</strong> e as fotos
-              ainda não foram feitas — nenhum pedido é cobrado.
-            </p>
+              {/* Enquanto o catálogo usa dados de demonstração e placeholders.
+                  Remover quando entrarem produtos e fotos reais. */}
+              <p className="demo-note">
+                Site de demonstração. Os produtos e preços são <strong>exemplos</strong> e as
+                fotos ainda não foram feitas — nenhum pedido é cobrado.
+              </p>
 
-            {/* O Header lê `useSearchParams` para marcar o item ativo, o que
-                exige uma fronteira de Suspense. */}
-            <Suspense fallback={<div className="site-header site-header--reserva" />}>
-              <Header />
-            </Suspense>
+              {/* O Header lê `useSearchParams` para marcar o item ativo, o que
+                  exige uma fronteira de Suspense. */}
+              <Suspense fallback={<div className="site-header site-header--reserva" />}>
+                <Header />
+              </Suspense>
 
-            <main id="conteudo">{children}</main>
+              <main id="conteudo">{children}</main>
 
-            <Footer />
-          </ProvedorCarrinho>
+              <Footer />
+            </ProvedorCarrinho>
+          </ProvedorSessao>
         </ProvedorToast>
       </body>
     </html>

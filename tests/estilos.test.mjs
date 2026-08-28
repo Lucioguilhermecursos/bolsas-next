@@ -9,6 +9,9 @@
 
 import { chromium } from "playwright";
 import { subirServidor } from "./servidor.mjs";
+import { entrar, exigirCredenciais } from "./auth.mjs";
+
+exigirCredenciais();
 
 const { base: BASE, encerrar } = await subirServidor();
 const ok = [], falhas = [];
@@ -22,6 +25,9 @@ const ctx = await nav.newContext({ viewport: { width: 1280, height: 900 } });
 const p = await ctx.newPage();
 const css = (sel, prop) =>
   p.locator(sel).first().evaluate((el, pr) => getComputedStyle(el)[pr], prop);
+
+// Checkout e conta exigem login.
+await entrar(p, BASE);
 
 // ---- Home ----
 await p.goto(BASE, { waitUntil: "networkidle" });

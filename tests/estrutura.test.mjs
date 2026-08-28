@@ -9,14 +9,19 @@
 
 import { chromium } from "playwright";
 import { subirServidor } from "./servidor.mjs";
+import { entrar, exigirCredenciais } from "./auth.mjs";
+
+exigirCredenciais();
 
 const { base: BASE, encerrar } = await subirServidor();
 const problemas = [];
 const anota = (pagina, tipo, msg) => problemas.push({ pagina, tipo, msg });
 
+/* /conta é auditada à parte, já logada (ver abaixo). */
 const PAGINAS = [
   ["/", "home"], ["/catalogo", "catálogo"], ["/produto/tabby-shoulder-preto", "produto"],
-  ["/carrinho", "sacola"], ["/busca?q=couro", "busca"], ["/conta", "conta"],
+  ["/carrinho", "sacola"], ["/busca?q=couro", "busca"],
+  ["/entrar", "entrar"], ["/criar-conta", "criar conta"], ["/recuperar-senha", "recuperar senha"],
   ["/sobre", "sobre"], ["/ajuda", "ajuda"],
 ];
 
@@ -125,6 +130,19 @@ for (const [url, nome] of PAGINAS) {
   r.tabPos.forEach(t => anota(nome, "tabindex positivo", t.tag + " tabindex=" + t.ti));
 }
 
+/* ---- /conta, já logada ---- */
+await entrar(p, BASE);
+{
+  await p.goto(BASE + "/conta", { waitUntil: "networkidle" });
+  await p.waitForTimeout(300);
+  const r = await p.evaluate(AUDITAR);
+  if (r.landmarks.h1 !== 1) anota("conta", "h1", "a página tem " + r.landmarks.h1 + " <h1> (esperado 1)");
+  if (r.landmarks.main !== 1) anota("conta", "landmark", r.landmarks.main + " <main>");
+  r.semRotulo.forEach(c => anota("conta", "sem rótulo", c.tag + " ." + c.cls + (c.id ? " #" + c.id : "")));
+  r.alvos.forEach(a => anota("conta", "alvo pequeno", a.tag + " ." + a.cls + " " + a.w + "×" + a.h + 'px "' + a.txt + '"'));
+  r.dupIds.forEach(d => anota("conta", "id duplicado", d));
+}
+
 /* ---- Foco visível em todo elemento focável da home ---- */
 await p.goto(BASE, { waitUntil: "networkidle" });
 /* Precisa ser Tab de verdade: `.focus()` por script NÃO ativa :focus-visible,
@@ -192,6 +210,11 @@ await p.locator('button:has-text("Adicionar à sacola")').click();
 await p.waitForTimeout(700);
 await p.goto(BASE + "/checkout", { waitUntil: "networkidle" });
 await p.waitForSelector("#nome");
+/* O perfil pode vir pré-preenchido: limpa para forçar os erros. */
+for (const c of ["#nome", "#tel", "#cpf", "#cep", "#rua", "#numero", "#bairro", "#cidade"]) {
+  await p.fill(c, "");
+}
+await p.selectOption("#uf", "");
 await p.locator('button:has-text("Registrar pedido")').click();
 await p.waitForTimeout(500);
 const focoErro = await p.evaluate(() => document.activeElement.id);

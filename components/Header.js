@@ -14,6 +14,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCarrinho } from "./CarrinhoContexto";
+import { useSessao } from "./SessaoContexto";
+import { sair } from "@/app/auth/acoes";
 import {
   IconeBusca,
   IconeCaixa,
@@ -58,6 +60,7 @@ export default function Header() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { usuario } = useSessao();
 
   const fecharMenu = useCallback(() => {
     setMenuAberto(false);
@@ -256,7 +259,11 @@ export default function Header() {
               <IconeBusca />
             </button>
 
-            <Link className="icon-btn" href="/conta" aria-label="Minha conta">
+            <Link
+              className="icon-btn"
+              href={usuario ? "/conta" : "/entrar"}
+              aria-label={usuario ? "Minha conta" : "Entrar"}
+            >
               <IconeConta />
             </Link>
 
@@ -374,18 +381,35 @@ export default function Header() {
         </ul>
 
         <div className="mobile-foot">
-          <Link href="/conta">
-            <IconeConta />
-            <span>Minha conta</span>
-          </Link>
-          <Link href="/conta#pedidos">
-            <IconeCaixa />
-            <span>Meus pedidos</span>
-          </Link>
-          <Link href="/ajuda#entrega">
-            <IconeCaminhao />
-            <span>Entrega e prazos</span>
-          </Link>
+          {usuario ? (
+            <>
+              <Link href="/conta">
+                <IconeConta />
+                <span>Minha conta</span>
+              </Link>
+              <Link href="/conta#pedidos">
+                <IconeCaixa />
+                <span>Meus pedidos</span>
+              </Link>
+              <form action={sair}>
+                <button type="submit">
+                  <IconeConta />
+                  <span>Sair</span>
+                </button>
+              </form>
+            </>
+          ) : (
+            <>
+              <Link href="/entrar">
+                <IconeConta />
+                <span>Entrar</span>
+              </Link>
+              <Link href="/ajuda#entrega">
+                <IconeCaminhao />
+                <span>Entrega e prazos</span>
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 

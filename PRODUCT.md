@@ -46,17 +46,21 @@ catálogo real tem mais de 100 itens em Bolsas.
 
 ## Capabilities and Constraints
 
-**Stack:** HTML, CSS e JavaScript puros. Sem framework, sem build step, sem
-backend. Estado do carrinho persiste em `localStorage`.
+**Stack:** Next.js 16 (App Router) + Supabase. Login por e-mail/senha (com
+confirmação de e-mail e recuperação de senha) e pedidos ficam no Supabase, com
+RLS por usuário. O **carrinho** continua só em `localStorage`. Deploy em
+container (`output: "standalone"`), não Vercel.
 
 **Escopo confirmado:** loja completa — homepage, catálogo com filtros e
 paginação, página de produto, carrinho, checkout com formulário completo
 (entrega, forma de pagamento, confirmação) e área de conta.
 
-**Checkout:** o formulário é completo e visualmente pronto para produção, mas
-não processa pagamento — não há servidor. Ele valida entrada e confirma o
-pedido localmente, estruturado para ser plugado a um backend depois. Nenhuma
-tela deve afirmar que uma cobrança foi feita.
+**Checkout:** o formulário coleta contato e entrega e registra o pedido no
+Supabase (atrelado à conta logada). O **pagamento é externo**: a confirmação
+leva a cliente a `checkout_url`. Enquanto `EXTERNAL_CHECKOUT_BASE_URL` não
+estiver configurada, a confirmação diz isso com honestidade em vez de um botão
+que não leva a lugar nenhum. Nenhum dado de cartão passa pelo site, e nenhuma
+tela afirma que uma cobrança foi feita (princípio 5).
 
 **Nomenclatura do catálogo:** produtos usam nomes próprios da acbolsa,
 descrevendo material e formato — "Bolsa Bucket em Couro Matelassê", "Tote
@@ -115,8 +119,9 @@ reconstrução. Tratar como não confirmados.
    outra casa de moda.
 4. **Celular é o caso principal, não a adaptação.** Cada tela é resolvida
    primeiro no toque e na largura estreita.
-5. **Não afirmar o que não se pode cumprir.** Sem backend, o checkout confirma
-   um pedido registrado — nunca um pagamento processado.
+5. **Não afirmar o que não se pode cumprir.** O checkout confirma um pedido
+   registrado e encaminha ao pagamento externo — nunca afirma que a cobrança
+   já foi feita.
 
 ## Accessibility & Inclusion
 

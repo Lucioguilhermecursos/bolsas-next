@@ -1669,3 +1669,60 @@
 @media (min-width: 900px) {
   .gallery-main { margin-inline: 0; }
 }
+
+/* ---------- Autenticação -------------------------------------------------- */
+
+/* Formulário estreito e centrado das telas de entrar/criar conta/senha. */
+.auth-form {
+  max-width: 400px;
+  margin-inline: auto;
+  padding-block: var(--s-8) var(--s-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.auth-form form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.auth-form .field { margin: 0; }
+
+/* "ou" entre o botão do Google e o form de e-mail. */
+.auth-sep {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  color: var(--muted-local, var(--muted));
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+}
+
+.auth-sep::before,
+.auth-sep::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.auth-google button svg { flex: none; }
+
+.auth-alt {
+  margin-top: var(--s-5);
+  font-size: 14px;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+/* Título da conta + botão "Sair" na mesma linha. */
+.conta-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+}

@@ -10,6 +10,9 @@
 
 import { chromium } from "playwright";
 import { subirServidor } from "./servidor.mjs";
+import { entrar, exigirCredenciais } from "./auth.mjs";
+
+exigirCredenciais();
 
 const { base: BASE, encerrar } = await subirServidor();
 const ok = [], falhas = [], avisos = [];
@@ -25,6 +28,9 @@ p.on("console", (m) => {
   if (m.type() === "error") erros.push(m.text());
 });
 p.on("pageerror", (e) => erros.push("pageerror: " + e.message));
+
+// Todo o fluxo roda logado: checkout e conta agora exigem conta.
+await entrar(p, BASE);
 
 // ---------- 1. Home ----------
 await p.goto(BASE, { waitUntil: "networkidle" });
@@ -182,10 +188,16 @@ await p.waitForTimeout(700);
 await p.goto(BASE + "/checkout", { waitUntil: "networkidle" });
 await p.waitForSelector("#nome", { timeout: 5000 });
 t("checkout: formulário aparece com item", await p.locator("#nome").isVisible());
-t("checkout: avisa que não cobra",
-  await p.locator("text=Esta loja ainda não processa pagamentos").isVisible());
+const avisoPagamento = await p.locator(".checkout .notice").innerText();
+t("checkout: pagamento é externo, não no site",
+  /externa|parceiro de checkout|nenhum dado de cartão/i.test(avisoPagamento), avisoPagamento.replace(/\s+/g, " "));
+t("checkout: não há captura de cartão", (await p.locator("#cartao-num").count()) === 0);
 
-// enviar vazio
+// enviar vazio (limpa o que veio pré-preenchido do perfil)
+for (const c of ["#nome", "#tel", "#cpf", "#cep", "#rua", "#numero", "#bairro", "#cidade"]) {
+  await p.fill(c, "");
+}
+await p.selectOption("#uf", "");
 await p.locator('button:has-text("Registrar pedido")').click();
 await p.waitForTimeout(500);
 const nErros = await p.locator(".field-error:not(:empty)").count();
@@ -211,15 +223,6 @@ t("checkout: máscara de CEP", (await p.inputValue("#cep")) === "01310-100");
 const freteTxt = await p.locator(".summary-row").nth(1).innerText();
 t("checkout: frete grátis acima do piso", /gr[aá]tis/i.test(freteTxt), freteTxt.replace(/\n/g, " "));
 
-// cartão: campos só existem quando escolhido
-t("checkout: cartão oculto por padrão", (await p.locator("#cartao-num").count()) === 0);
-await p.locator('.pay-opt:has-text("Cartão de crédito") input').click();
-await p.waitForTimeout(300);
-t("checkout: campos de cartão aparecem", (await p.locator("#cartao-num").count()) === 1);
-await p.locator('.pay-opt:has-text("PIX") input').click();
-await p.waitForTimeout(300);
-t("checkout: campos de cartão somem (não ficam no DOM)", (await p.locator("#cartao-num").count()) === 0);
-
 // pedido completo
 await p.fill("#nome", "Maria da Silva");
 await p.fill("#email", "maria@exemplo.com.br");
@@ -230,18 +233,15 @@ await p.fill("#cidade", "São Paulo");
 await p.selectOption("#uf", "SP");
 await p.locator("#termos").check();
 await p.locator('button:has-text("Registrar pedido")').click();
-await p.waitForSelector(".confirm", { timeout: 8000 });
+await p.waitForSelector(".confirm", { timeout: 15000 });
 const conf = await p.locator(".confirm h1").innerText();
 t("checkout: confirma como REGISTRADO", conf === "Pedido registrado", conf);
 const corpo = await p.locator(".confirm").innerText();
-t("checkout: diz que nada foi cobrado", corpo.includes("nenhuma cobrança foi feita"));
+const codigoPedido = (corpo.match(/AC\d{8}/) || [])[0];
+t("checkout: mostra um código de pedido", !!codigoPedido, codigoPedido || "(nenhum)");
 t("checkout: NÃO diz pagamento aprovado", !/pagamento aprovado|pagamento confirmado/i.test(corpo));
-
-// cartão não gravado
-const gravado = await p.evaluate(() => localStorage.getItem("acbolsa:pedidos"));
-t("checkout: pedido gravado", gravado && gravado.includes("AC"));
-t("checkout: NENHUM dado de cartão gravado",
-  !/cartao-num|cartaoNum|cvv|4111|numeroCartao/i.test(gravado || ""));
+t("checkout: oferece seguir para o pagamento / avisa que falta pagar",
+  /pagamento/i.test(corpo));
 
 // sacola esvaziada
 await p.waitForTimeout(300);
@@ -251,10 +251,11 @@ t("checkout: sacola esvaziada após pedido",
 // ---------- 7. Conta ----------
 await p.goto(BASE + "/conta", { waitUntil: "networkidle" });
 await p.waitForTimeout(500);
-t("conta: lista o pedido feito", (await p.locator(".order-card").count()) === 1);
+t("conta: lista pedidos", (await p.locator(".order-card").count()) >= 1);
+t("conta: o pedido recém-feito aparece",
+  codigoPedido ? (await p.locator(".order-card .codigo").allInnerTexts()).some((c) => c.includes(codigoPedido)) : false);
 await p.locator('button:has-text("Rastreamento")').click();
 await p.waitForTimeout(300);
-const codigo = await p.locator(".order-card .codigo").count();
 t("conta: alterna abas", await p.locator("#codigo").isVisible());
 
 // ---------- 8. Mobile ----------

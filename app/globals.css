@@ -391,6 +391,7 @@
   }
 
   .btn-lg { min-height: 56px; padding-inline: 40px; }
+  .btn-sm { min-height: 36px; padding-inline: 18px; font-size: 12px; }
   .btn-block { width: 100%; }
 
   /* Em tela estreita o padding generoso é o que estoura a linha. */
