@@ -142,12 +142,14 @@ export default function Home() {
                  daqui. */
               const foto =
                 peca && !FOTO_VETADA_NA_HOME.has(peca.id) ? peca.fotos?.[0] : null;
+              /* Uma peça só na cor: vai direto pra página dela (com o botão de
+                 comprar). Mais de uma, abre o catálogo filtrado. */
+              const destino =
+                n === 1
+                  ? "/produto/" + peca.id
+                  : "/catalogo?cor=" + encodeURIComponent(c.nome);
               return (
-                <Link
-                  key={c.nome}
-                  className="collection"
-                  href={"/catalogo?cor=" + encodeURIComponent(c.nome)}
-                >
+                <Link key={c.nome} className="collection" href={destino}>
                   {foto ? (
                     <div className="ph ph--wide">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
