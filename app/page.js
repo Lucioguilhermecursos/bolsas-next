@@ -7,7 +7,7 @@
    ========================================================================= */
 
 import Link from "next/link";
-import { maisVendidos, novidades, cores, porCor, formatarPreco } from "@/lib/catalog";
+import { maisVendidos, novidades, cores, porCor, porId, formatarPreco } from "@/lib/catalog";
 import { GradeProdutos } from "@/components/CartaoProduto";
 import { MidiaProduto, Placeholder } from "@/components/Placeholder";
 import Newsletter from "@/components/Newsletter";
@@ -52,8 +52,9 @@ const MATERIAIS = [
 ];
 
 export default function Home() {
-  /* A peça do hero é a mais vendida do catálogo. */
-  const estrela = maisVendidos(1)[0];
+  /* Peça do hero: cor escolhida a dedo pela foto (a de Marrom é a mais
+     limpa do acervo). Cai na mais vendida se o id sumir do catálogo. */
+  const estrela = porId("tabby-shoulder-marrom") || maisVendidos(1)[0];
 
   return (
     <>
