@@ -60,10 +60,10 @@ Os nomes de cor foram derivados do nome da pasta — para trocar, mude o campo
 | Cor | `slug` / prefixo do arquivo | Pasta de origem | Fotos ligadas |
 |---|---|---|---|
 | Preto | `tabby-shoulder-preto` | black black | 1 |
-| Preto e Dourado | `tabby-shoulder-preto-dourado` | Black Gold | 6 |
-| Preto Fosco | `tabby-shoulder-preto-fosco` | Black Par | 6 |
-| Preto Metalizado | `tabby-shoulder-preto-metal` | Blk+meta | 6 |
-| Marrom | `tabby-shoulder-marrom` | Brow | 6 |
+| Preto e Dourado | `tabby-shoulder-preto-dourado` | Black Gold | 9 |
+| Preto Fosco | `tabby-shoulder-preto-fosco` | Black Par | 8 |
+| Preto Metalizado | `tabby-shoulder-preto-metal` | Blk+meta | 10 |
+| Marrom | `tabby-shoulder-marrom` | Brow | 8 |
 | Marrom Escuro | `tabby-shoulder-marrom-escuro` | Brow parse | 2 |
 | Jacquard Azul | `tabby-shoulder-jacquard-azul` | Jacquard Blue | 1 |
 | Jacquard Marrom | `tabby-shoulder-jacquard-marrom` | Jacquard brow | 1 |
@@ -71,6 +71,12 @@ Os nomes de cor foram derivados do nome da pasta — para trocar, mude o campo
 | Branco | `tabby-shoulder-branco` | White | 1 |
 | Branco Off | `tabby-shoulder-branco-off` | White + | 1 |
 | Branco Gelo | `tabby-shoulder-branco-gelo` | White parse | 1 |
+
+As 6 cores com 1 foto (Preto, os dois Jacquard, Vinho, Branco, Branco Off,
+Branco Gelo) só tinham **um arquivo** na pasta de origem. Para ter galeria
+nessas, é adicionar mais fotos seguindo o passo a passo acima.
+
+Os arquivos `.gif` das pastas (miniaturas animadas 600×600) foram ignorados.
 
 ## Observações
 
