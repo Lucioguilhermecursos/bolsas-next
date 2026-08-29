@@ -16,7 +16,9 @@ pedido e leva a cliente até lá.
      padrão (`{{ .ConfirmationURL }}`) já funcionam: o link cai em
      `/auth/callback`, que troca o código por sessão. (Se quiser customizar,
      o `/auth/confirmar` também aceita `token_hash={{ .TokenHash }}&type=email`.)
-   - `SQL Editor`: rodar `supabase/migrations/0001_auth_pedidos.sql`.
+   - `SQL Editor`: rodar `supabase/migrations/0001_auth_pedidos.sql` e depois
+     `0002_clientes.sql` (tabela `clientes` — ficha completa por cliente, com
+     código gerado `CL000001`).
    - Produção: configurar SMTP próprio (o embutido do Supabase é só para teste).
    - **Login com Google**: no Google Cloud, criar um OAuth client "Web
      application" com redirect URI `https://<PROJECT>.supabase.co/auth/v1/callback`;

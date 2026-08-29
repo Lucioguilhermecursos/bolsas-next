@@ -105,6 +105,26 @@ export async function criarPedido(dados) {
     })
     .eq("id", usuario.id);
 
+  /* Ficha do cliente (tabela `clientes`): dados completos num lugar só. */
+  await supabase.from("clientes").upsert(
+    {
+      user_id: usuario.id,
+      nome: contato.nome || null,
+      email: contato.email || usuario.email || null,
+      telefone: contato.telefone || null,
+      cpf: contato.cpf || null,
+      cep: entrega.cep || null,
+      rua: entrega.rua || null,
+      numero: entrega.numero || null,
+      complemento: entrega.complemento || null,
+      bairro: entrega.bairro || null,
+      cidade: entrega.cidade || null,
+      uf: entrega.uf || null,
+      atualizado_em: new Date().toISOString(),
+    },
+    { onConflict: "user_id" }
+  );
+
   return {
     ok: true,
     pedido: {
