@@ -1,9 +1,9 @@
 # acbolsa — loja
 
-Next.js 16 (App Router) + Supabase (login/senha e pedidos). O catálogo é
-editado em `lib/catalog.js`; cores, preços e frete têm comentários no próprio
-arquivo. O pagamento acontece num **checkout externo** — o site registra o
-pedido e leva a cliente até lá.
+Next.js 16 (App Router) + Supabase (login/senha + Google, pedidos e clientes).
+O catálogo é editado em `lib/catalog.js`; cores, preços e frete têm comentários
+no próprio arquivo. O pagamento é feito fora do site — via **Stripe Checkout**
+(quando as chaves estão configuradas) ou um link externo genérico.
 
 ## Configuração
 
@@ -16,9 +16,9 @@ pedido e leva a cliente até lá.
      padrão (`{{ .ConfirmationURL }}`) já funcionam: o link cai em
      `/auth/callback`, que troca o código por sessão. (Se quiser customizar,
      o `/auth/confirmar` também aceita `token_hash={{ .TokenHash }}&type=email`.)
-   - `SQL Editor`: rodar `supabase/migrations/0001_auth_pedidos.sql` e depois
-     `0002_clientes.sql` (tabela `clientes` — ficha completa por cliente, com
-     código gerado `CL000001`).
+   - `SQL Editor`: rodar as migrações em ordem — `0001_auth_pedidos.sql`,
+     `0002_clientes.sql` (ficha por cliente, código `CL000001`),
+     `0003_stripe_pedidos.sql` (colunas de pagamento em `pedidos`).
    - Produção: configurar SMTP próprio (o embutido do Supabase é só para teste).
    - **Login com Google**: no Google Cloud, criar um OAuth client "Web
      application" com redirect URI `https://<PROJECT>.supabase.co/auth/v1/callback`;
@@ -37,6 +37,28 @@ pedido e leva a cliente até lá.
    npm install
    npm run dev            # http://localhost:3000
    ```
+
+## Pagamento — Stripe
+
+O código já está pronto. Para ligar, quando tiver a conta Stripe:
+
+1. **Migração**: rodar `supabase/migrations/0003_stripe_pedidos.sql` (se ainda não).
+2. **Env vars** (`.env.local` e/ou Vercel):
+   - `STRIPE_SECRET_KEY` — Stripe → Developers → API keys (`sk_test_…` / `sk_live_…`)
+   - `SUPABASE_SERVICE_ROLE_KEY` — Supabase → Project Settings → API → `service_role`
+     (secreta; só o webhook usa, para marcar o pedido como pago)
+3. **Webhook**: Stripe → Developers → Webhooks → *Add endpoint*
+   - URL: `https://<seu-site>/api/stripe/webhook`
+   - Eventos: `checkout.session.completed` e `checkout.session.expired`
+   - Copiar o *Signing secret* (`whsec_…`) para `STRIPE_WEBHOOK_SECRET`
+4. Redeploy.
+
+Com `STRIPE_SECRET_KEY` presente, o checkout cria uma Stripe Checkout Session e
+manda a cliente pra lá; o webhook marca `pedidos.status = 'pago'`. Sem a chave,
+cai em `EXTERNAL_CHECKOUT_BASE_URL` (link genérico) ou só registra o pedido.
+
+Teste local do webhook: `stripe listen --forward-to localhost:3000/api/stripe/webhook`
+(o `stripe listen` imprime um `whsec_…` temporário).
 
 ## Testes
 

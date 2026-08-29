@@ -1330,6 +1330,18 @@
 
 .notice svg { width: 18px; height: 18px; flex: none; stroke: var(--cognac); stroke-width: 1.5; fill: none; margin-top: 1px; }
 
+/* Confirmação de pagamento no topo da conta. */
+.notice--ok {
+  border-left-color: var(--success);
+  margin-bottom: var(--s-6);
+}
+.notice--ok svg { stroke: var(--success); }
+
+/* Selo de status do pedido. */
+.status[data-status="pago"] { color: var(--success); }
+.status[data-status="expirado"],
+.status[data-status="cancelado"] { color: var(--muted-local, var(--muted)); }
+
 /* Confirmação */
 .confirm {
   max-width: 620px;

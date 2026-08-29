@@ -11,7 +11,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { formatarPreco } from "@/lib/catalog";
-import { IconeCaixa, IconeCaminhao, IconeConta } from "@/components/Icones";
+import { IconeCaixa, IconeCaminhao, IconeCheck, IconeConta } from "@/components/Icones";
+
+const STATUS_ROTULO = {
+  registrado: "Registrado",
+  pago: "Pago",
+  expirado: "Pagamento expirado",
+  cancelado: "Cancelado",
+};
 
 const ABAS = [
   { id: "pedidos", rotulo: "Meus pedidos", Icone: IconeCaixa },
@@ -27,7 +34,7 @@ function dataBR(iso) {
   });
 }
 
-export default function ContaCliente({ pedidos, perfil, email }) {
+export default function ContaCliente({ pedidos, perfil, email, pagoDe }) {
   const [aba, setAba] = useState("pedidos");
 
   function abrirAba(id) {
@@ -35,8 +42,22 @@ export default function ContaCliente({ pedidos, perfil, email }) {
     window.history.replaceState(null, "", "#" + id);
   }
 
+  const pedidoPago = pagoDe && pedidos.find((p) => p.codigo === pagoDe);
+
   return (
     <div className="account">
+      {pagoDe && (
+        <div className="notice notice--ok" style={{ gridColumn: "1 / -1" }}>
+          <IconeCheck />
+          <p>
+            Recebemos seu pagamento do pedido <strong>{pagoDe}</strong>.
+            {pedidoPago && pedidoPago.status !== "pago"
+              ? " A confirmação aparece aqui em instantes."
+              : " Já está tudo certo."}
+          </p>
+        </div>
+      )}
+
       <nav className="account-nav" aria-label="Seções da conta">
         {ABAS.map(({ id, rotulo, Icone }) => (
           <button
@@ -101,7 +122,9 @@ function ListaPedidos({ pedidos }) {
           <p className="codigo">{p.codigo}</p>
           <p className="data">{dataBR(p.data)}</p>
         </div>
-        <span className="status">{p.status === "registrado" ? "Registrado" : p.status}</span>
+        <span className="status" data-status={p.status}>
+          {STATUS_ROTULO[p.status] || p.status}
+        </span>
       </div>
 
       <div className="order-itens">

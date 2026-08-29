@@ -51,6 +51,6 @@ export const config = {
   matcher: [
     /* Tudo, menos estáticos, imagens, metadados, o route handler de
        confirmação e arquivos com extensão (fotos em /public). */
-    "/((?!_next/static|_next/image|favicon.ico|auth/confirmar|auth/callback|.*\\.[a-zA-Z0-9]+$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|auth/confirmar|auth/callback|.*\\.[a-zA-Z0-9]+$).*)",
   ],
 };

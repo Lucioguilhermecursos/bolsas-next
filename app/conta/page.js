@@ -18,9 +18,12 @@ export const metadata = {
   robots: { index: false, follow: true },
 };
 
-export default async function PaginaConta() {
+export default async function PaginaConta({ searchParams }) {
   const usuario = await exigirUsuario("/conta");
   const supabase = await criarClienteServidor();
+
+  const params = (await searchParams) || {};
+  const pagoDe = typeof params.pago === "string" ? params.pago : null;
 
   const [{ data: pedidosDb }, { data: perfil }] = await Promise.all([
     supabase
@@ -67,6 +70,7 @@ export default async function PaginaConta() {
           pedidos={pedidos}
           perfil={perfil || null}
           email={usuario.email}
+          pagoDe={pagoDe}
         />
       </div>
     </>
