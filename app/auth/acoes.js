@@ -99,7 +99,7 @@ export async function criarConta(estadoAnterior, formData) {
     password: senha,
     options: {
       data: { nome },
-      emailRedirectTo: (await urlBase()) + "/auth/confirmar?type=email&next=/conta",
+      emailRedirectTo: (await urlBase()) + "/auth/callback?next=/conta",
     },
   });
 
@@ -119,7 +119,7 @@ export async function reenviarConfirmacao(estadoAnterior, formData) {
   await supabase.auth.resend({
     type: "signup",
     email,
-    options: { emailRedirectTo: (await urlBase()) + "/auth/confirmar?type=email&next=/conta" },
+    options: { emailRedirectTo: (await urlBase()) + "/auth/callback?next=/conta" },
   });
   return { ok: true, reenviado: true };
 }
@@ -136,7 +136,7 @@ export async function pedirRecuperacao(estadoAnterior, formData) {
   if (emailValido(email)) {
     const supabase = await criarClienteServidor();
     await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: (await urlBase()) + "/auth/confirmar?type=recovery&next=/redefinir-senha",
+      redirectTo: (await urlBase()) + "/auth/callback?next=/redefinir-senha",
     });
   }
 

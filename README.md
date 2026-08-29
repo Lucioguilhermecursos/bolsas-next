@@ -12,9 +12,10 @@ pedido e leva a cliente até lá.
    - `Authentication → Providers → Email`: "Confirm email" **ON**.
    - `Authentication → URL Configuration`: Site URL de produção + redirect URLs
      (`http://localhost:3000/**`, `http://localhost:3187/**` e a de produção).
-   - `Authentication → Email Templates` — apontar os links para o route handler:
-     - *Confirm signup*: `{{ .SiteURL }}/auth/confirmar?token_hash={{ .TokenHash }}&type=email&next=/conta`
-     - *Reset password*: `{{ .SiteURL }}/auth/confirmar?token_hash={{ .TokenHash }}&type=recovery&next=/redefinir-senha`
+   - `Authentication → Email Templates` — **não precisa editar**. Os templates
+     padrão (`{{ .ConfirmationURL }}`) já funcionam: o link cai em
+     `/auth/callback`, que troca o código por sessão. (Se quiser customizar,
+     o `/auth/confirmar` também aceita `token_hash={{ .TokenHash }}&type=email`.)
    - `SQL Editor`: rodar `supabase/migrations/0001_auth_pedidos.sql`.
    - Produção: configurar SMTP próprio (o embutido do Supabase é só para teste).
    - **Login com Google**: no Google Cloud, criar um OAuth client "Web
