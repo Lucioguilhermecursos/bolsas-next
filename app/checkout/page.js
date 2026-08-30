@@ -19,24 +19,30 @@ export default async function PaginaCheckout() {
   const usuario = await exigirUsuario("/checkout");
 
   const supabase = await criarClienteServidor();
-  const { data: perfil } = await supabase
-    .from("profiles")
-    .select("nome, telefone, cpf, endereco")
-    .eq("id", usuario.id)
+  const { data: c } = await supabase
+    .from("clientes")
+    .select(
+      "tipo, nome, razao_social, telefone, cpf, cep, tipo_logradouro, rua, numero, complemento, bairro, cidade, uf, referencia"
+    )
+    .eq("user_id", usuario.id)
     .maybeSingle();
 
   const inicial = {
-    nome: perfil?.nome || "",
+    tipoPessoa: c?.tipo === "PJ" ? "PJ" : "PF",
+    nome: c?.nome || "",
+    razaoSocial: c?.razao_social || "",
     email: usuario.email || "",
-    tel: perfil?.telefone || "",
-    cpf: perfil?.cpf || "",
-    cep: perfil?.endereco?.cep || "",
-    rua: perfil?.endereco?.rua || "",
-    numero: perfil?.endereco?.numero || "",
-    compl: perfil?.endereco?.complemento || "",
-    bairro: perfil?.endereco?.bairro || "",
-    cidade: perfil?.endereco?.cidade || "",
-    uf: perfil?.endereco?.uf || "",
+    tel: c?.telefone || "",
+    cpf: c?.cpf || "",
+    cep: c?.cep || "",
+    tipoLogradouro: c?.tipo_logradouro || "Rua",
+    rua: c?.rua || "",
+    numero: c?.numero || "",
+    compl: c?.complemento || "",
+    bairro: c?.bairro || "",
+    cidade: c?.cidade || "",
+    uf: c?.uf || "",
+    referencia: c?.referencia || "",
   };
 
   return (

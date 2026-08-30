@@ -34,6 +34,27 @@ function dataBR(iso) {
   });
 }
 
+const FORNECEDOR_ROTULO = {
+  aguardando: "Aguardando o envio",
+  recebido: "Pedido recebido pela expedição",
+  em_separacao: "Em separação",
+  despachado: "Despachado",
+};
+
+/* Frase de situação quando ainda não há código de rastreio. */
+function situacaoEnvio(p) {
+  if (p.envio?.status && FORNECEDOR_ROTULO[p.envio.status]) return FORNECEDOR_ROTULO[p.envio.status];
+  if (p.status === "pago") return "Pagamento confirmado — preparando o envio";
+  if (p.status === "expirado") return "Pagamento não concluído";
+  return "Registrado, aguardando confirmação do pagamento";
+}
+
+/* Rastreio internacional (a encomenda vem do exterior) — 17track cobre Correios
+   e as transportadoras de origem. */
+function linkRastreio(codigo) {
+  return "https://t.17track.net/pt#nums=" + encodeURIComponent(codigo);
+}
+
 export default function ContaCliente({ pedidos, perfil, email, pagoDe }) {
   const [aba, setAba] = useState("pedidos");
 
@@ -147,6 +168,21 @@ function ListaPedidos({ pedidos }) {
         Entrega em {p.entrega.cidade}/{p.entrega.uf} · {p.entrega.prazo}
       </p>
 
+      {p.envio?.codigo && (
+        <p className="field-hint mt-1">
+          Rastreio: <strong>{p.envio.codigo}</strong>
+          {p.envio.transportadora ? " · " + p.envio.transportadora : ""}{" "}
+          <a
+            className="link-underline"
+            href={linkRastreio(p.envio.codigo)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            acompanhar
+          </a>
+        </p>
+      )}
+
       {p.checkoutUrl && p.status === "registrado" && (
         <a className="btn btn-primary btn-sm mt-4" href={p.checkoutUrl}>
           Ir para o pagamento
@@ -218,8 +254,38 @@ function Rastreio({ pedidos }) {
               </div>
               <div className="spec-row">
                 <dt>Situação</dt>
-                <dd>Registrado, aguardando confirmação de pagamento</dd>
+                <dd>{situacaoEnvio(achado)}</dd>
               </div>
+
+              {achado.envio?.codigo && (
+                <>
+                  <div className="spec-row">
+                    <dt>Transportadora</dt>
+                    <dd>{achado.envio.transportadora || "—"}</dd>
+                  </div>
+                  <div className="spec-row">
+                    <dt>Rastreio</dt>
+                    <dd>
+                      <strong>{achado.envio.codigo}</strong>{" "}
+                      <a
+                        className="link-underline"
+                        href={linkRastreio(achado.envio.codigo)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        acompanhar
+                      </a>
+                    </dd>
+                  </div>
+                  {achado.envio.despachadoEm && (
+                    <div className="spec-row">
+                      <dt>Despachado em</dt>
+                      <dd>{dataBR(achado.envio.despachadoEm)}</dd>
+                    </div>
+                  )}
+                </>
+              )}
+
               <div className="spec-row">
                 <dt>Destino</dt>
                 <dd>
@@ -233,10 +299,12 @@ function Rastreio({ pedidos }) {
                 </dd>
               </div>
             </dl>
-            <p className="field-hint mt-4">
-              O código de rastreio da transportadora é enviado por e-mail quando a peça sai para
-              entrega.
-            </p>
+            {!achado.envio?.codigo && (
+              <p className="field-hint mt-4">
+                O código de rastreio aparece aqui e é enviado por e-mail assim que a encomenda é
+                despachada.
+              </p>
+            )}
           </div>
         </div>
       )}

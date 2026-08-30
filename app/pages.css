@@ -1231,6 +1231,36 @@
   margin-bottom: var(--s-5);
 }
 
+/* Pessoa física / jurídica */
+.tipo-pessoa {
+  border: 0;
+  padding: 0;
+  margin: 0 0 var(--s-5);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+}
+
+.tipo-pessoa legend {
+  float: left;
+  width: 100%;
+  margin-bottom: var(--s-2);
+}
+
+.radio-inline {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-4);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  font-size: 14px;
+  transition: border-color var(--t), background-color var(--t);
+}
+
+.radio-inline input { width: 16px; height: 16px; accent-color: var(--cognac); }
+.radio-inline[data-selected="true"] { border-color: var(--ink); background: var(--paper-deep); }
+
 /* Região e prazo, ao lado do CEP. Alinha pela base do campo vizinho, que
    tem rótulo em cima. */
 .frete-estimado {

@@ -193,6 +193,20 @@ t("checkout: pagamento é externo, não no site",
   /externa|parceiro de checkout|nenhum dado de cartão/i.test(avisoPagamento), avisoPagamento.replace(/\s+/g, " "));
 t("checkout: não há captura de cartão", (await p.locator("#cartao-num").count()) === 0);
 
+// pessoa física / jurídica
+t("checkout: escolha PF/PJ", (await p.locator('input[name="tipo-pessoa"]').count()) === 2);
+await p.locator('.radio-inline:has-text("Pessoa jurídica") input').click();
+await p.waitForTimeout(200);
+t("checkout: PJ mostra campo Razão social", await p.locator("#razao-social").isVisible());
+t("checkout: PJ troca rótulo do documento para CNPJ",
+  (await p.locator('label[for="cpf"]').innerText()).includes("CNPJ"));
+await p.locator('.radio-inline:has-text("Pessoa física") input').click();
+await p.waitForTimeout(200);
+t("checkout: PF esconde Razão social", (await p.locator("#razao-social").count()) === 0);
+
+// tipo de logradouro em campo separado
+t("checkout: tipo de logradouro em coluna própria", (await p.locator("#tipo-logradouro").count()) === 1);
+
 // enviar vazio (limpa o que veio pré-preenchido do perfil)
 for (const c of ["#nome", "#tel", "#cpf", "#cep", "#rua", "#numero", "#bairro", "#cidade"]) {
   await p.fill(c, "");
@@ -229,7 +243,8 @@ t("checkout: frete grátis acima do piso", /gr[aá]tis/i.test(freteTxt), freteTx
 // pedido completo
 await p.fill("#nome", "Maria da Silva");
 await p.fill("#email", "maria@exemplo.com.br");
-await p.fill("#rua", "Avenida Paulista");
+await p.selectOption("#tipo-logradouro", "Avenida");
+await p.fill("#rua", "Paulista");
 await p.fill("#numero", "1000");
 await p.fill("#bairro", "Bela Vista");
 await p.fill("#cidade", "São Paulo");

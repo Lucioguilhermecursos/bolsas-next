@@ -19,9 +19,11 @@ import Link from "next/link";
 import { formatarPreco } from "@/lib/catalog";
 import {
   FRETE,
+  TIPOS_LOGRADOURO,
   UFS,
   calcularFrete,
-  cpfCnpjValido,
+  cnpjValido,
+  cpfValido,
   emailValido,
   mascaraCEP,
   mascaraCpfCnpj,
@@ -35,32 +37,45 @@ import { MidiaProduto } from "@/components/Placeholder";
 import { IconeAlerta, IconeCheck, IconeSacola } from "@/components/Icones";
 
 const CAMPOS_INICIAIS = {
+  tipoPessoa: "PF",
   nome: "",
+  razaoSocial: "",
   email: "",
   tel: "",
   cpf: "",
   cep: "",
+  tipoLogradouro: "Rua",
   rua: "",
   numero: "",
   compl: "",
   bairro: "",
   cidade: "",
   uf: "",
+  referencia: "",
 };
 
-/* Cada mensagem nomeia o problema E o que fazer. */
-const REGRAS = [
-  ["nome", (v) => v.length >= 3 && v.includes(" "), "Escreva seu nome completo, como está no documento."],
-  ["email", emailValido, "Esse e-mail parece incompleto. Confira se falta o @ ou o final do domínio."],
-  ["tel", (v) => v.replace(/\D/g, "").length >= 10, "Informe DDD e número, com pelo menos 10 dígitos."],
-  ["cpf", cpfCnpjValido, "Documento inválido. Confira o CPF ou o CNPJ digitado."],
-  ["cep", (v) => v.replace(/\D/g, "").length === 8, "O CEP tem 8 dígitos. Confira e digite novamente."],
-  ["rua", (v) => v.length >= 3, "Informe o nome da rua."],
-  ["numero", (v) => v.length >= 1, 'Informe o número. Se não houver, escreva "S/N".'],
-  ["bairro", (v) => v.length >= 2, "Informe o bairro."],
-  ["cidade", (v) => v.length >= 2, "Informe a cidade."],
-  ["uf", (v) => v !== "", "Escolha o estado."],
-];
+/* Cada mensagem nomeia o problema E o que fazer. As regras de documento e
+   razão social mudam conforme pessoa física ou jurídica. */
+function regrasPara(tipoPessoa) {
+  const pj = tipoPessoa === "PJ";
+  return [
+    ["nome", (v) => v.length >= 3 && v.includes(" "),
+      pj ? "Escreva o nome do responsável pelo pedido." : "Escreva seu nome completo, como está no documento."],
+    ...(pj
+      ? [["razaoSocial", (v) => v.length >= 3, "Informe a razão social — é o que vai na etiqueta e na nota."]]
+      : []),
+    ["email", emailValido, "Esse e-mail parece incompleto. Confira se falta o @ ou o final do domínio."],
+    ["tel", (v) => v.replace(/\D/g, "").length >= 10, "Informe DDD e número, com pelo menos 10 dígitos."],
+    ["cpf", pj ? cnpjValido : cpfValido,
+      pj ? "CNPJ inválido. Confira os 14 números." : "CPF inválido. Confira os números digitados."],
+    ["cep", (v) => v.replace(/\D/g, "").length === 8, "O CEP tem 8 dígitos. Confira e digite novamente."],
+    ["rua", (v) => v.length >= 3, "Informe o nome do logradouro (sem o tipo)."],
+    ["numero", (v) => v.length >= 1, 'Informe o número. Se não houver, escreva "S/N".'],
+    ["bairro", (v) => v.length >= 2, "Informe o bairro."],
+    ["cidade", (v) => v.length >= 2, "Informe a cidade."],
+    ["uf", (v) => v !== "", "Escolha o estado."],
+  ];
+}
 
 const MASCARAS = {
   cep: mascaraCEP,
@@ -97,7 +112,7 @@ export default function CheckoutCliente({ inicial }) {
 
   function validar() {
     const novos = {};
-    REGRAS.forEach(([nome, teste, mensagem]) => {
+    regrasPara(campos.tipoPessoa).forEach(([nome, teste, mensagem]) => {
       if (!teste(String(campos[nome] ?? "").trim())) novos[nome] = mensagem;
     });
     setErros(novos);
@@ -137,19 +152,24 @@ export default function CheckoutCliente({ inicial }) {
       const resultado = await criarPedido({
         itens: detalhados.map((i) => ({ id: i.produto.id, qtd: i.qtd })),
         contato: {
+          tipo: campos.tipoPessoa,
           nome: campos.nome,
+          razaoSocial: campos.tipoPessoa === "PJ" ? campos.razaoSocial : null,
           email: campos.email,
           telefone: campos.tel,
           cpf: campos.cpf,
         },
         entrega: {
           cep: campos.cep,
+          tipoLogradouro: campos.tipoLogradouro,
           rua: campos.rua,
           numero: campos.numero,
           complemento: campos.compl || null,
           bairro: campos.bairro,
           cidade: campos.cidade,
           uf: campos.uf,
+          pais: "BR",
+          referencia: campos.referencia || null,
         },
       });
 
@@ -225,10 +245,55 @@ export default function CheckoutCliente({ inicial }) {
           {/* ---- 1. Contato ---- */}
           <section className="form-section">
             <h2>Seus dados</h2>
+
+            <fieldset className="tipo-pessoa">
+              <legend className="field-label">Comprando como</legend>
+              {[
+                ["PF", "Pessoa física"],
+                ["PJ", "Pessoa jurídica"],
+              ].map(([valor, rotulo]) => (
+                <label className="radio-inline" key={valor} data-selected={campos.tipoPessoa === valor}>
+                  <input
+                    type="radio"
+                    name="tipo-pessoa"
+                    value={valor}
+                    checked={campos.tipoPessoa === valor}
+                    onChange={() => {
+                      setCampos((a) => ({ ...a, tipoPessoa: valor }));
+                      setErros((a) => ({ ...a, cpf: "", razaoSocial: "" }));
+                    }}
+                  />
+                  <span>{rotulo}</span>
+                </label>
+              ))}
+            </fieldset>
+
             <div className="form-grid">
-              <Campo nome="nome" rotulo="Nome completo" obrigatorio erro={erros.nome}>
+              <Campo
+                nome="nome"
+                rotulo={campos.tipoPessoa === "PJ" ? "Nome do responsável" : "Nome completo"}
+                obrigatorio
+                erro={erros.nome}
+              >
                 <input className="input" type="text" autoComplete="name" {...campoProps("nome")} />
               </Campo>
+
+              {campos.tipoPessoa === "PJ" && (
+                <Campo
+                  nome="razaoSocial"
+                  rotulo="Razão social"
+                  obrigatorio
+                  erro={erros.razaoSocial}
+                  dica="Como está no cartão CNPJ — é o que vai na etiqueta e na nota."
+                >
+                  <input
+                    className="input"
+                    type="text"
+                    autoComplete="organization"
+                    {...campoProps("razaoSocial", { describedBy: "d-razao-social" })}
+                  />
+                </Campo>
+              )}
 
               <Campo nome="email" rotulo="E-mail" obrigatorio erro={erros.email} largura={1}>
                 <input className="input" type="email" autoComplete="email" {...campoProps("email")} />
@@ -247,16 +312,16 @@ export default function CheckoutCliente({ inicial }) {
 
               <Campo
                 nome="cpf"
-                rotulo="CPF ou CNPJ"
+                rotulo={campos.tipoPessoa === "PJ" ? "CNPJ" : "CPF"}
                 obrigatorio
                 erro={erros.cpf}
-                dica="Necessário para emitir a nota fiscal. Pessoa física ou jurídica."
+                dica="Obrigatório para a nota fiscal e para liberar a encomenda na alfândega."
               >
                 <input
                   className="input"
                   type="text"
                   inputMode="numeric"
-                  placeholder="000.000.000-00"
+                  placeholder={campos.tipoPessoa === "PJ" ? "00.000.000/0000-00" : "000.000.000-00"}
                   {...campoProps("cpf", { describedBy: "d-cpf" })}
                 />
               </Campo>
@@ -287,12 +352,22 @@ export default function CheckoutCliente({ inicial }) {
                 </div>
               )}
 
-              <Campo nome="rua" rotulo="Endereço" obrigatorio erro={erros.rua}>
+              <Campo nome="tipoLogradouro" rotulo="Tipo" obrigatorio erro={erros.tipoLogradouro} largura={1}>
+                <select className="select" {...campoProps("tipoLogradouro")}>
+                  {TIPOS_LOGRADOURO.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </Campo>
+
+              <Campo nome="rua" rotulo="Logradouro" obrigatorio erro={erros.rua} largura={1}>
                 <input
                   className="input"
                   type="text"
                   autoComplete="address-line1"
-                  placeholder="Rua, avenida, travessa"
+                  placeholder="Só o nome — sem 'Rua', 'Av.'…"
                   {...campoProps("rua")}
                 />
               </Campo>
@@ -306,7 +381,7 @@ export default function CheckoutCliente({ inicial }) {
                   className="input"
                   type="text"
                   autoComplete="address-line2"
-                  placeholder="Apto, bloco, referência"
+                  placeholder="Apto, bloco, casa"
                   {...campoProps("compl")}
                 />
               </Campo>
@@ -324,7 +399,7 @@ export default function CheckoutCliente({ inicial }) {
                 />
               </Campo>
 
-              <Campo nome="uf" rotulo="Estado" obrigatorio erro={erros.uf}>
+              <Campo nome="uf" rotulo="Estado" obrigatorio erro={erros.uf} largura={1}>
                 <select className="select" autoComplete="address-level1" {...campoProps("uf")}>
                   <option value="">Selecione</option>
                   {UFS.map((uf) => (
@@ -333,6 +408,21 @@ export default function CheckoutCliente({ inicial }) {
                     </option>
                   ))}
                 </select>
+              </Campo>
+
+              <Campo
+                nome="referencia"
+                rotulo="Ponto de referência"
+                erro={erros.referencia}
+                largura={1}
+                dica="Opcional. Ajuda o entregador a achar o endereço."
+              >
+                <input
+                  className="input"
+                  type="text"
+                  placeholder="Ex.: ao lado da padaria"
+                  {...campoProps("referencia", { describedBy: "d-referencia" })}
+                />
               </Campo>
             </div>
           </section>

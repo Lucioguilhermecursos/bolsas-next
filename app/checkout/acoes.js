@@ -111,19 +111,24 @@ export async function criarPedido(dados) {
     codigo,
     status: "registrado",
     cliente: {
+      tipo: contato.tipo === "PJ" ? "PJ" : "PF",
       nome: contato.nome || "",
+      razao_social: contato.razaoSocial || null,
       email: contato.email || usuario.email || "",
       telefone: contato.telefone || "",
       cpf: contato.cpf || "",
     },
     entrega: {
       cep: entrega.cep || "",
+      tipo_logradouro: entrega.tipoLogradouro || "Rua",
       rua: entrega.rua || "",
       numero: entrega.numero || "",
       complemento: entrega.complemento || null,
       bairro: entrega.bairro || "",
       cidade: entrega.cidade || "",
       uf: entrega.uf || "",
+      pais: entrega.pais || "BR",
+      referencia: entrega.referencia || null,
       regiao: frete.regiao,
       prazo: frete.prazo,
     },
@@ -164,21 +169,26 @@ export async function criarPedido(dados) {
       .eq("codigo", codigo);
   }
 
+  const endereco = {
+    tipo_logradouro: entrega.tipoLogradouro || "Rua",
+    cep: entrega.cep || null,
+    rua: entrega.rua || null,
+    numero: entrega.numero || null,
+    complemento: entrega.complemento || null,
+    bairro: entrega.bairro || null,
+    cidade: entrega.cidade || null,
+    uf: entrega.uf || null,
+    pais: entrega.pais || "BR",
+    referencia: entrega.referencia || null,
+  };
+
   /* Guarda o último endereço no perfil, para o próximo checkout já vir preenchido. */
   await supabase
     .from("profiles")
     .update({
       telefone: contato.telefone || null,
       cpf: contato.cpf || null,
-      endereco: {
-        cep: entrega.cep,
-        rua: entrega.rua,
-        numero: entrega.numero,
-        complemento: entrega.complemento || null,
-        bairro: entrega.bairro,
-        cidade: entrega.cidade,
-        uf: entrega.uf,
-      },
+      endereco,
       atualizado_em: new Date().toISOString(),
     })
     .eq("id", usuario.id);
@@ -187,17 +197,22 @@ export async function criarPedido(dados) {
   await supabase.from("clientes").upsert(
     {
       user_id: usuario.id,
+      tipo: contato.tipo === "PJ" ? "PJ" : "PF",
       nome: contato.nome || null,
+      razao_social: contato.razaoSocial || null,
       email: contato.email || usuario.email || null,
       telefone: contato.telefone || null,
       cpf: contato.cpf || null,
       cep: entrega.cep || null,
+      tipo_logradouro: entrega.tipoLogradouro || "Rua",
       rua: entrega.rua || null,
       numero: entrega.numero || null,
       complemento: entrega.complemento || null,
       bairro: entrega.bairro || null,
       cidade: entrega.cidade || null,
       uf: entrega.uf || null,
+      pais: entrega.pais || "BR",
+      referencia: entrega.referencia || null,
       atualizado_em: new Date().toISOString(),
     },
     { onConflict: "user_id" }
@@ -209,19 +224,24 @@ export async function criarPedido(dados) {
       codigo,
       data: new Date().toISOString(),
       cliente: {
+        tipo: contato.tipo === "PJ" ? "PJ" : "PF",
         nome: contato.nome || "",
+        razao_social: contato.razaoSocial || null,
         email: contato.email || usuario.email || "",
         telefone: contato.telefone || "",
         cpf: contato.cpf || "",
       },
       entrega: {
         cep: entrega.cep || "",
+        tipo_logradouro: entrega.tipoLogradouro || "Rua",
         rua: entrega.rua || "",
         numero: entrega.numero || "",
         complemento: entrega.complemento || null,
         bairro: entrega.bairro || "",
         cidade: entrega.cidade || "",
         uf: entrega.uf || "",
+        pais: entrega.pais || "BR",
+        referencia: entrega.referencia || null,
         regiao: frete.regiao,
         prazo: frete.prazo,
       },

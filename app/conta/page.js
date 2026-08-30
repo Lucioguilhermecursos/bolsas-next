@@ -28,7 +28,10 @@ export default async function PaginaConta({ searchParams }) {
   const [{ data: pedidosDb }, { data: perfil }] = await Promise.all([
     supabase
       .from("pedidos")
-      .select("codigo, status, cliente, entrega, itens, valores, checkout_url, criado_em")
+      .select(
+        "codigo, status, cliente, entrega, itens, valores, checkout_url, criado_em, " +
+          "fornecedor_status, rastreio_transportadora, rastreio_codigo, despachado_em"
+      )
       .order("criado_em", { ascending: false }),
     supabase.from("profiles").select("nome, telefone, cpf, endereco").eq("id", usuario.id).maybeSingle(),
   ]);
@@ -42,6 +45,12 @@ export default async function PaginaConta({ searchParams }) {
     itens: p.itens,
     valores: p.valores,
     checkoutUrl: p.checkout_url,
+    envio: {
+      status: p.fornecedor_status || null,
+      transportadora: p.rastreio_transportadora || null,
+      codigo: p.rastreio_codigo || null,
+      despachadoEm: p.despachado_em || null,
+    },
   }));
 
   return (

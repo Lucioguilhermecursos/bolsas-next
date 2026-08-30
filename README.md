@@ -16,11 +16,11 @@ no próprio arquivo. O pagamento é feito fora do site — via **Stripe Checkout
      padrão (`{{ .ConfirmationURL }}`) já funcionam: o link cai em
      `/auth/callback`, que troca o código por sessão. (Se quiser customizar,
      o `/auth/confirmar` também aceita `token_hash={{ .TokenHash }}&type=email`.)
-   - `SQL Editor`: rodar as migrações em ordem — `0001_auth_pedidos.sql`,
-     `0002_clientes.sql` (ficha por cliente, código `CL000001`),
-     `0003_stripe_pedidos.sql` (colunas de pagamento em `pedidos`),
-     `0004_pedidos_colunas.sql` (colunas legíveis de cliente/entrega em `pedidos`,
-     derivadas do JSON).
+   - `SQL Editor`: rodar as migrações em ordem, `0001` … `0005`:
+     `0001_auth_pedidos` · `0002_clientes` (ficha por cliente, `CL000001`) ·
+     `0003_stripe_pedidos` · `0004_pedidos_colunas` (colunas legíveis do JSON) ·
+     `0005_fornecedor_envio` (campos PF/PJ, tipo de logradouro, referência,
+     rastreio + as views de exportação pro fornecedor).
    - Produção: configurar SMTP próprio (o embutido do Supabase é só para teste).
    - **Login com Google** (nativo — o popup mostra o domínio do site, não o
      `supabase.co`):
@@ -47,6 +47,28 @@ no próprio arquivo. O pagamento é feito fora do site — via **Stripe Checkout
    npm install
    npm run dev            # http://localhost:3000
    ```
+
+## Exportar pedidos para o fornecedor
+
+A migração `0005` cria duas views (sem nenhum dado financeiro):
+
+- **`vw_pedido_fornecedor`** — um registro por pedido: destinatário (PF/PJ,
+  documento, razão social, telefone `+55`), endereço em campos separados (tipo
+  de logradouro, logradouro, número, complemento, bairro, cidade, UF, CEP,
+  país, referência) e as colunas que o fornecedor devolve (status,
+  transportadora, rastreio, despacho, invoice).
+- **`vw_pedido_fornecedor_itens`** — uma linha por item: SKU (slug do produto),
+  nome, cor, quantidade + 6 colunas aduaneiras **em branco** (descrição em
+  inglês, peso, valor declarado, moeda, HS/NCM, país de origem) para o
+  fornecedor preencher.
+
+**Para exportar**: Supabase → Table Editor → aba *Views* → abrir a view →
+*Export → CSV*. Antes disso, marque no Table Editor o campo
+`pedidos.liberado_fornecedor_em` (data de liberação) dos pedidos que vão sair.
+Quando o fornecedor devolver rastreio, preencha `rastreio_codigo`,
+`rastreio_transportadora`, `despachado_em`, `fornecedor_status` e
+`invoice_numero` na tabela `pedidos` — aparece na hora em *Minha conta* do
+cliente.
 
 ## Pagamento — Stripe
 
