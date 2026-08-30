@@ -1550,6 +1550,16 @@
   scroll-margin-top: calc(var(--header-h) + var(--s-5));
 }
 
+.doc-body h3 {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  margin-top: var(--s-7);
+  margin-bottom: var(--s-2);
+  color: var(--ink);
+}
+
 .doc-body section + section {
   margin-top: var(--s-9);
   padding-top: var(--s-8);

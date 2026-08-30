@@ -169,56 +169,110 @@ export default function PaginaAjuda() {
             <section id="pagamento">
               <h2>Formas de pagamento</h2>
               <p>
-                No checkout você escolhe entre PIX, cartão de crédito em até 6× sem juros, ou boleto
-                bancário.
+                Ao finalizar, o pedido é registrado na sua conta e você é levada a uma página
+                segura do parceiro de pagamento para concluir a compra. As formas disponíveis
+                (PIX, cartão, boleto) e as condições de parcelamento aparecem nessa página.
+              </p>
+              <p>
+                Nenhum dado de cartão é digitado ou armazenado neste site — quem cuida disso é o
+                parceiro de pagamento, em ambiente próprio.
               </p>
               <div className="notice mt-6">
                 <IconeAlerta />
                 <p>
-                  <strong>
-                    Enquanto o site está em construção, nenhuma cobrança é processada.
-                  </strong>{" "}
-                  O pedido fica registrado e a loja entra em contato para combinar o pagamento.
+                  <strong>Site em preparação.</strong> Enquanto o meio de pagamento não está ligado,
+                  o pedido fica registrado e a loja entra em contato pelo e-mail informado para
+                  combinar o pagamento e o envio. Nenhuma cobrança é feita automaticamente.
                 </p>
               </div>
               <div className="mt-6">
-                <Preencher>gateway de pagamento contratado e bandeiras aceitas.</Preencher>
+                <Preencher>parceiro de pagamento contratado e condições de parcelamento.</Preencher>
               </div>
             </section>
 
             <section id="privacidade">
               <h2>Política de privacidade</h2>
               <p>
-                Coletamos apenas o necessário para processar seu pedido: nome, e-mail, telefone, CPF
-                e endereço de entrega. O CPF é exigido para a emissão da nota fiscal.
+                Esta política explica quais dados a acbolsa coleta, por que, com quem compartilha e
+                quais são os seus direitos. Vale para todo o site. Ao criar uma conta ou finalizar
+                uma compra, você concorda com o descrito aqui.
               </p>
-              <p>
-                Seus dados não são vendidos nem cedidos a terceiros para fins comerciais. São
-                compartilhados apenas com a transportadora, para a entrega, e com o meio de
-                pagamento, para a cobrança.
-              </p>
-              <p>
-                Pela Lei Geral de Proteção de Dados (Lei 13.709/2018), você pode pedir a qualquer
-                momento o acesso, a correção ou a exclusão dos seus dados, além da revogação do
-                consentimento.
-              </p>
+
+              <h3>Que dados coletamos</h3>
               <ul role="list">
-                <li>Dados de cartão não são armazenados por esta loja em nenhuma hipótese</li>
                 <li>
-                  Enquanto não há servidor, seus pedidos ficam apenas no seu próprio navegador, e
-                  você pode apagá-los na página{" "}
-                  <Link className="link-underline" href="/conta#dados">
-                    Minha conta
-                  </Link>
+                  <strong>Cadastro:</strong> nome e e-mail. Se você entrar com o Google, recebemos do
+                  Google seu nome, e-mail e foto de perfil — nada além disso, e só quando você
+                  escolhe esse caminho.
                 </li>
                 <li>
-                  Usamos apenas armazenamento local para manter sua sacola entre visitas — não há
-                  rastreamento publicitário nem cookies de terceiros
+                  <strong>Pedido:</strong> telefone, CPF e endereço de entrega. O CPF é obrigatório
+                  para a emissão da nota fiscal.
+                </li>
+                <li>
+                  <strong>Uso do site:</strong> a sacola fica guardada no seu próprio navegador
+                  (armazenamento local). Um cookie mantém você conectado entre visitas. Não usamos
+                  cookies de publicidade nem rastreadores de terceiros.
+                </li>
+                <li>
+                  <strong>Pagamento:</strong> os dados do cartão são digitados na página do parceiro
+                  de pagamento, não neste site. A acbolsa <strong>nunca</strong> armazena número de
+                  cartão, CVV ou validade.
                 </li>
               </ul>
+
+              <h3>Como usamos</h3>
+              <p>
+                Para criar e manter sua conta, processar e entregar seus pedidos, emitir nota
+                fiscal, dar suporte e cumprir obrigações legais. Não vendemos nem cedemos seus dados
+                para fins comerciais de terceiros.
+              </p>
+
+              <h3>Com quem compartilhamos</h3>
+              <ul role="list">
+                <li>
+                  <strong>Provedor de infraestrutura</strong> (Supabase) — hospeda o banco de dados
+                  da conta e dos pedidos. Os servidores podem estar fora do Brasil; a transferência
+                  segue as bases legais da LGPD.
+                </li>
+                <li>
+                  <strong>Meio de pagamento</strong> — recebe o valor e os dados necessários para a
+                  cobrança quando você vai pagar.
+                </li>
+                <li>
+                  <strong>Transportadora</strong> — recebe nome e endereço para a entrega.
+                </li>
+                <li>
+                  <strong>Google</strong> — apenas se você usar &ldquo;Entrar com o Google&rdquo;,
+                  para autenticar o acesso.
+                </li>
+              </ul>
+
+              <h3>Seus direitos (LGPD — Lei 13.709/2018)</h3>
+              <p>
+                Você pode pedir a qualquer momento: acesso aos seus dados, correção, exclusão,
+                portabilidade, informação sobre com quem foram compartilhados, e a revogação do
+                consentimento. Pedidos de exclusão da conta são atendidos pelo canal de contato
+                abaixo. Dados necessários para obrigações fiscais são mantidos pelo prazo exigido
+                por lei mesmo após a exclusão da conta.
+              </p>
+              <p>
+                Você mesma pode conferir e corrigir seus dados de contato e entrega na página{" "}
+                <Link className="link-underline" href="/conta">
+                  Minha conta
+                </Link>{" "}
+                — a correção vale no próximo pedido.
+              </p>
+
+              <h3>Segurança</h3>
+              <p>
+                O acesso à conta é protegido por senha (ou pela sua conta Google). Cada pessoa só
+                enxerga os próprios pedidos e dados. A conexão com o site é criptografada (HTTPS).
+              </p>
+
               <Preencher>
-                razão social, CNPJ, endereço da empresa e e-mail do encarregado de dados (DPO),
-                obrigatórios pela LGPD.
+                razão social, CNPJ, endereço da empresa, e-mail do encarregado de dados (DPO) e o
+                canal oficial para exercer os direitos da LGPD — obrigatórios antes de publicar.
               </Preencher>
             </section>
 
