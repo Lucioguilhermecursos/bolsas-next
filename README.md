@@ -20,7 +20,8 @@ no próprio arquivo. O pagamento é feito fora do site — via **Stripe Checkout
      `0001_auth_pedidos` · `0002_clientes` (ficha por cliente, `CL000001`) ·
      `0003_stripe_pedidos` · `0004_pedidos_colunas` (colunas legíveis do JSON) ·
      `0005_fornecedor_envio` (campos PF/PJ, tipo de logradouro, referência,
-     rastreio + as views de exportação pro fornecedor).
+     rastreio + as views de exportação pro fornecedor) ·
+     `0006_pagamento_eventos` (log de webhooks do Stripe).
    - Produção: configurar SMTP próprio (o embutido do Supabase é só para teste).
    - **Login com Google** (nativo — o popup mostra o domínio do site, não o
      `supabase.co`):
@@ -72,25 +73,49 @@ cliente.
 
 ## Pagamento — Stripe
 
-O código já está pronto. Para ligar, quando tiver a conta Stripe:
+**Todo o código do Stripe está em um arquivo: [`lib/pagamento/stripe.js`](lib/pagamento/stripe.js).**
+O topo dele é um guia de "onde mexer quando o Stripe mudar X".
 
-1. **Migração**: rodar `supabase/migrations/0003_stripe_pedidos.sql` (se ainda não).
-2. **Env vars** (`.env.local` e/ou Vercel):
+Para ligar, quando tiver a conta:
+
+1. **Migrações**: `0003_stripe_pedidos.sql` e `0006_pagamento_eventos.sql`.
+2. **Env vars** (`.env.local` e Vercel):
    - `STRIPE_SECRET_KEY` — Stripe → Developers → API keys (`sk_test_…` / `sk_live_…`)
    - `SUPABASE_SERVICE_ROLE_KEY` — Supabase → Project Settings → API → `service_role`
-     (secreta; só o webhook usa, para marcar o pedido como pago)
+     (secreta; só o webhook usa)
 3. **Webhook**: Stripe → Developers → Webhooks → *Add endpoint*
    - URL: `https://<seu-site>/api/stripe/webhook`
-   - Eventos: `checkout.session.completed` e `checkout.session.expired`
+   - Eventos: `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
+     `checkout.session.async_payment_failed`, `checkout.session.expired`
    - Copiar o *Signing secret* (`whsec_…`) para `STRIPE_WEBHOOK_SECRET`
 4. Redeploy.
 
-Com `STRIPE_SECRET_KEY` presente, o checkout cria uma Stripe Checkout Session e
-manda a cliente pra lá; o webhook marca `pedidos.status = 'pago'`. Sem a chave,
-cai em `EXTERNAL_CHECKOUT_BASE_URL` (link genérico) ou só registra o pedido.
+### Diagnóstico
 
-Teste local do webhook: `stripe listen --forward-to localhost:3000/api/stripe/webhook`
-(o `stripe listen` imprime um `whsec_…` temporário).
+```bash
+npm run stripe:check
+```
+Confere chaves, modo (test/live), versão da API (SDK vs. a fixada em
+`lib/pagamento/stripe.js`), conexão, webhooks cadastrados e os últimos
+eventos/sessões. Rode depois de `npm update stripe` ou quando um pagamento
+não bater.
+
+### Quando algo falha
+
+- **Pagamento não virou "pago"** → tabela **`pagamento_eventos`** no Supabase:
+  toda entrega de webhook fica ali (tipo, pedido, `resultado`, `detalhe`). Depois,
+  painel do Stripe → Developers → Events (reenviar o evento).
+- **Webhook devolvendo 400** → `detalhe` na `pagamento_eventos` diz o motivo
+  (quase sempre `STRIPE_WEBHOOK_SECRET` de outro endpoint).
+- **Stripe subiu a versão da API** → `npm run stripe:check` avisa; atualize
+  `VERSAO_API` em `lib/pagamento/stripe.js`, teste no modo de testes, publique.
+
+### Teste local do webhook
+
+```bash
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+```
+(o `stripe listen` imprime um `whsec_…` temporário para o `.env.local`)
 
 ## Testes
 

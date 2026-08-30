@@ -16,6 +16,7 @@ import { IconeCaixa, IconeCaminhao, IconeCheck, IconeConta } from "@/components/
 const STATUS_ROTULO = {
   registrado: "Registrado",
   pago: "Pago",
+  pagamento_falhou: "Pagamento recusado",
   expirado: "Pagamento expirado",
   cancelado: "Cancelado",
 };

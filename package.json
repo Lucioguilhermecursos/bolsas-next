@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "stripe:check": "node scripts/stripe-check.mjs",
     "//": "Os testes rodam contra o BUILD. `npm test` (tests/rodar.mjs) lê .env.test, compila com o projeto Supabase de teste e roda tudo. Para uma suíte isolada, exporte as vars de .env.test antes.",
     "test": "node tests/rodar.mjs",
     "test:paridade": "node tests/paridade.test.mjs",

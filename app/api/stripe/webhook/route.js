@@ -2,67 +2,78 @@
    acbolsa — webhook do Stripe
    =========================================================================
 
-   O Stripe chama esta rota quando o pagamento é concluído. Confere a
-   assinatura (STRIPE_WEBHOOK_SECRET) e marca o pedido como pago.
+   Fino de propósito: a lógica do Stripe (assinatura, tipos de evento, formato
+   do payload) mora em lib/pagamento/stripe.js. Aqui só: verifica, interpreta,
+   grava o resultado em `pagamento_eventos` e atualiza o pedido.
 
-   Sem sessão de usuário aqui — usa o cliente admin (service role) para
-   escrever no pedido.
+   Todo evento recebido vira uma linha em `pagamento_eventos` (Supabase) — é
+   onde você olha primeiro quando um pagamento não bateu.
 
-   Configurar depois: Stripe Dashboard → Developers → Webhooks → Add endpoint
-     URL:    https://<seu-site>/api/stripe/webhook
-     Evento: checkout.session.completed  (e checkout.session.expired)
+   Configurar: Stripe → Developers → Webhooks → Add endpoint
+     URL:      https://<seu-site>/api/stripe/webhook
+     Eventos:  checkout.session.completed, .async_payment_succeeded,
+               .async_payment_failed, .expired
    ========================================================================= */
 
-import { obterStripe } from "@/lib/pagamento/stripe";
+import { verificarEvento, interpretarEvento } from "@/lib/pagamento/stripe";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 
-export async function POST(request) {
-  const stripe = obterStripe();
-  const segredo = process.env.STRIPE_WEBHOOK_SECRET;
-
-  if (!stripe || !segredo) {
-    return new Response("Stripe não configurado.", { status: 503 });
+async function logar(linha) {
+  try {
+    await criarClienteAdmin().from("pagamento_eventos").insert(linha);
+  } catch {
+    /* Log é auxiliar — nunca deixa o webhook falhar por causa dele. */
   }
+}
 
+export async function POST(request) {
   const assinatura = request.headers.get("stripe-signature");
   const corpo = await request.text();
 
-  let evento;
-  try {
-    evento = stripe.webhooks.constructEvent(corpo, assinatura, segredo);
-  } catch (e) {
-    return new Response("Assinatura inválida: " + (e?.message || e), { status: 400 });
+  const { evento, erro } = verificarEvento(corpo, assinatura);
+
+  if (erro) {
+    await logar({ tipo: "assinatura", resultado: "assinatura_invalida", detalhe: erro });
+    /* 400 faz o Stripe reentregar; se for segredo errado, corrija o endpoint. */
+    return new Response(erro, { status: 400 });
   }
 
   const supabase = criarClienteAdmin();
+  const { acao, codigo, paymentIntent, motivo } = interpretarEvento(evento);
+  const base = { stripe_event_id: evento.id, tipo: evento.type, pedido_codigo: codigo };
 
-  if (evento.type === "checkout.session.completed") {
-    const s = evento.data.object;
-    const codigo = s.metadata?.codigo || s.client_reference_id;
+  /* Idempotência: já processamos este event.id? */
+  const { data: jaVisto } = await supabase
+    .from("pagamento_eventos")
+    .select("id")
+    .eq("stripe_event_id", evento.id)
+    .maybeSingle();
+  if (jaVisto) return Response.json({ recebido: true, duplicado: true });
 
-    if (codigo && s.payment_status === "paid") {
-      await supabase
-        .from("pedidos")
-        .update({
-          status: "pago",
-          pago_em: new Date().toISOString(),
-          stripe_payment_intent:
-            typeof s.payment_intent === "string" ? s.payment_intent : null,
-        })
-        .eq("codigo", codigo);
-    }
+  const patch =
+    acao === "pagar"
+      ? { status: "pago", pago_em: new Date().toISOString(), stripe_payment_intent: paymentIntent }
+      : acao === "falhou"
+        ? { status: "pagamento_falhou" }
+        : acao === "expirar"
+          ? { status: "expirado" }
+          : null;
+
+  if (!patch || !codigo) {
+    await logar({ ...base, resultado: "ignorado", detalhe: motivo });
+    return Response.json({ recebido: true, acao: "ignorar" });
   }
 
-  if (evento.type === "checkout.session.expired") {
-    const codigo = evento.data.object.metadata?.codigo;
-    if (codigo) {
-      await supabase
-        .from("pedidos")
-        .update({ status: "expirado" })
-        .eq("codigo", codigo)
-        .eq("status", "registrado");
-    }
-  }
+  /* Não rebaixa um pedido já pago (evento fora de ordem, reenvio). */
+  let query = supabase.from("pedidos").update(patch).eq("codigo", codigo);
+  if (acao !== "pagar") query = query.neq("status", "pago");
+  const { error: erroUpdate } = await query;
 
-  return Response.json({ received: true });
+  await logar({
+    ...base,
+    resultado: erroUpdate ? "erro" : "processado",
+    detalhe: erroUpdate ? erroUpdate.message : acao + " — " + motivo,
+  });
+
+  return Response.json({ recebido: true, acao });
 }

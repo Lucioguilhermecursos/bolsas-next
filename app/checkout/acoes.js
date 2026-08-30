@@ -21,7 +21,7 @@ import { criarClienteServidor } from "@/lib/supabase/server";
 import { obterUsuario } from "@/lib/auth/sessao";
 import { porId } from "@/lib/catalog";
 import { calcularFrete } from "@/lib/formulario";
-import { obterStripe, stripeAtivo, centavos } from "@/lib/pagamento/stripe";
+import { criarSessaoCheckout, stripeAtivo } from "@/lib/pagamento/stripe";
 
 function codigoPedido() {
   return "AC" + Date.now().toString().slice(-8);
@@ -32,44 +32,6 @@ async function urlBase() {
   if (fixa) return fixa.replace(/\/$/, "");
   const h = await headers();
   return `${h.get("x-forwarded-proto") || "http"}://${h.get("host")}`;
-}
-
-async function sessaoStripe({ linhas, frete, codigo, contato, usuario, site }) {
-  const stripe = obterStripe();
-  if (!stripe) return null;
-
-  const line_items = linhas.map((l) => ({
-    quantity: l.qtd,
-    price_data: {
-      currency: "brl",
-      unit_amount: centavos(l.preco),
-      product_data: { name: l.nome + (l.cor ? " — " + l.cor : "") },
-    },
-  }));
-
-  if (frete.valor > 0) {
-    line_items.push({
-      quantity: 1,
-      price_data: {
-        currency: "brl",
-        unit_amount: centavos(frete.valor),
-        product_data: { name: "Frete (" + frete.regiao + ")" },
-      },
-    });
-  }
-
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    locale: "pt-BR",
-    line_items,
-    customer_email: contato.email || usuario.email || undefined,
-    client_reference_id: codigo,
-    metadata: { codigo, user_id: usuario.id },
-    success_url: site + "/conta?pago=" + codigo + "#pedidos",
-    cancel_url: site + "/checkout",
-  });
-
-  return { url: session.url, id: session.id };
 }
 
 export async function criarPedido(dados) {
@@ -148,13 +110,22 @@ export async function criarPedido(dados) {
   let stripeSessionId = null;
 
   try {
-    const s = await sessaoStripe({ linhas, frete, codigo, contato, usuario, site });
+    const s = await criarSessaoCheckout({
+      codigo,
+      userId: usuario.id,
+      email: contato.email || usuario.email,
+      linhas,
+      freteValor: frete.valor,
+      freteRegiao: frete.regiao,
+      urlSucesso: site + "/conta?pago=" + codigo + "#pedidos",
+      urlCancelamento: site + "/checkout",
+    });
     if (s) {
       checkoutUrl = s.url;
       stripeSessionId = s.id;
     }
   } catch (e) {
-    console.error("Stripe checkout session:", e?.message || e);
+    console.error("[stripe] criar sessão:", e?.message || e);
   }
 
   if (!checkoutUrl && process.env.EXTERNAL_CHECKOUT_BASE_URL) {
