@@ -87,16 +87,29 @@ export default function BotaoGoogle({ next = "/conta" }) {
         },
       });
 
-      const largura = Math.min(360, Math.max(220, alvo.current.clientWidth || 300));
+      const largura = Math.max(220, Math.min(360, alvo.current.clientWidth || 300));
       window.google.accounts.id.renderButton(alvo.current, {
         type: "standard",
         theme: "outline",
         size: "large",
         text: "continue_with",
         shape: "rectangular",
-        logo_alignment: "left",
+        logo_alignment: "center",
         width: largura,
       });
+
+      /* Se o botão não pintou (origem não autorizada no Google Cloud, script
+         bloqueado…), o GSI só loga no console. Avisa a pessoa. */
+      setTimeout(() => {
+        if (cancelado || !alvo.current) return;
+        const frame = alvo.current.querySelector("iframe");
+        if (!frame || !frame.clientHeight) {
+          setErro(
+            "Login com Google indisponível agora. Use e-mail e senha " +
+              "(ou tente de novo em alguns minutos)."
+          );
+        }
+      }, 2500);
     })();
 
     return () => {
