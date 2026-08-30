@@ -113,7 +113,11 @@ export default async function PaginaProduto({ params }) {
 
             <p className="product-desc">{produto.descricao}</p>
 
-            {/* Cor — só é seletor quando a MESMA peça existe em outro couro. */}
+            {/* Cor — só é seletor quando a MESMA peça existe em outro couro.
+                Trocar de cor usa `replace`: cada cor testada não vira uma
+                entrada no histórico, então "voltar" leva direto ao catálogo,
+                não a cada cor que a pessoa experimentou. `scroll={false}` mantém
+                a posição enquanto ela compara. */}
             <div className="option-group">
               <div className="option-head">
                 <h2>Cor</h2>
@@ -135,6 +139,8 @@ export default async function PaginaProduto({ params }) {
                       key={p.id}
                       className="color-opt"
                       href={"/produto/" + p.id}
+                      replace
+                      scroll={false}
                       aria-label={"Ver esta peça em " + p.cor}
                       title={p.cor}
                     >
