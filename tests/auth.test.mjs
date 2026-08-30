@@ -38,8 +38,6 @@ try {
     const ctx = await navegador.newContext();
     const p = await ctx.newPage();
     await p.goto(BASE + "/entrar", { waitUntil: "networkidle" });
-    t("login: oferece entrar com o Google",
-      await p.locator('.auth-google button:has-text("Google")').isVisible());
     await p.fill("#email", TEST_EMAIL);
     await p.fill("#senha", "senha-errada-123");
     await p.locator('.auth-form button.btn-primary').click();

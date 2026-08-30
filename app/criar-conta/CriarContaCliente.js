@@ -14,6 +14,8 @@ import { criarConta, reenviarConfirmacao } from "@/app/auth/acoes";
 import BotaoGoogle from "@/components/BotaoGoogle";
 import { IconeCheck } from "@/components/Icones";
 
+const temGoogle = Boolean(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
+
 export default function CriarContaCliente() {
   const [estado, acao, pendente] = useActionState(criarConta, {});
 
@@ -23,11 +25,14 @@ export default function CriarContaCliente() {
 
   return (
     <div className="auth-form">
-      <BotaoGoogle rotulo="Criar conta com o Google" />
-
-      <div className="auth-sep" aria-hidden="true">
-        <span>ou</span>
-      </div>
+      {temGoogle && (
+        <>
+          <BotaoGoogle />
+          <div className="auth-sep" aria-hidden="true">
+            <span>ou</span>
+          </div>
+        </>
+      )}
 
       <form action={acao} noValidate>
       <div className="field">

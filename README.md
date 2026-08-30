@@ -20,12 +20,20 @@ no próprio arquivo. O pagamento é feito fora do site — via **Stripe Checkout
      `0002_clientes.sql` (ficha por cliente, código `CL000001`),
      `0003_stripe_pedidos.sql` (colunas de pagamento em `pedidos`).
    - Produção: configurar SMTP próprio (o embutido do Supabase é só para teste).
-   - **Login com Google**: no Google Cloud, criar um OAuth client "Web
-     application" com redirect URI `https://<PROJECT>.supabase.co/auth/v1/callback`;
-     em Authentication → Providers → Google, colar Client ID + Secret e habilitar.
-     O `redirect_to` da volta (`/auth/callback`) já está coberto pelos Redirect
-     URLs `/**`. Sem isso, o botão "Entrar com o Google" aparece mas o Google
-     recusa.
+   - **Login com Google** (nativo — o popup mostra o domínio do site, não o
+     `supabase.co`):
+     1. Google Cloud → APIs & Services → Credentials → OAuth client ID → *Web
+        application*.
+     2. **Authorized JavaScript origins**: `http://localhost:3000` e a URL de
+        produção (ex. `https://bolsas-next.vercel.app`). **Redirect URIs** não
+        são necessários pra este fluxo, mas mantenha
+        `https://<PROJECT>.supabase.co/auth/v1/callback` se já existir.
+     3. Supabase → Authentication → Providers → **Google**: habilitar e colar o
+        **Client ID** (o Secret também, não atrapalha).
+     4. Env: `NEXT_PUBLIC_GOOGLE_CLIENT_ID` = o Client ID
+        (`…apps.googleusercontent.com`). Vazio = botão não aparece.
+     Trocar o domínio depois: é só atualizar as Authorized JavaScript origins no
+     Google Cloud e o `NEXT_PUBLIC_GOOGLE_CLIENT_ID` continua o mesmo.
 
 2. **Env**
    ```bash
@@ -80,6 +88,7 @@ Variables** (Production + Preview):
 | `NEXT_PUBLIC_SUPABASE_URL` | do projeto Supabase de produção |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | idem |
 | `NEXT_PUBLIC_SITE_URL` | a URL final, ex. `https://bolsas-next.vercel.app` (sem barra no fim) |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Client ID do OAuth (login com Google) |
 | `EXTERNAL_CHECKOUT_BASE_URL` | quando houver checkout externo |
 
 Não setar `BUILD_STANDALONE` (é só para o Docker).

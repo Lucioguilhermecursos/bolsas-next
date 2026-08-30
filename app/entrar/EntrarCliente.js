@@ -14,6 +14,8 @@ import { useSearchParams } from "next/navigation";
 import { entrar } from "@/app/auth/acoes";
 import BotaoGoogle from "@/components/BotaoGoogle";
 
+const temGoogle = Boolean(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
+
 const MENSAGENS_ERRO = {
   "link-invalido": "Esse link expirou ou já foi usado. Entre com e-mail e senha.",
   oauth: "Não deu para entrar com o Google. Tente de novo ou use e-mail e senha.",
@@ -29,11 +31,14 @@ export default function EntrarCliente() {
 
   return (
     <div className="auth-form">
-      <BotaoGoogle next={next} />
-
-      <div className="auth-sep" aria-hidden="true">
-        <span>ou</span>
-      </div>
+      {temGoogle && (
+        <>
+          <BotaoGoogle next={next} />
+          <div className="auth-sep" aria-hidden="true">
+            <span>ou</span>
+          </div>
+        </>
+      )}
 
       <form action={acao} noValidate>
         <input type="hidden" name="next" value={next} />

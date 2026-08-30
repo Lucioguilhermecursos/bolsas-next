@@ -1,38 +1,119 @@
+"use client";
+
 /* =========================================================================
-   acbolsa — botão "entrar com Google"
+   acbolsa — "entrar com o Google" (nativo)
    =========================================================================
 
-   Form próprio (não é o form de e-mail/senha) com a action `entrarComGoogle`,
-   que redireciona para o Google. `next` diz para onde voltar depois.
+   Usa a biblioteca oficial do Google (Google Identity Services). O login
+   acontece num popup do próprio Google que mostra o domínio DESTE site — não
+   passa pelo <projeto>.supabase.co. O ID token volta pro cliente e a sessão é
+   criada com `signInWithIdToken`.
+
+   Só aparece se `NEXT_PUBLIC_GOOGLE_CLIENT_ID` estiver definida (o Client ID
+   "...apps.googleusercontent.com" do OAuth client no Google Cloud). O domínio
+   do site precisa estar em "Authorized JavaScript origins" desse client.
    ========================================================================= */
 
-import { entrarComGoogle } from "@/app/auth/acoes";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { criarClienteNavegador } from "@/lib/supabase/client";
 
-export default function BotaoGoogle({ next = "", rotulo = "Entrar com o Google" }) {
+const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+const SCRIPT_SRC = "https://accounts.google.com/gsi/client";
+
+async function hashNonce(raw) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(raw));
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function carregarGsi() {
+  return new Promise((resolve, reject) => {
+    if (window.google?.accounts?.id) return resolve();
+    const existente = document.querySelector(`script[src="${SCRIPT_SRC}"]`);
+    if (existente) {
+      existente.addEventListener("load", () => resolve());
+      existente.addEventListener("error", reject);
+      return;
+    }
+    const s = document.createElement("script");
+    s.src = SCRIPT_SRC;
+    s.async = true;
+    s.onload = () => resolve();
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+export default function BotaoGoogle({ next = "/conta" }) {
+  const alvo = useRef(null);
+  const router = useRouter();
+  const [erro, setErro] = useState("");
+
+  useEffect(() => {
+    if (!CLIENT_ID || !alvo.current) return;
+    let cancelado = false;
+
+    (async () => {
+      try {
+        await carregarGsi();
+      } catch {
+        return;
+      }
+      if (cancelado || !alvo.current) return;
+
+      const supabase = criarClienteNavegador();
+      const nonce = crypto.randomUUID();
+      const nonceHash = await hashNonce(nonce);
+      if (cancelado || !alvo.current) return;
+
+      window.google.accounts.id.initialize({
+        client_id: CLIENT_ID,
+        nonce: nonceHash,
+        callback: async (resposta) => {
+          const { error } = await supabase.auth.signInWithIdToken({
+            provider: "google",
+            token: resposta.credential,
+            nonce,
+          });
+          if (error) {
+            setErro("Não deu para entrar com o Google. Tente de novo ou use e-mail e senha.");
+            return;
+          }
+          const destino = next && next.startsWith("/") ? next : "/conta";
+          router.push(destino);
+          router.refresh();
+        },
+      });
+
+      const largura = Math.min(360, Math.max(220, alvo.current.clientWidth || 300));
+      window.google.accounts.id.renderButton(alvo.current, {
+        type: "standard",
+        theme: "outline",
+        size: "large",
+        text: "continue_with",
+        shape: "rectangular",
+        logo_alignment: "left",
+        width: largura,
+      });
+    })();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [next, router]);
+
+  if (!CLIENT_ID) return null;
+
   return (
-    <form action={entrarComGoogle} className="auth-google">
-      <input type="hidden" name="next" value={next} />
-      <button className="btn btn-ghost btn-block" type="submit">
-        <svg viewBox="0 0 18 18" width="16" height="16" aria-hidden="true">
-          <path
-            fill="#4285F4"
-            d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z"
-          />
-          <path
-            fill="#34A853"
-            d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.92v2.33A9 9 0 0 0 9 18Z"
-          />
-          <path
-            fill="#FBBC05"
-            d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.92A9 9 0 0 0 0 9c0 1.45.35 2.82.92 4.05l3.05-2.33Z"
-          />
-          <path
-            fill="#EA4335"
-            d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59C13.46.89 11.43 0 9 0A9 9 0 0 0 .92 4.95l3.05 2.33C4.68 5.16 6.66 3.58 9 3.58Z"
-          />
-        </svg>
-        {rotulo}
-      </button>
-    </form>
+    <div className="auth-google">
+      <div ref={alvo} />
+      {erro && (
+        <p className="field-error" role="alert">
+          {erro}
+        </p>
+      )}
+    </div>
   );
 }

@@ -31,29 +31,8 @@ async function urlBase() {
   return `${proto}://${host}`;
 }
 
-function destinoSeguro(valor) {
-  return valor && valor.startsWith("/") ? valor : "/conta";
-}
-
-/* Login social. `signInWithOAuth` no servidor só monta a URL do Google e grava
-   o cookie PKCE; o `redirect` manda o navegador pra lá. A volta cai em
-   /auth/callback, que troca o code por sessão. */
-export async function entrarComGoogle(formData) {
-  const next = destinoSeguro(String(formData.get("next") || ""));
-  const supabase = await criarClienteServidor();
-
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: (await urlBase()) + "/auth/callback?next=" + encodeURIComponent(next),
-    },
-  });
-
-  if (error || !data?.url) {
-    redirect("/entrar?erro=oauth");
-  }
-  redirect(data.url);
-}
+/* Login com Google é nativo (Google Identity Services) — ver
+   components/BotaoGoogle.js. Não passa por Server Action nem pelo supabase.co. */
 
 export async function entrar(estadoAnterior, formData) {
   const email = String(formData.get("email") || "").trim();
