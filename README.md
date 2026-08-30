@@ -18,7 +18,9 @@ no próprio arquivo. O pagamento é feito fora do site — via **Stripe Checkout
      o `/auth/confirmar` também aceita `token_hash={{ .TokenHash }}&type=email`.)
    - `SQL Editor`: rodar as migrações em ordem — `0001_auth_pedidos.sql`,
      `0002_clientes.sql` (ficha por cliente, código `CL000001`),
-     `0003_stripe_pedidos.sql` (colunas de pagamento em `pedidos`).
+     `0003_stripe_pedidos.sql` (colunas de pagamento em `pedidos`),
+     `0004_pedidos_colunas.sql` (colunas legíveis de cliente/entrega em `pedidos`,
+     derivadas do JSON).
    - Produção: configurar SMTP próprio (o embutido do Supabase é só para teste).
    - **Login com Google** (nativo — o popup mostra o domínio do site, não o
      `supabase.co`):

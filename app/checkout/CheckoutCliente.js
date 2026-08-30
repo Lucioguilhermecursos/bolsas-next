@@ -21,10 +21,10 @@ import {
   FRETE,
   UFS,
   calcularFrete,
-  cpfValido,
+  cpfCnpjValido,
   emailValido,
   mascaraCEP,
-  mascaraCPF,
+  mascaraCpfCnpj,
   mascaraTelefone,
 } from "@/lib/formulario";
 import { criarPedido } from "./acoes";
@@ -53,7 +53,7 @@ const REGRAS = [
   ["nome", (v) => v.length >= 3 && v.includes(" "), "Escreva seu nome completo, como está no documento."],
   ["email", emailValido, "Esse e-mail parece incompleto. Confira se falta o @ ou o final do domínio."],
   ["tel", (v) => v.replace(/\D/g, "").length >= 10, "Informe DDD e número, com pelo menos 10 dígitos."],
-  ["cpf", cpfValido, "Esse CPF não é válido. Confira os números digitados."],
+  ["cpf", cpfCnpjValido, "Documento inválido. Confira o CPF ou o CNPJ digitado."],
   ["cep", (v) => v.replace(/\D/g, "").length === 8, "O CEP tem 8 dígitos. Confira e digite novamente."],
   ["rua", (v) => v.length >= 3, "Informe o nome da rua."],
   ["numero", (v) => v.length >= 1, 'Informe o número. Se não houver, escreva "S/N".'],
@@ -64,7 +64,7 @@ const REGRAS = [
 
 const MASCARAS = {
   cep: mascaraCEP,
-  cpf: mascaraCPF,
+  cpf: mascaraCpfCnpj,
   tel: mascaraTelefone,
 };
 
@@ -247,10 +247,10 @@ export default function CheckoutCliente({ inicial }) {
 
               <Campo
                 nome="cpf"
-                rotulo="CPF"
+                rotulo="CPF ou CNPJ"
                 obrigatorio
                 erro={erros.cpf}
-                dica="Necessário para emitir a nota fiscal."
+                dica="Necessário para emitir a nota fiscal. Pessoa física ou jurídica."
               >
                 <input
                   className="input"

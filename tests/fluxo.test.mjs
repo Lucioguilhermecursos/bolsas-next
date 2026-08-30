@@ -203,16 +203,19 @@ await p.waitForTimeout(500);
 const nErros = await p.locator(".field-error:not(:empty)").count();
 t("checkout: bloqueia envio vazio", nErros >= 5, nErros + " erros exibidos");
 
-// CPF inválido
+// CPF/CNPJ inválido
 await p.fill("#cpf", "111.111.111-11");
 await p.locator('button:has-text("Registrar pedido")').click();
 await p.waitForTimeout(400);
 const erroCpf = await p.locator("#e-cpf").innerText();
-t("checkout: recusa CPF de dígito repetido", erroCpf.includes("não é válido"), erroCpf);
+t("checkout: recusa documento de dígito repetido", /inv[aá]lid/i.test(erroCpf), erroCpf);
 
-// máscara
+// máscara: CPF até 11 dígitos, CNPJ a partir daí
 await p.fill("#cpf", "52998224725");
 t("checkout: máscara de CPF", (await p.inputValue("#cpf")) === "529.982.247-25", await p.inputValue("#cpf"));
+await p.fill("#cpf", "11222333000181");
+t("checkout: máscara de CNPJ", (await p.inputValue("#cpf")) === "11.222.333/0001-81", await p.inputValue("#cpf"));
+await p.fill("#cpf", "52998224725");
 await p.fill("#tel", "11987654321");
 t("checkout: máscara de telefone", (await p.inputValue("#tel")) === "(11) 98765-4321", await p.inputValue("#tel"));
 
