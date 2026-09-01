@@ -35,6 +35,10 @@ const PROMESSAS = [
   { Icone: IconeAtendimento, titulo: "Atendimento direto", texto: "Dúvida respondida por quem conhece a peça" },
 ];
 
+/* Foto da faixa "O material". Troque pelo arquivo em public/fotos/produtos/
+   que melhor mostrar o detalhe do couro e da costura. */
+const FOTO_MATERIAL = "/fotos/produtos/tabby-shoulder-marrom-04.jpg";
+
 const MATERIAIS = [
   {
     termo: "Curtimento",
@@ -210,11 +214,15 @@ export default function Home() {
           </div>
 
           <div className="material-media">
-            <Placeholder
-              proporcao="square"
-              rotulo="Detalhe do couro e da costura"
-              variante="forest"
-            />
+            <div className="ph ph--square ph--forest">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={FOTO_MATERIAL}
+                alt="Detalhe do couro e da costura de uma Tabby Shoulder Bag"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
           </div>
         </div>
       </section>
