@@ -35,10 +35,6 @@ const PROMESSAS = [
   { Icone: IconeAtendimento, titulo: "Atendimento direto", texto: "Dúvida respondida por quem conhece a peça" },
 ];
 
-/* Cores cuja 1ª foto não pode ir pra vitrine (marca d'água, embalagem de
-   outra marca). Some daqui quando a foto for substituída por uma própria. */
-const FOTO_VETADA_NA_HOME = new Set(["tabby-shoulder-jacquard-azul"]);
-
 const MATERIAIS = [
   {
     termo: "Curtimento",
@@ -136,12 +132,8 @@ export default function Home() {
               const doCatalogo = porCor(c.nome);
               const n = doCatalogo.length;
               const peca = doCatalogo[0];
-              /* A foto da cor entra aqui quando existe. Exceção: a foto de
-                 Jacquard Azul traz caixas da Coach e a marca d'água "réplica"
-                 — não pode ir pra vitrine. Trocar por foto própria e remover
-                 daqui. */
-              const foto =
-                peca && !FOTO_VETADA_NA_HOME.has(peca.id) ? peca.fotos?.[0] : null;
+              /* A 1ª foto da cor, quando existe; senão, placeholder. */
+              const foto = peca ? peca.fotos?.[0] ?? null : null;
               /* Uma peça só na cor: vai direto pra página dela (com o botão de
                  comprar). Mais de uma, abre o catálogo filtrado. */
               const destino =

@@ -3,9 +3,9 @@
 O catálogo é **um modelo** — a Tabby Shoulder Bag — em 12 cores. Cada cor
 tem seu próprio conjunto de fotos.
 
-**Estado atual:** **nenhuma cor tem foto** (`fotos: []` em todas). O site mostra
-um placeholder marcado na proporção certa — nada quebra por faltar imagem.
-Este guia é para **adicionar** as fotos definitivas.
+**Estado atual:** as 12 cores têm foto ligada (73 arquivos em
+`public/fotos/produtos/`). Este guia é para **trocar** ou **acrescentar**.
+Com `fotos: []` numa cor, o site volta ao placeholder — nada quebra.
 
 ## Passo a passo (por cor)
 
@@ -56,20 +56,20 @@ A galeria com miniaturas só aparece quando a cor tem duas ou mais fotos.
 Os `slug` abaixo saíram de `lib/catalog.js`. Use exatamente esse texto no
 nome do arquivo (`<slug>-01.jpg`, `<slug>-02.jpg`…).
 
-| Cor | `slug` / prefixo do arquivo |
-|---|---|
-| Preto | `tabby-shoulder-preto` |
-| Preto e Dourado | `tabby-shoulder-preto-dourado` |
-| Preto Fosco | `tabby-shoulder-preto-fosco` |
-| Preto Metalizado | `tabby-shoulder-preto-metal` |
-| Marrom | `tabby-shoulder-marrom` |
-| Marrom Escuro | `tabby-shoulder-marrom-escuro` |
-| Jacquard Azul | `tabby-shoulder-jacquard-azul` |
-| Jacquard Marrom | `tabby-shoulder-jacquard-marrom` |
-| Vinho | `tabby-shoulder-vinho` |
-| Branco | `tabby-shoulder-branco` |
-| Branco Off | `tabby-shoulder-branco-off` |
-| Branco Gelo | `tabby-shoulder-branco-gelo` |
+| Cor | `slug` / prefixo do arquivo | Fotos |
+|---|---|---|
+| Preto | `tabby-shoulder-preto` | 1 (gif) |
+| Preto e Dourado | `tabby-shoulder-preto-dourado` | 9 (8 jpg + 1 gif) |
+| Preto Fosco | `tabby-shoulder-preto-fosco` | 7 |
+| Preto Metalizado | `tabby-shoulder-preto-metal` | 9 |
+| Marrom | `tabby-shoulder-marrom` | 9 (8 jpg + 1 gif) |
+| Marrom Escuro | `tabby-shoulder-marrom-escuro` | 6 |
+| Jacquard Azul | `tabby-shoulder-jacquard-azul` | 1 |
+| Jacquard Marrom | `tabby-shoulder-jacquard-marrom` | 1 |
+| Vinho | `tabby-shoulder-vinho` | 9 |
+| Branco | `tabby-shoulder-branco` | 11 (webp + 9 jpg + gif) |
+| Branco Off | `tabby-shoulder-branco-off` | 6 |
+| Branco Gelo | `tabby-shoulder-branco-gelo` | 4 |
 
 ## Observações
 
