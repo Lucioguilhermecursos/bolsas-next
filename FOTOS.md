@@ -3,11 +3,9 @@
 O catálogo é **um modelo** — a Tabby Shoulder Bag — em 12 cores. Cada cor
 tem seu próprio conjunto de fotos.
 
-**Estado atual:** as 12 cores já têm pelo menos uma foto ligada (copiadas de
-`Imagens bolsas/`). Este guia é para **trocar** ou **acrescentar** fotos.
-
-Com `fotos: []` numa cor, o site mostra um placeholder marcado na proporção
-certa — nada quebra por faltar imagem.
+**Estado atual:** **nenhuma cor tem foto** (`fotos: []` em todas). O site mostra
+um placeholder marcado na proporção certa — nada quebra por faltar imagem.
+Este guia é para **adicionar** as fotos definitivas.
 
 ## Passo a passo (por cor)
 
@@ -56,35 +54,25 @@ A galeria com miniaturas só aparece quando a cor tem duas ou mais fotos.
 ## As 12 cores
 
 Os `slug` abaixo saíram de `lib/catalog.js`. Use exatamente esse texto no
-nome do arquivo. "Pasta" é de qual pasta de `Imagens bolsas/` a cor veio.
-Os nomes de cor foram derivados do nome da pasta — para trocar, mude o campo
-`cor` em `lib/catalog.js` e aqui.
+nome do arquivo (`<slug>-01.jpg`, `<slug>-02.jpg`…).
 
-| Cor | `slug` / prefixo do arquivo | Pasta de origem | Fotos ligadas |
-|---|---|---|---|
-| Preto | `tabby-shoulder-preto` | black black | 2 (1 jpg + 1 gif) |
-| Preto e Dourado | `tabby-shoulder-preto-dourado` | Black Gold | 10 (9 jpg + 1 gif) |
-| Preto Fosco | `tabby-shoulder-preto-fosco` | Black Par | 8 |
-| Preto Metalizado | `tabby-shoulder-preto-metal` | Blk+meta | 10 |
-| Marrom | `tabby-shoulder-marrom` | Brow | 9 (8 jpg + 1 gif) |
-| Marrom Escuro | `tabby-shoulder-marrom-escuro` | Brow parse | 2 |
-| Jacquard Azul | `tabby-shoulder-jacquard-azul` | Jacquard Blue | 1 |
-| Jacquard Marrom | `tabby-shoulder-jacquard-marrom` | Jacquard brow | 1 |
-| Vinho | `tabby-shoulder-vinho` | Red Wine | 1 |
-| Branco | `tabby-shoulder-branco` | White | 1 |
-| Branco Off | `tabby-shoulder-branco-off` | White + | 1 |
-| Branco Gelo | `tabby-shoulder-branco-gelo` | White parse | 1 |
-
-47 arquivos no total — **tudo que havia nas pastas**, incluindo os `.gif`
-(miniaturas animadas 600×600, entram por último na galeria dessas 3 cores).
-
-As 6 cores com 1 foto (Jacquard Azul/Marrom, Vinho, Branco, Branco Off,
-Branco Gelo) só tinham **um arquivo** na pasta. Para ter galeria nelas, é
-adicionar mais fotos seguindo o passo a passo acima.
+| Cor | `slug` / prefixo do arquivo |
+|---|---|
+| Preto | `tabby-shoulder-preto` |
+| Preto e Dourado | `tabby-shoulder-preto-dourado` |
+| Preto Fosco | `tabby-shoulder-preto-fosco` |
+| Preto Metalizado | `tabby-shoulder-preto-metal` |
+| Marrom | `tabby-shoulder-marrom` |
+| Marrom Escuro | `tabby-shoulder-marrom-escuro` |
+| Jacquard Azul | `tabby-shoulder-jacquard-azul` |
+| Jacquard Marrom | `tabby-shoulder-jacquard-marrom` |
+| Vinho | `tabby-shoulder-vinho` |
+| Branco | `tabby-shoulder-branco` |
+| Branco Off | `tabby-shoulder-branco-off` |
+| Branco Gelo | `tabby-shoulder-branco-gelo` |
 
 ## Observações
 
-- A pasta `Imagens bolsas/` na raiz não é usada pelo site (está no
-  `.gitignore`). Só entram no site os arquivos em `public/fotos/produtos/`.
-- Não nomeie arquivos com espaços nem pastas dentro de `public/fotos/produtos/`
-  — só arquivos soltos `<slug>-NN.jpg`.
+- Só entram no site os arquivos em `public/fotos/produtos/`.
+- Não nomeie arquivos com espaços nem crie pastas dentro de
+  `public/fotos/produtos/` — só arquivos soltos `<slug>-NN.jpg`.
