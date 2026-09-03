@@ -60,9 +60,9 @@ const MATERIAIS = [
 ];
 
 export default function Home() {
-  /* Peça do hero: cor escolhida a dedo pela foto (a de Marrom é a mais
-     limpa do acervo). Cai na mais vendida se o id sumir do catálogo. */
-  const estrela = porId("tabby-shoulder-marrom") || maisVendidos(1)[0];
+  /* Peça do hero: a Preto, que é a bolsa da foto do hero (public/fotos/hero.jpg).
+     Cai na mais vendida se o id sumir do catálogo. */
+  const estrela = porId("tabby-shoulder-preto") || maisVendidos(1)[0];
 
   /* Uma entrada por cor para o carrossel "Por cores". Cor com peça única vai
      direto pra página dela; com mais de uma, abre o catálogo filtrado. */
