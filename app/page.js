@@ -9,7 +9,8 @@
 import Link from "next/link";
 import { maisVendidos, novidades, cores, porCor, porId, formatarPreco } from "@/lib/catalog";
 import { GradeProdutos } from "@/components/CartaoProduto";
-import { MidiaProduto, Placeholder } from "@/components/Placeholder";
+import { MidiaProduto } from "@/components/Placeholder";
+import ColecoesCarrossel from "@/components/ColecoesCarrossel";
 import Newsletter from "@/components/Newsletter";
 import Revelar from "@/components/Revelar";
 import {
@@ -59,6 +60,22 @@ export default function Home() {
   /* Peça do hero: cor escolhida a dedo pela foto (a de Marrom é a mais
      limpa do acervo). Cai na mais vendida se o id sumir do catálogo. */
   const estrela = porId("tabby-shoulder-marrom") || maisVendidos(1)[0];
+
+  /* Uma entrada por cor para o carrossel "Por cores". Cor com peça única vai
+     direto pra página dela; com mais de uma, abre o catálogo filtrado. */
+  const colecoes = cores().map((c) => {
+    const daCor = porCor(c.nome);
+    const peca = daCor[0];
+    return {
+      nome: c.nome,
+      hex: c.hex,
+      foto: peca?.fotos?.[0] ?? null,
+      destino:
+        daCor.length === 1 && peca
+          ? "/produto/" + peca.id
+          : "/catalogo?cor=" + encodeURIComponent(c.nome),
+    };
+  });
 
   return (
     <>
@@ -131,54 +148,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="collections">
-            {cores().slice(0, 6).map((c) => {
-              const doCatalogo = porCor(c.nome);
-              const n = doCatalogo.length;
-              const peca = doCatalogo[0];
-              /* A 1ª foto da cor, quando existe; senão, placeholder. */
-              const foto = peca ? peca.fotos?.[0] ?? null : null;
-              /* Uma peça só na cor: vai direto pra página dela (com o botão de
-                 comprar). Mais de uma, abre o catálogo filtrado. */
-              const destino =
-                n === 1
-                  ? "/produto/" + peca.id
-                  : "/catalogo?cor=" + encodeURIComponent(c.nome);
-              return (
-                <Link key={c.nome} className="collection" href={destino}>
-                  {foto ? (
-                    <div className="ph ph--wide">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={foto}
-                        alt={"Tabby Shoulder Bag na cor " + c.nome}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </div>
-                  ) : (
-                    <Placeholder proporcao="wide" rotulo={"Foto da coleção " + c.nome} />
-                  )}
-                  <div className="collection-body">
-                    <div>
-                      <h3>
-                        <span
-                          className="swatch swatch--filtro"
-                          style={{ background: c.hex }}
-                          aria-hidden="true"
-                        />
-                        {c.nome}
-                      </h3>
-                      <p>
-                        {n} {n === 1 ? "peça" : "peças"}
-                      </p>
-                    </div>
-                    <IconeSeta />
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+          <ColecoesCarrossel colecoes={colecoes} />
         </div>
       </section>
 

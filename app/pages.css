@@ -191,57 +191,60 @@
   line-height: 1.45;
 }
 
-/* ---------- Coleções -------------------------------------------------------
-   Grid assimétrico: um bloco alto à esquerda, dois empilhados à direita.
-   Legenda dentro do campo escuro, não sobre a foto.
+/* ---------- Coleções — carrossel "Por cores" -----------------------------
+   Faixa horizontal com scroll-snap. A foto domina o cartão; a legenda é uma
+   tira fina no rodapé, dentro do campo escuro (não sobre a foto).
    -------------------------------------------------------------------------- */
 
-.collections {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--s-5);
+.carrossel {
+  position: relative;
 }
 
-/* Linhas de altura fixa: o bloco alto ocupa duas, os baixos uma cada, e as
-   legendas alinham por construção em vez de por sorte. */
-@media (min-width: 760px) {
-  .collections {
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: 268px;
-  }
-  .collection--lead { grid-row: 1 / span 2; }
+.carrossel-faixa {
+  display: flex;
+  gap: var(--s-4);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* Sobra nas laterais para o 1º e o último cartão não colarem na borda ao
+     dar snap, sem quebrar o alinhamento com o container. */
+  padding-bottom: var(--s-2);
 }
 
-@media (min-width: 1100px) {
-  .collections { grid-auto-rows: 310px; }
-}
+.carrossel-faixa::-webkit-scrollbar { display: none; }
+
+/* Proporção do bloco de imagem do carrossel — mais alto que largo, a bolsa
+   aparece inteira. */
+.ph--colecao { --ph-ratio: 4 / 5; }
 
 .collection {
   position: relative;
+  flex: 0 0 auto;
+  width: 78vw;
+  max-width: 300px;
   display: flex;
   flex-direction: column;
   text-decoration: none;
   color: inherit;
   background: var(--paper-deep);
   overflow: hidden;
+  scroll-snap-align: start;
 }
 
-/* A imagem toma a sobra da célula; a legenda fica encostada embaixo. */
-.collection .ph {
-  flex: 1;
-  min-height: 0;
-}
+@media (min-width: 640px) { .collection { width: 46vw; } }
+@media (min-width: 960px) { .collection { width: 300px; } }
 
-@media (min-width: 760px) {
-  .collection .ph { aspect-ratio: auto; }
-}
+.collection .ph { width: 100%; }
 
+/* Tira fina: só cor + seta. Metade da altura da legenda antiga. */
 .collection-body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--s-4);
-  padding: var(--s-5);
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
   background: var(--ink);
   color: var(--paper);
 }
@@ -249,26 +252,17 @@
 .collection-body h3 {
   display: flex;
   align-items: center;
-  gap: var(--s-3);
+  gap: var(--s-2);
   color: var(--paper);
-  font-size: 1.375rem;
-  margin-bottom: 2px;
+  font-size: 1.0625rem;
+  margin: 0;
 }
 
-.collection-body .swatch {
-  border-color: rgba(255, 255, 255, 0.35);
-}
-
-.collection-body p {
-  font-size: 12px;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--muted-on-forest);
-}
+.collection-body .swatch { border-color: rgba(255, 255, 255, 0.35); }
 
 .collection-body svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   flex: none;
   stroke: var(--brass);
   stroke-width: 1.4;
@@ -276,9 +270,46 @@
   transition: transform var(--t);
 }
 
-.collection:hover .collection-body svg { transform: translateX(5px); }
-
 .collection:hover .collection-body { background: var(--forest); }
+.collection:hover .collection-body svg { transform: translateX(4px); }
+
+/* Setas do carrossel — sobre as bordas, some quando não há para onde ir. */
+.carrossel-nav {
+  position: absolute;
+  top: calc(50% - 28px);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
+  cursor: pointer;
+  transition: opacity var(--t), background-color var(--t);
+  z-index: 3;
+}
+
+.carrossel-nav svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  fill: none;
+}
+
+.carrossel-nav--antes { left: -8px; }
+.carrossel-nav--antes svg { transform: scaleX(-1); }
+.carrossel-nav--depois { right: -8px; }
+
+.carrossel-nav:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 639px) {
+  .carrossel-nav { display: none; }
+}
 
 /* ---------- Faixa editorial de material ------------------------------------
    O argumento da marca: o couro. Campo verde, texto e imagem lado a lado.

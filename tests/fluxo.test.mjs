@@ -39,7 +39,16 @@ t("home: cartões na vitrine", (await p.locator(".card").count()) >= 2,
 t("home: hero em campo verde", await p.locator(".hero").isVisible());
 t("home: régua de latão", (await p.locator(".label-rule-lg").count()) > 0);
 t("home: 4 garantias", (await p.locator(".promise").count()) === 4);
-t("home: 6 coleções de cor", (await p.locator(".collection").count()) === 6);
+t("home: carrossel de cores", (await p.locator(".carrossel .collection").count()) >= 6);
+t("home: carrossel tem navegação", (await p.locator(".carrossel-nav").count()) === 2);
+{
+  const faixa = p.locator(".carrossel-faixa");
+  const antes = await faixa.evaluate((el) => el.scrollLeft);
+  await p.locator(".carrossel-nav--depois").click();
+  await p.waitForTimeout(500);
+  const depois = await faixa.evaluate((el) => el.scrollLeft);
+  t("home: seta do carrossel avança", depois > antes, "scrollLeft " + antes + " → " + depois);
+}
 
 // ---------- 2. Adicionar à sacola ----------
 await p.goto(BASE + "/produto/tabby-shoulder-preto", { waitUntil: "networkidle" });
