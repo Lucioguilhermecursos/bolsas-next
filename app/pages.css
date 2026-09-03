@@ -777,6 +777,11 @@
 
 .gallery-main { position: relative; }
 
+/* As fotos de campanha são retrato alto (9:16); no bloco 4:5 da galeria o
+   recorte cairia no rosto da modelo. Ancora no alto. Nas fotos de produto
+   (packshot, paisagem) o recorte é lateral, então isto não muda nada. */
+.gallery .ph > img { object-position: 50% 16%; }
+
 .gallery-thumbs {
   display: flex;
   gap: var(--s-2);
