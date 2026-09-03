@@ -97,6 +97,11 @@
   margin-inline: auto;
 }
 
+/* A foto do hero é retrato alto (9:16). Deixa o bloco mais alto e ancora o
+   recorte no alto, para o rosto da modelo e a bolsa não serem cortados. */
+.hero-media .ph--hero { --ph-ratio: 0.66; }
+.hero-media .ph--hero > img { object-position: 50% 12%; }
+
 /* A peça inteira é o link: imagem e legenda juntas. */
 .hero-peca {
   display: block;
