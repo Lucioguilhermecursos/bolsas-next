@@ -9,7 +9,6 @@
 import Link from "next/link";
 import { maisVendidos, novidades, cores, porCor, porId, formatarPreco } from "@/lib/catalog";
 import { GradeProdutos } from "@/components/CartaoProduto";
-import { MidiaProduto } from "@/components/Placeholder";
 import ColecoesCarrossel from "@/components/ColecoesCarrossel";
 import Newsletter from "@/components/Newsletter";
 import Revelar from "@/components/Revelar";
@@ -35,6 +34,10 @@ const PROMESSAS = [
   { Icone: IconeCostura, titulo: "Couro legítimo", texto: "Ficha técnica aberta em cada peça" },
   { Icone: IconeAtendimento, titulo: "Atendimento direto", texto: "Dúvida respondida por quem conhece a peça" },
 ];
+
+/* Foto do hero. Troque o arquivo em public/fotos/hero.jpg (proporção 3:4,
+   o site recorta pro centro). */
+const FOTO_HERO = "/fotos/hero.jpg";
 
 /* Foto da faixa "O material". Troque pelo arquivo em public/fotos/produtos/
    que melhor mostrar o detalhe do couro e da costura. */
@@ -110,7 +113,15 @@ export default function Home() {
           <div className="hero-media">
             {estrela && (
               <Link className="hero-peca" href={"/produto/" + estrela.id}>
-                <MidiaProduto produto={estrela} proporcao="hero" eager />
+                <div className="ph ph--hero">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={FOTO_HERO}
+                    alt={estrela.nome + " em couro"}
+                    fetchPriority="high"
+                    decoding="async"
+                  />
+                </div>
                 <div className="hero-caption">
                   <span className="nome">{estrela.nome}</span>
                   <span className="price">{formatarPreco(estrela.preco)}</span>
