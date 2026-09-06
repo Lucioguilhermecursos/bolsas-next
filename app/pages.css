@@ -799,6 +799,23 @@
    (packshot, paisagem) o recorte é lateral, então isto não muda nada. */
 .gallery .ph > img { object-position: 50% 16%; }
 
+/* Zoom no hover da foto grande. `.ph` já tem overflow: hidden; a origem do
+   scale vem do cursor (variáveis escritas pelo JS). */
+.gallery-zoom { cursor: zoom-in; }
+
+.gallery-zoom > img {
+  transition: transform 250ms ease;
+  transform-origin: var(--zoom-x, 50%) var(--zoom-y, 50%);
+}
+
+@media (hover: hover) {
+  .gallery-zoom:hover > img { transform: scale(2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery-zoom > img { transition: none; }
+}
+
 .gallery-thumbs {
   display: flex;
   gap: var(--s-2);

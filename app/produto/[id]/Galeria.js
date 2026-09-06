@@ -11,6 +11,8 @@
    A coluna de miniaturas nunca passa da base da foto grande: um efeito mede
    a altura da foto principal e trava a `max-height` da tira; o excedente
    rola dentro dela.
+
+   A foto grande dá zoom no hover, com a origem seguindo o cursor.
    ========================================================================= */
 
 import { useEffect, useRef, useState } from "react";
@@ -81,6 +83,15 @@ export default function Galeria({ produto }) {
     btn?.scrollIntoView({ block: "nearest" });
   }, [atual]);
 
+  /* Zoom no hover: a origem do `scale` segue o cursor. Escreve as variáveis
+     direto no elemento (sem re-render a cada pixel de movimento). */
+  function aoMoverZoom(e) {
+    const el = e.currentTarget;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty("--zoom-x", ((e.clientX - r.left) / r.width) * 100 + "%");
+    el.style.setProperty("--zoom-y", ((e.clientY - r.top) / r.height) * 100 + "%");
+  }
+
   return (
     <div className="gallery">
       <div
@@ -108,7 +119,7 @@ export default function Galeria({ produto }) {
       </div>
 
       <div className="gallery-main" ref={mainRef}>
-        <div className="ph ph--portrait">
+        <div className="ph ph--portrait gallery-zoom" onMouseMove={aoMoverZoom}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={fotos[atual]} alt={produto.nome} width="1200" height="1500" />
         </div>
