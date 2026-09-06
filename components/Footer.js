@@ -28,11 +28,11 @@ const COLUNAS = [
     ],
   },
   {
-    titulo: "A marca",
+    titulo: "Sua conta",
     links: [
-      { rotulo: "Nossa história", href: "/sobre" },
-      { rotulo: "Materiais", href: "/sobre#materiais" },
       { rotulo: "Minha conta", href: "/conta" },
+      { rotulo: "Meus pedidos", href: "/conta#pedidos" },
+      { rotulo: "Rastrear entrega", href: "/conta#rastreio" },
     ],
   },
 ];

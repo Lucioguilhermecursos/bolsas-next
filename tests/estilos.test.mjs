@@ -38,22 +38,8 @@ t("signup-titulo: fonte fluida aplicada",
 t("footer-sobre: 14px", await css(".footer-sobre", "fontSize"), "14px");
 t("footer-sobre: margem 16px", await css(".footer-sobre", "marginTop"), "16px");
 t("hero-kicker: mb 32px (--s-6, do CSS)", await css(".hero-kicker", "marginBottom"), "32px");
-t("btn ghost materiais: mt 40px (era --s-7)",
-  await css('a.btn-ghost[href="/sobre#materiais"]', "marginTop"), "40px");
-
-// ---- Sobre ----
-await p.goto(BASE + "/sobre", { waitUntil: "networkidle" });
-t("medida-editorial: 56ch", await css(".medida-editorial", "maxWidth"),
-  await p.evaluate(() => {
-    const d = document.createElement("div");
-    d.style.cssText = "max-width:56ch;position:absolute;visibility:hidden";
-    document.body.appendChild(d);
-    const v = getComputedStyle(d).maxWidth; d.remove(); return v;
-  }));
-t("prose--longa: 16px", await css(".prose--longa", "fontSize"), "16px");
-t("prose--longa: entrelinha 1.7", await css(".prose--longa", "lineHeight"), "27.2px");
-t("material--topo: alinha ao topo", await css(".material--topo", "alignItems"), "start");
-t("h-page no h1", (await css("h1.h-page", "fontSize")).endsWith("px"), true);
+t("btn ghost do material: mt 40px (era --s-7)",
+  await css('a.btn-ghost[href="/ajuda#cuidados"]', "marginTop"), "40px");
 
 // ---- Carrinho ----
 await p.goto(BASE + "/produto/tabby-shoulder-preto", { waitUntil: "networkidle" });

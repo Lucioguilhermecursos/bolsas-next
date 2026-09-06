@@ -38,7 +38,6 @@ export const MENU = [
       { rotulo: "Bolsas de ombro", href: "/catalogo?cat=ombro" },
     ],
   },
-  { rotulo: "Nossa história", href: "/sobre" },
   { rotulo: "Ajuda", href: "/ajuda" },
 ];
 

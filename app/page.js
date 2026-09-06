@@ -104,8 +104,8 @@ export default function Home() {
               <Link className="btn btn-primary btn-lg" href="/catalogo?cat=bolsas">
                 Ver as bolsas
               </Link>
-              <Link className="btn btn-ghost btn-lg" href="/sobre">
-                Como fazemos
+              <Link className="btn btn-ghost btn-lg" href="/catalogo?filtro=novidades">
+                Novidades
               </Link>
             </div>
           </div>
@@ -189,8 +189,8 @@ export default function Home() {
               ))}
             </ul>
 
-            <Link className="btn btn-ghost mt-10" href="/sobre#materiais">
-              Sobre os materiais
+            <Link className="btn btn-ghost mt-10" href="/ajuda#cuidados">
+              Cuidados com o couro
             </Link>
           </div>
 

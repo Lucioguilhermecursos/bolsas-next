@@ -22,7 +22,7 @@ const PAGINAS = [
   ["/", "home"], ["/catalogo", "catálogo"], ["/produto/tabby-shoulder-preto", "produto"],
   ["/carrinho", "sacola"], ["/busca?q=couro", "busca"],
   ["/entrar", "entrar"], ["/criar-conta", "criar conta"], ["/recuperar-senha", "recuperar senha"],
-  ["/sobre", "sobre"], ["/ajuda", "ajuda"],
+  ["/ajuda", "ajuda"],
 ];
 
 const nav = await chromium.launch();

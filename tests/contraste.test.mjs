@@ -31,7 +31,6 @@ const PAGINAS = [
   ["/entrar", "entrar"],
   ["/criar-conta", "criar conta"],
   ["/recuperar-senha", "recuperar senha"],
-  ["/sobre", "sobre"],
   ["/ajuda", "ajuda"],
 ];
 
