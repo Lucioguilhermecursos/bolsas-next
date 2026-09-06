@@ -15,13 +15,19 @@
 
 import { useEffect, useRef, useState } from "react";
 
-/* A galeria mostra no máximo 6 fotos: as 3 primeiras só da bolsa e as 3
-   primeiras com modelo. Peça com menos de 3 de um tipo entra com o que tem. */
+/* Todas as fotos da cor, reordenadas: as 6 primeiras da tira são 3 só da
+   bolsa + 3 com modelo; o restante (demais fotos da bolsa, depois demais
+   com modelo) vem em seguida e entra na rolagem. */
 function fotosDaGaleria(produto) {
-  const produtoFotos = produto.fotosProduto ?? produto.fotos ?? [];
-  const modeloFotos = produto.fotosModelo ?? [];
-  const escolhidas = [...produtoFotos.slice(0, 3), ...modeloFotos.slice(0, 3)];
-  return escolhidas.length ? escolhidas : produto.fotos ?? [];
+  const daBolsa = produto.fotosProduto ?? [];
+  const comModelo = produto.fotosModelo ?? [];
+  const ordenadas = [
+    ...daBolsa.slice(0, 3),
+    ...comModelo.slice(0, 3),
+    ...daBolsa.slice(3),
+    ...comModelo.slice(3),
+  ];
+  return ordenadas.length ? ordenadas : produto.fotos ?? [];
 }
 
 export default function Galeria({ produto }) {
