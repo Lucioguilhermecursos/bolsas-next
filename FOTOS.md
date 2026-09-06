@@ -63,12 +63,12 @@ nome do arquivo (`<slug>-01.jpg`, `<slug>-02.jpg`…).
 | Preto Fosco | `tabby-shoulder-preto-fosco` | 11 |
 | Preto Metalizado | `tabby-shoulder-preto-metal` | 14 |
 | Marrom | `tabby-shoulder-marrom` | 9 (8 jpg + 1 gif) |
-| Marrom Escuro | `tabby-shoulder-marrom-escuro` | 6 |
+| Marrom Escuro | `tabby-shoulder-marrom-escuro` | 11 |
 | Jacquard Azul | `tabby-shoulder-jacquard-azul` | 1 |
 | Jacquard Marrom | `tabby-shoulder-jacquard-marrom` | 1 |
 | Vinho | `tabby-shoulder-vinho` | 9 |
 | Branco | `tabby-shoulder-branco` | 17 (webp + 15 jpg + gif) |
-| Branco Off | `tabby-shoulder-branco-off` | 6 |
+| Branco Off | `tabby-shoulder-branco-off` | 11 |
 | Branco Gelo | `tabby-shoulder-branco-gelo` | 9 |
 
 ## Observações
