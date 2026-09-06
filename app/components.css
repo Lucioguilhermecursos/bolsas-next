@@ -215,14 +215,15 @@
 }
 
 /* ---- Slideshow do cartão (faixa "Chegou agora") ---------------------------
-   A imagem troca sozinha a cada 3 s; a `key` na <img> força remontagem e o
-   fade abaixo. As bolinhas ficam acima da camada de clique do cartão (z 4). */
-.slideshow-img { animation: slideshow-fade var(--t-slow) ease; }
-
-@keyframes slideshow-fade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+   As fotos ficam empilhadas; só a ativa tem opacidade 1. Trocar a ativa dá
+   um cross-fade sem piscar. As bolinhas ficam acima da camada de clique do
+   cartão (z 4). */
+.slideshow-img {
+  opacity: 0;
+  transition: opacity 600ms ease;
 }
+
+.slideshow-img[data-ativa] { opacity: 1; }
 
 .card-dots {
   position: relative;
@@ -254,7 +255,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .slideshow-img { animation: none; }
+  .slideshow-img { transition: none; }
 }
 
 /* Selo — canto reto, campo chapado. */

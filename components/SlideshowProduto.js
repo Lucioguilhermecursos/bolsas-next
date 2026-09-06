@@ -4,24 +4,25 @@
    acbolsa — mídia do cartão em modo slideshow
    =========================================================================
 
-   Usado só na faixa "Chegou agora" da home. As fotos da peça trocam sozinhas
-   a cada 3 s; as bolinhas embaixo deixam a cliente voltar ou pular para uma
-   foto. Fora dessa faixa, o cartão continua com imagem única (MidiaProduto).
+   Usado só na faixa "Chegou agora" da home. As fotos da bolsa (sem modelo)
+   trocam sozinhas a cada 6 s, com cross-fade; as bolinhas embaixo deixam a
+   cliente voltar ou pular para uma foto. Fora dessa faixa, o cartão segue
+   com imagem única (MidiaProduto).
 
-   As bolinhas ficam FORA de `.ph` de propósito: `.ph` isola o próprio
-   contexto de empilhamento e a camada de clique do cartão (`a::after`) cobre
-   tudo que está dentro dele. Como irmãs de `.card-media`, com z-index acima
-   dessa camada, elas voltam a receber clique.
+   As fotos ficam empilhadas dentro de `.ph` (só muda a opacidade) para o
+   cross-fade não piscar. As bolinhas ficam FORA de `.ph`: `.ph` isola o
+   próprio contexto de empilhamento e a camada de clique do cartão
+   (`a::after`) cobre tudo lá dentro. Como irmãs de `.card-media`, com
+   z-index acima dessa camada, elas voltam a receber clique.
    ========================================================================= */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const INTERVALO = 3000;
+const INTERVALO = 6000;
 const MAX_FOTOS = 6;
 
-/* Até MAX_FOTOS itens, igualmente espaçados, sempre com o primeiro (foto de
-   vitrine) e o último (foto com modelo). Uma cor com 14 fotos não vira uma
-   régua de 14 bolinhas. */
+/* Até MAX_FOTOS itens igualmente espaçados (com o primeiro e o último). Uma
+   cor com 11 fotos de estúdio não vira uma régua de 11 bolinhas. */
 function amostrar(fotos) {
   if (fotos.length <= MAX_FOTOS) return fotos;
   const passo = (fotos.length - 1) / (MAX_FOTOS - 1);
@@ -36,7 +37,7 @@ function reduzMovimento() {
 }
 
 export default function SlideshowProduto({ produto, selo, eager = false }) {
-  const fotos = amostrar(produto?.fotos ?? []);
+  const fotos = amostrar(produto?.fotosProduto ?? produto?.fotos ?? []);
   const total = fotos.length;
   const [i, setI] = useState(0);
   const timer = useRef(null);
@@ -62,15 +63,18 @@ export default function SlideshowProduto({ produto, selo, eager = false }) {
       <div className="card-media">
         {selo}
         <div className="ph ph--portrait">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            key={fotos[i]}
-            className="slideshow-img"
-            src={fotos[i]}
-            alt={produto.nome + " — " + produto.cor}
-            loading={eager ? "eager" : "lazy"}
-            decoding="async"
-          />
+          {fotos.map((f, n) => (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              key={f}
+              className="slideshow-img"
+              src={f}
+              alt={n === 0 ? produto.nome + " — " + produto.cor : ""}
+              data-ativa={n === i || undefined}
+              loading={eager && n === 0 ? "eager" : "lazy"}
+              decoding="async"
+            />
+          ))}
         </div>
       </div>
 

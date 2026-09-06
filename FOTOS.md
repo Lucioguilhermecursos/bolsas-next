@@ -56,20 +56,23 @@ A galeria com miniaturas só aparece quando a cor tem duas ou mais fotos.
 Os `slug` abaixo saíram de `lib/catalog.js`. Use exatamente esse texto no
 nome do arquivo (`<slug>-01.jpg`, `<slug>-02.jpg`…).
 
-| Cor | `slug` / prefixo do arquivo | Fotos |
+`fotos` no catálogo é só a bolsa (estúdio); `modelo` é a bolsa com modelo.
+Contagem `bolsa + modelo`:
+
+| Cor | `slug` / prefixo do arquivo | Fotos (bolsa + modelo) |
 |---|---|---|
-| Preto | `tabby-shoulder-preto` | 4 (gif + 3 png) |
-| Preto e Dourado | `tabby-shoulder-preto-dourado` | 14 (13 jpg + 1 gif) |
-| Preto Fosco | `tabby-shoulder-preto-fosco` | 11 |
-| Preto Metalizado | `tabby-shoulder-preto-metal` | 14 |
-| Marrom | `tabby-shoulder-marrom` | 9 (8 jpg + 1 gif) |
-| Marrom Escuro | `tabby-shoulder-marrom-escuro` | 11 |
-| Jacquard Azul | `tabby-shoulder-jacquard-azul` | 1 |
-| Jacquard Marrom | `tabby-shoulder-jacquard-marrom` | 6 |
-| Vinho | `tabby-shoulder-vinho` | 9 |
-| Branco | `tabby-shoulder-branco` | 17 (webp + 15 jpg + gif) |
-| Branco Off | `tabby-shoulder-branco-off` | 11 |
-| Branco Gelo | `tabby-shoulder-branco-gelo` | 9 |
+| Preto | `tabby-shoulder-preto` | 1 + 3 |
+| Preto e Dourado | `tabby-shoulder-preto-dourado` | 9 + 5 |
+| Preto Fosco | `tabby-shoulder-preto-fosco` | 7 + 4 |
+| Preto Metalizado | `tabby-shoulder-preto-metal` | 9 + 5 |
+| Marrom | `tabby-shoulder-marrom` | 9 + 5 |
+| Marrom Escuro | `tabby-shoulder-marrom-escuro` | 6 + 5 |
+| Jacquard Azul | `tabby-shoulder-jacquard-azul` | 1 + 3 |
+| Jacquard Marrom | `tabby-shoulder-jacquard-marrom` | 1 + 5 |
+| Vinho | `tabby-shoulder-vinho` | 9 + 5 |
+| Branco | `tabby-shoulder-branco` | 11 + 6 |
+| Branco Off | `tabby-shoulder-branco-off` | 6 + 5 |
+| Branco Gelo | `tabby-shoulder-branco-gelo` | 4 + 5 |
 
 ## Observações
 

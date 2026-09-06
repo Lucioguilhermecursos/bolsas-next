@@ -27,7 +27,7 @@ export default function CartaoProduto({ produto, eager = false, reveal = false, 
   else if (emOferta) selo = <span className="badge badge--sale">Oferta</span>;
   else if (produto.novo) selo = <span className="badge">Novo</span>;
 
-  const comSlideshow = slideshow && produto.fotos?.length > 0;
+  const comSlideshow = slideshow && (produto.fotosProduto?.length ?? produto.fotos?.length) > 0;
 
   return (
     <article className={"card" + (reveal ? " reveal" : "")}>
