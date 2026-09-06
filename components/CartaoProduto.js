@@ -14,8 +14,9 @@
 import Link from "next/link";
 import { formatarPreco, nomeCategoria } from "@/lib/catalog";
 import { MidiaProduto } from "./Placeholder";
+import SlideshowProduto from "./SlideshowProduto";
 
-export default function CartaoProduto({ produto, eager = false, reveal = false }) {
+export default function CartaoProduto({ produto, eager = false, reveal = false, slideshow = false }) {
   const esgotado = produto.estoque <= 0;
   const emOferta = produto.precoDe && produto.precoDe > produto.preco;
 
@@ -26,12 +27,18 @@ export default function CartaoProduto({ produto, eager = false, reveal = false }
   else if (emOferta) selo = <span className="badge badge--sale">Oferta</span>;
   else if (produto.novo) selo = <span className="badge">Novo</span>;
 
+  const comSlideshow = slideshow && produto.fotos?.length > 0;
+
   return (
     <article className={"card" + (reveal ? " reveal" : "")}>
-      <div className="card-media">
-        {selo}
-        <MidiaProduto produto={produto} eager={eager} />
-      </div>
+      {comSlideshow ? (
+        <SlideshowProduto produto={produto} selo={selo} eager={eager} />
+      ) : (
+        <div className="card-media">
+          {selo}
+          <MidiaProduto produto={produto} eager={eager} />
+        </div>
+      )}
 
       <div className="card-body">
         <p className="card-cat">{nomeCategoria(produto.cat)}</p>
@@ -63,11 +70,23 @@ export default function CartaoProduto({ produto, eager = false, reveal = false }
 
 /* Grade de produtos. As quatro primeiras imagens sobem sem lazy — são as que
    entram na primeira dobra. */
-export function GradeProdutos({ produtos, eager = false, reveal = false, className = "" }) {
+export function GradeProdutos({
+  produtos,
+  eager = false,
+  reveal = false,
+  slideshow = false,
+  className = "",
+}) {
   return (
     <div className={"grid-products " + className}>
       {produtos.map((p, i) => (
-        <CartaoProduto key={p.id} produto={p} eager={eager && i < 4} reveal={reveal} />
+        <CartaoProduto
+          key={p.id}
+          produto={p}
+          eager={eager && i < 4}
+          reveal={reveal}
+          slideshow={slideshow}
+        />
       ))}
     </div>
   );

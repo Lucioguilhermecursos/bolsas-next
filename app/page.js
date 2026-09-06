@@ -220,7 +220,7 @@ export default function Home() {
               <p className="lead">As últimas peças a entrar no catálogo.</p>
             </div>
           </div>
-          <GradeProdutos produtos={novidades(4)} reveal />
+          <GradeProdutos produtos={novidades(4)} reveal slideshow />
         </div>
       </section>
 
