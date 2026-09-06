@@ -20,7 +20,6 @@ import {
   IconeBusca,
   IconeCaixa,
   IconeCaminhao,
-  IconeChevron,
   IconeConta,
   IconeFechar,
   IconeMenu,
@@ -30,14 +29,7 @@ import {
 
 export const MENU = [
   { rotulo: "Novidades", href: "/catalogo?filtro=novidades" },
-  {
-    rotulo: "Bolsas",
-    href: "/catalogo?cat=bolsas",
-    sub: [
-      { rotulo: "Todas as bolsas", href: "/catalogo?cat=bolsas" },
-      { rotulo: "Bolsas de ombro", href: "/catalogo?cat=ombro" },
-    ],
-  },
+  { rotulo: "Todas as bolsas", href: "/catalogo?cat=bolsas" },
   { rotulo: "Ajuda", href: "/ajuda" },
 ];
 
@@ -47,8 +39,6 @@ const FOCAVEIS = 'a[href], button:not([disabled]), input:not([disabled]), select
 export default function Header() {
   const [menuAberto, setMenuAberto] = useState(false);
   const [buscaAberta, setBuscaAberta] = useState(false);
-  const [subAberto, setSubAberto] = useState(null);
-  const [acordeaoAberto, setAcordeaoAberto] = useState(null);
 
   const menuRef = useRef(null);
   const buscaRef = useRef(null);
@@ -63,7 +53,6 @@ export default function Header() {
 
   const fecharMenu = useCallback(() => {
     setMenuAberto(false);
-    setAcordeaoAberto(null);
     botaoMenuRef.current?.focus();
   }, []);
 
@@ -85,8 +74,6 @@ export default function Header() {
     setUrlAnterior(url);
     setMenuAberto(false);
     setBuscaAberta(false);
-    setSubAberto(null);
-    setAcordeaoAberto(null);
   }
 
   /* Trava a rolagem do corpo enquanto o menu cobre a página. */
@@ -136,7 +123,6 @@ export default function Header() {
       if (e.key === "Escape") {
         if (menuAberto) fecharMenu();
         if (buscaAberta) fecharBusca();
-        setSubAberto(null);
         return;
       }
 
@@ -200,47 +186,13 @@ export default function Header() {
           </Link>
 
           <ul className="nav" role="list">
-            {MENU.map((item) =>
-              item.sub ? (
-                <li
-                  key={item.rotulo}
-                  className="has-sub"
-                  data-open={subAberto === item.rotulo}
-                  onMouseEnter={() => setSubAberto(item.rotulo)}
-                  onMouseLeave={() => setSubAberto(null)}
-                  onBlur={(e) => {
-                    if (!e.currentTarget.contains(e.relatedTarget)) setSubAberto(null);
-                  }}
-                >
-                  <button
-                    type="button"
-                    aria-expanded={subAberto === item.rotulo}
-                    aria-haspopup="true"
-                    onClick={() =>
-                      setSubAberto((atual) => (atual === item.rotulo ? null : item.rotulo))
-                    }
-                  >
-                    {item.rotulo}
-                    <IconeChevron />
-                  </button>
-                  <ul className="sub" role="list">
-                    {item.sub.map((s) => (
-                      <li key={s.href}>
-                        <Link href={s.href} aria-current={ativo(s.href) ? "page" : undefined}>
-                          {s.rotulo}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-              ) : (
-                <li key={item.href}>
-                  <Link href={item.href} aria-current={ativo(item.href) ? "page" : undefined}>
-                    {item.rotulo}
-                  </Link>
-                </li>
-              )
-            )}
+            {MENU.map((item) => (
+              <li key={item.href}>
+                <Link href={item.href} aria-current={ativo(item.href) ? "page" : undefined}>
+                  {item.rotulo}
+                </Link>
+              </li>
+            ))}
           </ul>
 
           <div className="header-actions">
@@ -350,33 +302,11 @@ export default function Header() {
         </div>
 
         <ul className="mobile-nav" role="list">
-          {MENU.map((item) =>
-            item.sub ? (
-              <li key={item.rotulo} data-open={acordeaoAberto === item.rotulo}>
-                <button
-                  type="button"
-                  aria-expanded={acordeaoAberto === item.rotulo}
-                  onClick={() =>
-                    setAcordeaoAberto((atual) => (atual === item.rotulo ? null : item.rotulo))
-                  }
-                >
-                  {item.rotulo}
-                  <IconeChevron />
-                </button>
-                <ul className="mobile-sub" role="list">
-                  {item.sub.map((s) => (
-                    <li key={s.href}>
-                      <Link href={s.href}>{s.rotulo}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ) : (
-              <li key={item.href}>
-                <Link href={item.href}>{item.rotulo}</Link>
-              </li>
-            )
-          )}
+          {MENU.map((item) => (
+            <li key={item.href}>
+              <Link href={item.href}>{item.rotulo}</Link>
+            </li>
+          ))}
         </ul>
 
         <div className="mobile-foot">

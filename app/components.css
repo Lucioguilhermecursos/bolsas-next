@@ -347,66 +347,6 @@
 
 .nav a[aria-current="page"] { box-shadow: inset 0 -1px 0 var(--cognac); }
 
-/* Submenu */
-.has-sub > button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 100%;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  cursor: pointer;
-  transition: color var(--t);
-}
-
-.has-sub > button:hover,
-.has-sub[data-open="true"] > button { color: var(--ink); }
-
-.has-sub > button svg {
-  width: 10px;
-  height: 10px;
-  transition: transform var(--t);
-}
-
-.has-sub[data-open="true"] > button svg { transform: rotate(180deg); }
-
-.sub {
-  position: absolute;
-  top: 100%;
-  left: calc(var(--s-4) * -1);
-  min-width: 232px;
-  padding: var(--s-3) 0;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-6px);
-  transition: opacity var(--t), transform var(--t), visibility var(--t);
-}
-
-.has-sub[data-open="true"] .sub {
-  opacity: 1;
-  visibility: visible;
-  transform: none;
-}
-
-.sub li { display: block; }
-
-.sub a {
-  display: block;
-  height: auto;
-  padding: var(--s-3) var(--s-5);
-  font-size: 13px;
-  letter-spacing: .04em;
-  text-transform: none;
-  color: var(--ink-soft);
-}
-
-.sub a:hover { background: var(--paper-deep); color: var(--ink); }
-
 .header-actions {
   display: flex;
   align-items: center;
@@ -555,8 +495,7 @@
 
 .mobile-nav { padding: var(--s-4) var(--gutter) var(--s-8); }
 
-.mobile-nav a,
-.mobile-nav > li > button {
+.mobile-nav a {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -572,30 +511,6 @@
   text-align: left;
   cursor: pointer;
   border-bottom: 1px solid var(--line);
-}
-
-.mobile-nav > li > button svg {
-  width: 12px;
-  height: 12px;
-  flex: none;
-  transition: transform var(--t);
-}
-
-.mobile-nav > li[data-open="true"] > button svg { transform: rotate(180deg); }
-
-.mobile-sub {
-  display: none;
-  padding: var(--s-2) 0 var(--s-4) var(--s-4);
-}
-
-.mobile-nav > li[data-open="true"] .mobile-sub { display: block; }
-
-.mobile-sub a {
-  font-family: var(--font-ui);
-  font-size: 15px;
-  min-height: 46px;
-  border-bottom: 0;
-  color: var(--ink-soft);
 }
 
 .mobile-foot {
