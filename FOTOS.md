@@ -59,8 +59,8 @@ nome do arquivo (`<slug>-01.jpg`, `<slug>-02.jpg`…).
 | Cor | `slug` / prefixo do arquivo | Fotos |
 |---|---|---|
 | Preto | `tabby-shoulder-preto` | 1 (gif) |
-| Preto e Dourado | `tabby-shoulder-preto-dourado` | 9 (8 jpg + 1 gif) |
-| Preto Fosco | `tabby-shoulder-preto-fosco` | 7 |
+| Preto e Dourado | `tabby-shoulder-preto-dourado` | 14 (13 jpg + 1 gif) |
+| Preto Fosco | `tabby-shoulder-preto-fosco` | 11 |
 | Preto Metalizado | `tabby-shoulder-preto-metal` | 9 |
 | Marrom | `tabby-shoulder-marrom` | 9 (8 jpg + 1 gif) |
 | Marrom Escuro | `tabby-shoulder-marrom-escuro` | 6 |
