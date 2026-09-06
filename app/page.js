@@ -16,6 +16,7 @@ import {
   IconeAtendimento,
   IconeCaminhao,
   IconeCostura,
+  IconeSeta,
   IconeVolta,
 } from "@/components/Icones";
 
@@ -217,6 +218,10 @@ export default function Home() {
               <h2>Chegou agora</h2>
               <p className="lead">As últimas peças a entrar no catálogo.</p>
             </div>
+            <Link className="link-arrow" href="/catalogo?cat=bolsas">
+              Ver mais
+              <IconeSeta />
+            </Link>
           </div>
           <GradeProdutos produtos={novidades(4)} reveal slideshow />
         </div>
