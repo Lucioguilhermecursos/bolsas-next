@@ -15,7 +15,17 @@
 
 import { useEffect, useRef, useState } from "react";
 
+/* A galeria mostra no máximo 6 fotos: as 3 primeiras só da bolsa e as 3
+   primeiras com modelo. Peça com menos de 3 de um tipo entra com o que tem. */
+function fotosDaGaleria(produto) {
+  const produtoFotos = produto.fotosProduto ?? produto.fotos ?? [];
+  const modeloFotos = produto.fotosModelo ?? [];
+  const escolhidas = [...produtoFotos.slice(0, 3), ...modeloFotos.slice(0, 3)];
+  return escolhidas.length ? escolhidas : produto.fotos ?? [];
+}
+
 export default function Galeria({ produto }) {
+  const fotos = fotosDaGaleria(produto);
   const [atual, setAtual] = useState(0);
   const mainRef = useRef(null);
   const thumbsRef = useRef(null);
@@ -73,14 +83,14 @@ export default function Galeria({ produto }) {
         aria-label="Fotos da peça"
         ref={thumbsRef}
       >
-        {produto.fotos.map((foto, i) => (
+        {fotos.map((foto, i) => (
           <button
             key={foto}
             type="button"
             role="tab"
             aria-current={i === atual ? "true" : undefined}
             aria-selected={i === atual}
-            aria-label={"Foto " + (i + 1) + " de " + produto.fotos.length}
+            aria-label={"Foto " + (i + 1) + " de " + fotos.length}
             onClick={() => setAtual(i)}
           >
             <div className="ph ph--portrait">
@@ -94,7 +104,7 @@ export default function Galeria({ produto }) {
       <div className="gallery-main" ref={mainRef}>
         <div className="ph ph--portrait">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={produto.fotos[atual]} alt={produto.nome} width="1200" height="1500" />
+          <img src={fotos[atual]} alt={produto.nome} width="1200" height="1500" />
         </div>
       </div>
     </div>
