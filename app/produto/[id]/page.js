@@ -232,7 +232,7 @@ export default async function PaginaProduto({ params }) {
           <div className="section-head mb-10">
             <h2 className="h-section">Você também pode gostar</h2>
           </div>
-          <GradeProdutos produtos={relacionados(produto, 4)} reveal />
+          <GradeProdutos produtos={relacionados(produto, 4)} reveal slideshow />
         </div>
       </section>
     </>
