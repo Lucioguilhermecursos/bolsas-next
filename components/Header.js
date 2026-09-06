@@ -28,7 +28,6 @@ import {
 } from "./Icones";
 
 export const MENU = [
-  { rotulo: "Novidades", href: "/catalogo?filtro=novidades" },
   { rotulo: "Todas as bolsas", href: "/catalogo?cat=bolsas" },
   { rotulo: "Ajuda", href: "/ajuda" },
 ];
