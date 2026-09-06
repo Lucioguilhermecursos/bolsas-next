@@ -39,8 +39,8 @@ const PROMESSAS = [
 const FOTO_HERO = "/fotos/hero.jpg";
 
 /* Foto da faixa "O material". Troque pelo arquivo em public/fotos/produtos/
-   que melhor mostrar o detalhe do couro e da costura. */
-const FOTO_MATERIAL = "/fotos/produtos/tabby-shoulder-branco-02.jpg";
+   que melhor mostrar o couro em uso. */
+const FOTO_MATERIAL = "/fotos/produtos/tabby-shoulder-branco-gelo-05.jpg";
 
 const MATERIAIS = [
   {
