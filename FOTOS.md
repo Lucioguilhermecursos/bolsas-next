@@ -58,8 +58,8 @@ nome do arquivo (`<slug>-01.jpg`, `<slug>-02.jpg`…).
 
 | Cor | `slug` / prefixo do arquivo | Fotos |
 |---|---|---|
-| Preto | `tabby-shoulder-preto` | 1 (gif) |
-| Preto e Dourado | `tabby-shoulder-preto-dourado` | 14 (13 jpg + 1 gif) |
+| Preto | `tabby-shoulder-preto` | 6 (gif + 3 png + 2 jpg) |
+| Preto e Dourado | `tabby-shoulder-preto-dourado` | 17 (16 jpg + 1 gif) |
 | Preto Fosco | `tabby-shoulder-preto-fosco` | 11 |
 | Preto Metalizado | `tabby-shoulder-preto-metal` | 9 |
 | Marrom | `tabby-shoulder-marrom` | 9 (8 jpg + 1 gif) |
@@ -67,7 +67,7 @@ nome do arquivo (`<slug>-01.jpg`, `<slug>-02.jpg`…).
 | Jacquard Azul | `tabby-shoulder-jacquard-azul` | 1 |
 | Jacquard Marrom | `tabby-shoulder-jacquard-marrom` | 1 |
 | Vinho | `tabby-shoulder-vinho` | 9 |
-| Branco | `tabby-shoulder-branco` | 11 (webp + 9 jpg + gif) |
+| Branco | `tabby-shoulder-branco` | 22 (webp + 20 jpg + gif) |
 | Branco Off | `tabby-shoulder-branco-off` | 6 |
 | Branco Gelo | `tabby-shoulder-branco-gelo` | 4 |
 
