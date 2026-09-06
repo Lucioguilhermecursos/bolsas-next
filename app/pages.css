@@ -809,7 +809,23 @@
 @media (min-width: 700px) {
   .gallery-thumbs {
     flex-direction: column;
-    overflow: visible;
+    /* max-height vem do JS (= altura da foto grande). O que passar disso
+       rola aqui dentro, sem empurrar o layout para baixo da foto. */
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 3px;
+    /* Esmaece o topo e a base para sinalizar que há mais para rolar. */
+    -webkit-mask-image: linear-gradient(
+      to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+            mask-image: linear-gradient(
+      to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+  }
+
+  /* Sem foto sobrando, não há o que rolar nem por que esmaecer. */
+  .gallery-thumbs:not([data-rola]) {
+    -webkit-mask-image: none;
+            mask-image: none;
   }
 }
 

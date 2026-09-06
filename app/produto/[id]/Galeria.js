@@ -7,16 +7,72 @@
    Só entra em cena quando `fotos` está preenchido no catálogo. Enquanto não
    houver fotografia própria, a página mostra um único placeholder — sem
    inventar quatro ângulos que não existem.
+
+   A coluna de miniaturas nunca passa da base da foto grande: um efeito mede
+   a altura da foto principal e trava a `max-height` da tira; o excedente
+   rola dentro dela.
    ========================================================================= */
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Galeria({ produto }) {
   const [atual, setAtual] = useState(0);
+  const mainRef = useRef(null);
+  const thumbsRef = useRef(null);
+
+  /* Trava a altura da tira de miniaturas na altura da foto grande e marca
+     `data-rola` quando de fato sobra foto para rolar. Reage a resize e à
+     carga da imagem principal (que muda a altura). */
+  useEffect(() => {
+    const main = mainRef.current;
+    const thumbs = thumbsRef.current;
+    if (!main || !thumbs) return;
+
+    const desktop = window.matchMedia("(min-width: 700px)");
+
+    const ajustar = () => {
+      if (!desktop.matches) {
+        thumbs.style.maxHeight = "";
+        delete thumbs.dataset.rola;
+        return;
+      }
+      const alturaFoto = main.getBoundingClientRect().height;
+      thumbs.style.maxHeight = alturaFoto + "px";
+      if (thumbs.scrollHeight - alturaFoto > 1) thumbs.dataset.rola = "";
+      else delete thumbs.dataset.rola;
+    };
+
+    ajustar();
+
+    const ro = new ResizeObserver(ajustar);
+    ro.observe(main);
+    ro.observe(thumbs);
+    desktop.addEventListener("change", ajustar);
+    const img = main.querySelector("img");
+    img?.addEventListener("load", ajustar);
+
+    return () => {
+      ro.disconnect();
+      desktop.removeEventListener("change", ajustar);
+      img?.removeEventListener("load", ajustar);
+    };
+  }, [produto.id]);
+
+  /* Ao trocar a foto pelo teclado, garante que a miniatura ativa fique
+     visível dentro da tira rolável. */
+  useEffect(() => {
+    const btn = thumbsRef.current?.children[atual];
+    btn?.scrollIntoView({ block: "nearest" });
+  }, [atual]);
 
   return (
     <div className="gallery">
-      <div className="gallery-thumbs" role="tablist" aria-label="Fotos da peça">
+      <div
+        className="gallery-thumbs"
+        role="tablist"
+        aria-label="Fotos da peça"
+        ref={thumbsRef}
+      >
         {produto.fotos.map((foto, i) => (
           <button
             key={foto}
@@ -35,7 +91,7 @@ export default function Galeria({ produto }) {
         ))}
       </div>
 
-      <div className="gallery-main">
+      <div className="gallery-main" ref={mainRef}>
         <div className="ph ph--portrait">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={produto.fotos[atual]} alt={produto.nome} width="1200" height="1500" />
