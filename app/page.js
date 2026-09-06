@@ -68,10 +68,14 @@ export default function Home() {
   const colecoes = cores().map((c) => {
     const daCor = porCor(c.nome);
     const peca = daCor[0];
+    const fotos = peca?.fotos ?? [];
     return {
       nome: c.nome,
       hex: c.hex,
-      foto: peca?.fotos?.[0] ?? null,
+      foto: fotos[0] ?? null,
+      /* Última foto da cor é sempre uma foto com modelo — vira a imagem que
+         aparece no hover do cartão. */
+      fotoHover: fotos.length > 1 ? fotos[fotos.length - 1] : null,
       destino:
         daCor.length === 1 && peca
           ? "/produto/" + peca.id

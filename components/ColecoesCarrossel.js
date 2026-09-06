@@ -61,6 +61,16 @@ export default function ColecoesCarrossel({ colecoes }) {
                   loading="lazy"
                   decoding="async"
                 />
+                {c.fotoHover && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    className="foto-hover"
+                    src={c.fotoHover}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
               </div>
             ) : (
               <Placeholder proporcao="colecao" rotulo={"Foto da coleção " + c.nome} />

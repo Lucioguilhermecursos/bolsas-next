@@ -224,6 +224,23 @@
    aparece inteira. */
 .ph--colecao { --ph-ratio: 4 / 5; }
 
+/* Foto com modelo: escondida até o hover do cartão, quando faz um cross-fade
+   por cima da foto da bolsa. */
+.ph--colecao .foto-hover {
+  opacity: 0;
+  object-position: 50% 18%;
+  transition: opacity var(--t-slow);
+}
+
+.collection:hover .ph--colecao .foto-hover,
+.collection:focus-visible .ph--colecao .foto-hover {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .ph--colecao .foto-hover { display: none; }
+}
+
 .collection {
   position: relative;
   flex: 0 0 auto;
