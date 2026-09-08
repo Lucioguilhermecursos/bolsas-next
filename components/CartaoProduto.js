@@ -16,7 +16,7 @@ import { formatarPreco, nomeCategoria } from "@/lib/catalog";
 import { MidiaProduto } from "./Placeholder";
 import SlideshowProduto from "./SlideshowProduto";
 
-export default function CartaoProduto({ produto, eager = false, reveal = false, slideshow = false }) {
+export default function CartaoProduto({ produto, eager = false, reveal = false, slideshow = false, semPreco = false }) {
   const esgotado = produto.estoque <= 0;
   const emOferta = produto.precoDe && produto.precoDe > produto.preco;
 
@@ -47,10 +47,12 @@ export default function CartaoProduto({ produto, eager = false, reveal = false, 
           <Link href={"/produto/" + produto.id}>{produto.nome}</Link>
         </h3>
 
-        <p className="card-price price">
-          {emOferta && <span className="price-old">{formatarPreco(produto.precoDe)}</span>}
-          {formatarPreco(produto.preco)}
-        </p>
+        {!semPreco && (
+          <p className="card-price price">
+            {emOferta && <span className="price-old">{formatarPreco(produto.precoDe)}</span>}
+            {formatarPreco(produto.preco)}
+          </p>
+        )}
 
         {/* Escassez só quando é verdade e útil: abaixo de 5 unidades. */}
         {!esgotado && produto.estoque <= 4 && (
@@ -75,6 +77,7 @@ export function GradeProdutos({
   eager = false,
   reveal = false,
   slideshow = false,
+  semPreco = false,
   className = "",
 }) {
   return (
@@ -86,6 +89,7 @@ export function GradeProdutos({
           eager={eager && i < 4}
           reveal={reveal}
           slideshow={slideshow}
+          semPreco={semPreco}
         />
       ))}
     </div>

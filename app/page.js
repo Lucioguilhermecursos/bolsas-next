@@ -7,7 +7,7 @@
    ========================================================================= */
 
 import Link from "next/link";
-import { maisVendidos, novidades, cores, porCor, porId, formatarPreco } from "@/lib/catalog";
+import { maisVendidos, novidades, cores, porCor, porId } from "@/lib/catalog";
 import { GradeProdutos } from "@/components/CartaoProduto";
 import ColecoesCarrossel from "@/components/ColecoesCarrossel";
 import Newsletter from "@/components/Newsletter";
@@ -126,7 +126,6 @@ export default function Home() {
                 </div>
                 <div className="hero-caption">
                   <span className="nome">{estrela.nome}</span>
-                  <span className="price">{formatarPreco(estrela.preco)}</span>
                 </div>
               </Link>
             )}
@@ -223,7 +222,7 @@ export default function Home() {
               <IconeSeta />
             </Link>
           </div>
-          <GradeProdutos produtos={novidades(4)} reveal slideshow />
+          <GradeProdutos produtos={novidades(4)} reveal slideshow semPreco />
         </div>
       </section>
 
