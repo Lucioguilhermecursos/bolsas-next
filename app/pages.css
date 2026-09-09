@@ -802,6 +802,20 @@
    scale vem do cursor (variáveis escritas pelo JS). */
 .gallery-zoom { cursor: zoom-in; }
 
+/* Alvo de clique transparente sobre a foto: abre a tela cheia. Fica acima da
+   imagem (z-index 2) mas o mousemove continua borbulhando p/ o zoom. */
+.gallery-abrir {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
 .gallery-zoom > img {
   transition: transform 250ms ease;
   transform-origin: var(--zoom-x, 50%) var(--zoom-y, 50%);
@@ -856,6 +870,111 @@
 
 .gallery-thumbs button:hover { border-color: var(--line); }
 .gallery-thumbs button[aria-current="true"] { border-color: var(--ink); }
+
+/* ---------- Foto em tela cheia (lightbox) --------------------------------
+   Aberta ao clicar na foto grande da galeria. Outro clique na foto
+   aproxima/afasta, com a origem do zoom seguindo o cursor.
+   -------------------------------------------------------------------------- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-lightbox);
+  display: flex;
+  flex-direction: column;
+  background: rgba(20, 18, 15, 0.94);
+  animation: lightbox-in 160ms var(--ease-base);
+}
+
+@keyframes lightbox-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lightbox-palco {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(var(--s-6), 8vw, var(--s-10));
+}
+
+.lightbox-img {
+  display: flex;
+  min-height: 0;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.lightbox-img > img {
+  width: auto;
+  height: auto;
+  /* limite pelo flex e, como rede, pelo viewport (deixa margem p/ o X e o
+     contador) */
+  max-width: min(100%, 92vw);
+  max-height: min(100%, 84vh);
+  object-fit: contain;
+  transition: transform 250ms ease;
+  transform-origin: var(--zoom-x, 50%) var(--zoom-y, 50%);
+}
+
+.lightbox-img.is-zoom { cursor: zoom-out; }
+.lightbox-img.is-zoom > img { transform: scale(2.2); }
+
+@media (prefers-reduced-motion: reduce) {
+  .lightbox { animation: none; }
+  .lightbox-img > img { transition: none; }
+}
+
+.lightbox-fechar,
+.lightbox-nav {
+  position: absolute;
+  z-index: 1;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(243, 239, 231, 0.12);
+  color: var(--paper);
+  cursor: pointer;
+  transition: background-color var(--t);
+}
+
+.lightbox-fechar:hover,
+.lightbox-nav:hover { background: rgba(243, 239, 231, 0.24); }
+
+.lightbox-fechar svg,
+.lightbox-nav svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  fill: none;
+}
+
+.lightbox-fechar { top: var(--s-4); right: var(--s-4); }
+
+.lightbox-nav { top: 50%; transform: translateY(-50%); }
+.lightbox-nav--antes { left: var(--s-4); }
+.lightbox-nav--antes svg { transform: scaleX(-1); }
+.lightbox-nav--depois { right: var(--s-4); }
+
+.lightbox-contador {
+  text-align: center;
+  padding-bottom: var(--s-5);
+  color: var(--muted-on-forest);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
 
 @media (min-width: 900px) {
   .product-media { position: sticky; top: calc(var(--header-h) + var(--s-5)); }
