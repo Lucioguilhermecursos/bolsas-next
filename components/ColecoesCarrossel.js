@@ -4,11 +4,13 @@
    acbolsa — carrossel "Por cores"
    =========================================================================
 
-   Faixa horizontal com scroll-snap e rolagem infinita para os dois lados:
-   a lista é renderizada em três cópias idênticas e o cliente navega sempre
-   pela cópia do meio. Ao chegar perto de uma ponta, a faixa salta uma cópia
-   inteira sem animação — como as cópias são iguais, o salto é invisível e
-   dá para começar a rolar tanto para a esquerda quanto para a direita.
+   Faixa horizontal com scroll-snap e rolagem infinita para os dois lados.
+
+   A lista é renderizada em cinco cópias idênticas. O cliente navega perto
+   da cópia do meio e, quando a rolagem PARA, a faixa se recoloca no bloco
+   central sem animação — como as cópias são iguais, o salto é invisível.
+   Recolocar só com a rolagem parada evita cortar a animação das setas, que
+   era o que fazia a rolagem para a esquerda "travar".
 
    As setas rolam um cartão por clique; arrastar e as setas do teclado (com
    a faixa focada) também funcionam. O cartão em si é um link para a cor.
@@ -19,50 +21,62 @@ import Link from "next/link";
 import { Placeholder } from "@/components/Placeholder";
 import { IconeSeta } from "@/components/Icones";
 
+const COPIAS = 5;
+const COPIA_CENTRO = 2;
+
 export default function ColecoesCarrossel({ colecoes }) {
   const faixaRef = useRef(null);
-  const blocoRef = useRef(0); // largura de UMA cópia da lista, em px
 
   const itens = colecoes.length
-    ? [...colecoes, ...colecoes, ...colecoes]
+    ? Array.from({ length: COPIAS }, () => colecoes).flat()
     : [];
 
-  function passoCartao() {
+  /* Mede, direto do DOM, o passo de um cartão e a largura de uma cópia da
+     lista — em pixels reais, sem depender de arredondamento de CSS, para o
+     salto de recolocação cair exato num cartão equivalente. */
+  function medidas() {
     const f = faixaRef.current;
-    if (!f) return 0;
-    const cartao = f.querySelector(".collection");
-    const gap = parseFloat(getComputedStyle(f).columnGap || getComputedStyle(f).gap || "16");
-    return cartao ? cartao.offsetWidth + gap : f.clientWidth * 0.8;
+    if (!f || !colecoes.length) return null;
+    const cartoes = f.querySelectorAll(".collection");
+    if (cartoes.length <= colecoes.length) return null;
+    const base = cartoes[0].offsetLeft;
+    const passo = cartoes[1].offsetLeft - base;
+    const bloco = cartoes[colecoes.length].offsetLeft - base;
+    return bloco > 0 ? { passo, bloco } : null;
   }
 
-  function irParaMeio() {
+  function recentrar() {
     const f = faixaRef.current;
-    if (!f || !colecoes.length) return;
-    blocoRef.current = passoCartao() * colecoes.length;
-    if (blocoRef.current) f.scrollLeft = blocoRef.current;
+    const m = medidas();
+    if (!f || !m) return;
+    const dentro = ((f.scrollLeft % m.bloco) + m.bloco) % m.bloco;
+    const alvo = dentro + m.bloco * COPIA_CENTRO;
+    if (Math.abs(alvo - f.scrollLeft) > 1) f.scrollLeft = alvo;
   }
 
   useEffect(() => {
     const f = faixaRef.current;
     if (!f || !colecoes.length) return;
 
-    irParaMeio();
-    // as fotos entram depois e podem mexer nas larguras: remede e recentra
-    const t = setTimeout(irParaMeio, 250);
+    recentrar();
+    // as fotos entram depois: remede quando a página assenta
+    const inicial = setTimeout(recentrar, 250);
 
-    function aoRolar() {
-      const bloco = blocoRef.current;
-      if (!bloco) return;
-      if (f.scrollLeft < bloco * 0.5) f.scrollLeft += bloco;
-      else if (f.scrollLeft >= bloco * 1.5) f.scrollLeft -= bloco;
-    }
+    let parado;
+    const aoRolar = () => {
+      clearTimeout(parado);
+      parado = setTimeout(recentrar, 120);
+    };
 
     f.addEventListener("scroll", aoRolar, { passive: true });
-    window.addEventListener("resize", irParaMeio);
+    f.addEventListener("scrollend", recentrar);
+    window.addEventListener("resize", recentrar);
     return () => {
-      clearTimeout(t);
+      clearTimeout(inicial);
+      clearTimeout(parado);
       f.removeEventListener("scroll", aoRolar);
-      window.removeEventListener("resize", irParaMeio);
+      f.removeEventListener("scrollend", recentrar);
+      window.removeEventListener("resize", recentrar);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colecoes.length]);
@@ -70,7 +84,8 @@ export default function ColecoesCarrossel({ colecoes }) {
   function rolar(direcao) {
     const f = faixaRef.current;
     if (!f) return;
-    f.scrollBy({ left: direcao * passoCartao(), behavior: "smooth" });
+    const m = medidas();
+    f.scrollBy({ left: direcao * (m ? m.passo : f.clientWidth * 0.8), behavior: "smooth" });
   }
 
   return (
