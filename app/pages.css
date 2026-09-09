@@ -50,7 +50,7 @@
   .hero-inner { grid-template-columns: 1.15fr .85fr; }
 }
 
-.hero-copy { max-width: 52ch; }
+.hero-copy { max-width: 56ch; }
 
 /* A régua vem de .label-rule-lg em globals.css — mesma assinatura que abre a
    ficha técnica, os filtros e o resumo do pedido. */
@@ -59,8 +59,8 @@
 .hero h1 {
   color: var(--paper);
   margin-bottom: var(--s-6);
-  font-size: clamp(3.5rem, 2rem + 6.4vw, 7rem);
-  line-height: 1.1;
+  font-size: clamp(4rem, 2rem + 8.5vw, 8.75rem);
+  line-height: 1.06;
   text-wrap: balance;
 }
 
