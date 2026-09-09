@@ -59,7 +59,7 @@
 .hero h1 {
   color: var(--paper);
   margin-bottom: var(--s-6);
-  font-size: clamp(3.75rem, 2rem + 7.5vw, 8rem);
+  font-size: clamp(3.75rem, 2rem + 7.5vw, 7.75rem);
   line-height: 1.12;
   text-wrap: balance;
 }
