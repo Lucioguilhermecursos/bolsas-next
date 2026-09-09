@@ -6,37 +6,18 @@
 
    Faixa horizontal com scroll-snap. As setas rolam um cartão por clique;
    arrastar e as setas do teclado (com a faixa focada) também funcionam.
-   O cartão em si é um link para a cor.
+   As duas setas ficam sempre visíveis: no começo, a da esquerda pula para o
+   fim; no fim, a da direita volta para o começo. O cartão em si é um link
+   para a cor.
    ========================================================================= */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import Link from "next/link";
 import { Placeholder } from "@/components/Placeholder";
 import { IconeSeta } from "@/components/Icones";
 
 export default function ColecoesCarrossel({ colecoes }) {
   const faixaRef = useRef(null);
-  const [temAntes, setTemAntes] = useState(false);
-  const [temDepois, setTemDepois] = useState(true);
-
-  const medir = useCallback(() => {
-    const f = faixaRef.current;
-    if (!f) return;
-    setTemAntes(f.scrollLeft > 4);
-    setTemDepois(f.scrollLeft + f.clientWidth < f.scrollWidth - 4);
-  }, []);
-
-  useEffect(() => {
-    medir();
-    const f = faixaRef.current;
-    if (!f) return;
-    f.addEventListener("scroll", medir, { passive: true });
-    window.addEventListener("resize", medir);
-    return () => {
-      f.removeEventListener("scroll", medir);
-      window.removeEventListener("resize", medir);
-    };
-  }, [medir]);
 
   function rolar(direcao) {
     const f = faixaRef.current;
@@ -44,7 +25,15 @@ export default function ColecoesCarrossel({ colecoes }) {
     const cartao = f.querySelector(".collection");
     const gap = parseFloat(getComputedStyle(f).columnGap || getComputedStyle(f).gap || "16");
     const passo = cartao ? cartao.offsetWidth + gap : f.clientWidth * 0.8;
-    f.scrollBy({ left: direcao * passo, behavior: "smooth" });
+    const noFim = f.scrollLeft + f.clientWidth >= f.scrollWidth - 4;
+    const noInicio = f.scrollLeft <= 4;
+    if (direcao > 0 && noFim) {
+      f.scrollTo({ left: 0, behavior: "smooth" });
+    } else if (direcao < 0 && noInicio) {
+      f.scrollTo({ left: f.scrollWidth, behavior: "smooth" });
+    } else {
+      f.scrollBy({ left: direcao * passo, behavior: "smooth" });
+    }
   }
 
   return (
@@ -94,7 +83,6 @@ export default function ColecoesCarrossel({ colecoes }) {
         type="button"
         className="carrossel-nav carrossel-nav--antes"
         onClick={() => rolar(-1)}
-        disabled={!temAntes}
         aria-label="Cor anterior"
       >
         <IconeSeta />
@@ -103,7 +91,6 @@ export default function ColecoesCarrossel({ colecoes }) {
         type="button"
         className="carrossel-nav carrossel-nav--depois"
         onClick={() => rolar(1)}
-        disabled={!temDepois}
         aria-label="Próxima cor"
       >
         <IconeSeta />

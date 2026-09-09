@@ -244,8 +244,10 @@
 .collection {
   position: relative;
   flex: 0 0 auto;
-  width: 78vw;
-  max-width: 300px;
+  /* Mostra um número inteiro de cartões por vez — 2 no celular, 3 no tablet,
+     4 no desktop — para nenhuma foto ficar cortada na borda direita. O -1px
+     absorve arredondamento e evita a "sobrinha" do próximo cartão. */
+  width: calc((100% - var(--s-4)) / 2 - 1px);
   display: flex;
   flex-direction: column;
   text-decoration: none;
@@ -255,8 +257,8 @@
   scroll-snap-align: start;
 }
 
-@media (min-width: 640px) { .collection { width: 46vw; } }
-@media (min-width: 960px) { .collection { width: 300px; } }
+@media (min-width: 640px) { .collection { width: calc((100% - 2 * var(--s-4)) / 3 - 1px); } }
+@media (min-width: 960px) { .collection { width: calc((100% - 3 * var(--s-4)) / 4 - 1px); } }
 
 .collection .ph { width: 100%; }
 
@@ -295,7 +297,8 @@
 .collection:hover .collection-body { background: var(--forest); }
 .collection:hover .collection-body svg { transform: translateX(4px); }
 
-/* Setas do carrossel — sobre as bordas, some quando não há para onde ir. */
+/* Setas do carrossel — sempre visíveis nas duas bordas. No começo, a da
+   esquerda leva ao fim da lista; no fim, a da direita volta ao começo. */
 .carrossel-nav {
   position: absolute;
   top: calc(50% - 28px);
@@ -323,11 +326,6 @@
 .carrossel-nav--antes { left: -8px; }
 .carrossel-nav--antes svg { transform: scaleX(-1); }
 .carrossel-nav--depois { right: -8px; }
-
-.carrossel-nav:disabled {
-  opacity: 0;
-  pointer-events: none;
-}
 
 @media (max-width: 639px) {
   .carrossel-nav { display: none; }
