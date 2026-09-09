@@ -96,7 +96,9 @@ export default function Home() {
           <div className="hero-copy">
             <p className="hero-kicker label label-rule-lg">Couro legítimo</p>
             <h1>
-              A bolsa que envelhece <em>com você</em>
+              A bolsa que <br />
+              envelhece <br />
+              <em>com você</em>
             </h1>
             <p className="hero-lead">
               Peças de couro com ficha técnica aberta: material, medidas e construção antes do
