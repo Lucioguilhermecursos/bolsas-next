@@ -6,9 +6,8 @@
 
    Faixa horizontal com scroll-snap. As setas rolam um cartão por clique;
    arrastar e as setas do teclado (com a faixa focada) também funcionam.
-   As duas setas ficam sempre visíveis: no começo, a da esquerda pula para o
-   fim; no fim, a da direita volta para o começo. O cartão em si é um link
-   para a cor.
+   As duas setas ficam sempre visíveis e rolam a faixa na direção esperada —
+   sem dar a volta. O cartão em si é um link para a cor.
    ========================================================================= */
 
 import { useRef } from "react";
@@ -25,15 +24,7 @@ export default function ColecoesCarrossel({ colecoes }) {
     const cartao = f.querySelector(".collection");
     const gap = parseFloat(getComputedStyle(f).columnGap || getComputedStyle(f).gap || "16");
     const passo = cartao ? cartao.offsetWidth + gap : f.clientWidth * 0.8;
-    const noFim = f.scrollLeft + f.clientWidth >= f.scrollWidth - 4;
-    const noInicio = f.scrollLeft <= 4;
-    if (direcao > 0 && noFim) {
-      f.scrollTo({ left: 0, behavior: "smooth" });
-    } else if (direcao < 0 && noInicio) {
-      f.scrollTo({ left: f.scrollWidth, behavior: "smooth" });
-    } else {
-      f.scrollBy({ left: direcao * passo, behavior: "smooth" });
-    }
+    f.scrollBy({ left: direcao * passo, behavior: "smooth" });
   }
 
   return (

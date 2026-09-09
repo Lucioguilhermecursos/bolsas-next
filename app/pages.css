@@ -297,8 +297,8 @@
 .collection:hover .collection-body { background: var(--forest); }
 .collection:hover .collection-body svg { transform: translateX(4px); }
 
-/* Setas do carrossel — sempre visíveis nas duas bordas. No começo, a da
-   esquerda leva ao fim da lista; no fim, a da direita volta ao começo. */
+/* Setas do carrossel — sempre visíveis nas duas bordas, rolando a faixa
+   um cartão por clique na direção esperada. */
 .carrossel-nav {
   position: absolute;
   top: calc(50% - 28px);
