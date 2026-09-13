@@ -4,13 +4,15 @@
    acbolsa — carrossel "Por cores"
    =========================================================================
 
-   Faixa horizontal com scroll-snap e rolagem infinita para os dois lados.
+   Faixa horizontal com avanço automático contínuo (sem scroll-snap — ele
+   brigava com os incrementos por quadro do autoplay) e rolagem infinita
+   para os dois lados.
 
    A lista é renderizada em cinco cópias idênticas. O cliente navega perto
-   da cópia do meio e, quando a rolagem PARA, a faixa se recoloca no bloco
-   central sem animação — como as cópias são iguais, o salto é invisível.
-   Recolocar só com a rolagem parada evita cortar a animação do avanço
-   automático, que era o que fazia a rolagem para a esquerda "travar".
+   da cópia do meio e, quando a rolagem manual PARA, a faixa se recoloca no
+   bloco central sem animação — como as cópias são iguais, o salto é
+   invisível. O próprio avanço automático se recoloca a cada quadro, sem
+   depender desse "parar".
 
    A faixa avança sozinha, sem parar; arrastar e as setas do teclado (com
    a faixa focada) também funcionam. O cartão em si é um link para a cor.
@@ -23,7 +25,7 @@ import { IconeSeta } from "@/components/Icones";
 
 const COPIAS = 5;
 const COPIA_CENTRO = 2;
-const AUTOPLAY_INTERVALO = 3200;
+const AUTOPLAY_SEGUNDOS_POR_CARTAO = 3.2;
 
 export default function ColecoesCarrossel({ colecoes }) {
   const faixaRef = useRef(null);
@@ -82,26 +84,52 @@ export default function ColecoesCarrossel({ colecoes }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colecoes.length]);
 
-  function rolar(direcao) {
-    const f = faixaRef.current;
-    if (!f) return;
-    const m = medidas();
-    f.scrollBy({ left: direcao * (m ? m.passo : f.clientWidth * 0.8), behavior: "smooth" });
-  }
-
-  /* Avança sozinho sem parar. Só não roda para quem pede menos animação
-     no sistema (prefers-reduced-motion) e some ao trocar de aba, pra não
-     empilhar avanços enquanto a página está em segundo plano. */
+  /* Avança sozinho, em movimento contínuo — nunca para e nunca dá aquele
+     "pulo" de cartão em cartão. A velocidade é derivada do passo de um
+     cartão para levar sempre o mesmo tempo (AUTOPLAY_SEGUNDOS_POR_CARTAO)
+     cruzando cada um, e o próprio quadro já recoloca a faixa (subtraindo
+     um bloco) assim que ela sai da cópia central — sem depender do evento
+     de rolagem "parar", que nunca acontece aqui. Só fica de fora para quem
+     pede menos animação no sistema, e some ao trocar de aba, pra não vir
+     com um salto gigante de volta (o "dt" acumulado durante o tempo
+     escondido) quando a aba volta a ficar visível. */
   useEffect(() => {
     const f = faixaRef.current;
     if (!f || !colecoes.length) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const intervalo = setInterval(() => {
-      if (!document.hidden) rolar(1);
-    }, AUTOPLAY_INTERVALO);
+    let m = medidas();
+    const remedir = () => {
+      const novo = medidas();
+      if (novo) m = novo;
+    };
+    const inicial = setTimeout(remedir, 250);
+    window.addEventListener("resize", remedir);
 
-    return () => clearInterval(intervalo);
+    let ultimo = null;
+    let quadro;
+    const avancar = (agora) => {
+      if (document.hidden) {
+        ultimo = null;
+      } else {
+        if (ultimo !== null && m) {
+          const dt = Math.min((agora - ultimo) / 1000, 0.25);
+          const velocidade = m.passo / AUTOPLAY_SEGUNDOS_POR_CARTAO;
+          let alvo = f.scrollLeft + velocidade * dt;
+          if (alvo >= m.bloco * (COPIA_CENTRO + 1)) alvo -= m.bloco;
+          f.scrollLeft = alvo;
+        }
+        ultimo = agora;
+      }
+      quadro = requestAnimationFrame(avancar);
+    };
+    quadro = requestAnimationFrame(avancar);
+
+    return () => {
+      cancelAnimationFrame(quadro);
+      clearTimeout(inicial);
+      window.removeEventListener("resize", remedir);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colecoes.length]);
 

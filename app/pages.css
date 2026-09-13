@@ -198,8 +198,9 @@
 }
 
 /* ---------- Coleções — carrossel "Por cores" -----------------------------
-   Faixa horizontal com scroll-snap. A foto domina o cartão; a legenda é uma
-   tira fina no rodapé, dentro do campo escuro (não sobre a foto).
+   Faixa horizontal com avanço automático contínuo. A foto domina o cartão;
+   a legenda é uma tira fina no rodapé, dentro do campo escuro (não sobre a
+   foto).
    -------------------------------------------------------------------------- */
 
 .carrossel {
@@ -210,12 +211,11 @@
   display: flex;
   gap: var(--s-4);
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-padding-left: 0;
+  /* Sem scroll-snap: o avanço automático escreve em scrollLeft a cada
+     quadro, e o snap "mandatory" brigava com esses incrementos pequenos,
+     travando a faixa no lugar (cada micro-ajuste era desfeito na hora). */
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  /* Sobra nas laterais para o 1º e o último cartão não colarem na borda ao
-     dar snap, sem quebrar o alinhamento com o container. */
   padding-bottom: var(--s-2);
 }
 
@@ -255,7 +255,6 @@
   color: inherit;
   background: var(--paper-deep);
   overflow: hidden;
-  scroll-snap-align: start;
 }
 
 @media (min-width: 640px) { .collection { width: calc((100% - 2 * var(--s-4)) / 3 - 1px); } }
