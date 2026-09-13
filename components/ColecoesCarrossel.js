@@ -23,6 +23,7 @@ import { IconeSeta } from "@/components/Icones";
 
 const COPIAS = 5;
 const COPIA_CENTRO = 2;
+const AUTOPLAY_INTERVALO = 3200;
 
 export default function ColecoesCarrossel({ colecoes }) {
   const faixaRef = useRef(null);
@@ -87,6 +88,51 @@ export default function ColecoesCarrossel({ colecoes }) {
     const m = medidas();
     f.scrollBy({ left: direcao * (m ? m.passo : f.clientWidth * 0.8), behavior: "smooth" });
   }
+
+  /* Avança sozinho enquanto ninguém mexe no carrossel. Para com o mouse em
+     cima, com o foco no teclado, durante o arraste e some de vez para quem
+     pede menos animação — e some ao trocar de aba, pra não empilhar avanços
+     enquanto a página está em segundo plano. */
+  useEffect(() => {
+    const f = faixaRef.current;
+    if (!f || !colecoes.length) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let intervalo;
+    let pausado = false;
+
+    const iniciar = () => {
+      clearInterval(intervalo);
+      intervalo = setInterval(() => {
+        if (!pausado && !document.hidden) rolar(1);
+      }, AUTOPLAY_INTERVALO);
+    };
+    const pausar = () => {
+      pausado = true;
+    };
+    const retomar = () => {
+      pausado = false;
+    };
+
+    f.addEventListener("mouseenter", pausar);
+    f.addEventListener("mouseleave", retomar);
+    f.addEventListener("focusin", pausar);
+    f.addEventListener("focusout", retomar);
+    f.addEventListener("pointerdown", pausar);
+    f.addEventListener("pointerup", retomar);
+
+    iniciar();
+    return () => {
+      clearInterval(intervalo);
+      f.removeEventListener("mouseenter", pausar);
+      f.removeEventListener("mouseleave", retomar);
+      f.removeEventListener("focusin", pausar);
+      f.removeEventListener("focusout", retomar);
+      f.removeEventListener("pointerdown", pausar);
+      f.removeEventListener("pointerup", retomar);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colecoes.length]);
 
   return (
     <div className="carrossel" role="region" aria-label="Coleções por cor" aria-roledescription="carrossel">
