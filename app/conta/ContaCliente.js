@@ -45,7 +45,7 @@ const FORNECEDOR_ROTULO = {
 /* Frase de situação quando ainda não há código de rastreio. */
 function situacaoEnvio(p) {
   if (p.envio?.status && FORNECEDOR_ROTULO[p.envio.status]) return FORNECEDOR_ROTULO[p.envio.status];
-  if (p.status === "pago") return "Pagamento confirmado — preparando o envio";
+  if (p.status === "pago") return "Pagamento confirmado, preparando o envio";
   if (p.status === "expirado") return "Pagamento não concluído";
   return "Registrado, aguardando confirmação do pagamento";
 }
@@ -290,7 +290,7 @@ function Rastreio({ pedidos }) {
               <div className="spec-row">
                 <dt>Destino</dt>
                 <dd>
-                  {achado.entrega.cidade}/{achado.entrega.uf} — {achado.entrega.cep}
+                  {achado.entrega.cidade}/{achado.entrega.uf}, {achado.entrega.cep}
                 </dd>
               </div>
               <div className="spec-row">
@@ -352,11 +352,11 @@ function MeusDados({ perfil, email, ultimo }) {
               <dt>Endereço</dt>
               <dd>
                 {endereco.rua}, {endereco.numero}
-                {endereco.complemento && " — " + endereco.complemento}
+                {endereco.complemento && ", " + endereco.complemento}
                 <br />
                 {endereco.bairro}
                 <br />
-                {endereco.cidade}/{endereco.uf} — {endereco.cep}
+                {endereco.cidade}/{endereco.uf}, {endereco.cep}
               </dd>
             </div>
           )}

@@ -25,7 +25,7 @@ const karla = Karla({
 
 export const metadata = {
   title: {
-    default: "acbolsa — bolsas de couro",
+    default: "acbolsa: bolsas de couro",
     template: "%s | acbolsa",
   },
   description:
@@ -47,7 +47,7 @@ export default function RootLayout({ children }) {
                   Remover quando entrarem produtos e fotos reais. */}
               <p className="demo-note">
                 Site de demonstração. Os produtos e preços são <strong>exemplos</strong> e as
-                fotos ainda não foram feitas — nenhum pedido é cobrado.
+                fotos ainda não foram feitas. Nenhum pedido é cobrado.
               </p>
 
               {/* O Header lê `useSearchParams` para marcar o item ativo, o que

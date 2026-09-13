@@ -67,8 +67,8 @@ export default function PaginaAjuda() {
               <IconeAlerta />
               <p>
                 <strong>Texto em preparação.</strong> As políticas seguem o Código de Defesa do
-                Consumidor, mas os dados da empresa e os prazos reais ainda precisam ser preenchidos
-                — os trechos marcados com <strong>[PREENCHER]</strong> são os que faltam.
+                Consumidor, mas os dados da empresa e os prazos reais ainda precisam ser preenchidos.
+                Os trechos marcados com <strong>[PREENCHER]</strong> são os que faltam.
               </p>
             </div>
 
@@ -76,7 +76,7 @@ export default function PaginaAjuda() {
               <h2>Entrega e prazos</h2>
               <p>
                 Enviamos para todo o Brasil. O frete e o prazo aparecem no checkout, calculados pelo
-                CEP informado, e o valor final é o que você vê antes de concluir o pedido — sem
+                CEP informado, e o valor final é o que você vê antes de concluir o pedido, sem
                 acréscimo depois.
               </p>
               <p>
@@ -103,7 +103,7 @@ export default function PaginaAjuda() {
               <h2>Trocas e devoluções</h2>
               <p>
                 Você tem <strong>7 dias corridos</strong> a partir do recebimento para desistir da
-                compra e receber o valor integral de volta, incluindo o frete — é o direito de
+                compra e receber o valor integral de volta, incluindo o frete. É o direito de
                 arrependimento previsto no artigo 49 do Código de Defesa do Consumidor, e vale para
                 qualquer motivo, sem precisar justificar.
               </p>
@@ -118,7 +118,7 @@ export default function PaginaAjuda() {
               <ul role="list">
                 <li>A peça precisa estar sem sinais de uso, com etiqueta presa</li>
                 <li>
-                  Marcas naturais do couro não são defeito — variação de tom e de grão fazem parte
+                  Marcas naturais do couro não são defeito: variação de tom e de grão fazem parte
                   do material
                 </li>
                 <li>
@@ -148,7 +148,7 @@ export default function PaginaAjuda() {
                 </li>
                 <li>
                   <strong>Guarda:</strong> na sapatilha de tecido que acompanha a peça, com
-                  enchimento dentro para não vincar. Nunca em saco plástico — o couro precisa
+                  enchimento dentro para não vincar. Nunca em saco plástico: o couro precisa
                   respirar
                 </li>
                 <li>
@@ -174,7 +174,7 @@ export default function PaginaAjuda() {
                 (PIX, cartão, boleto) e as condições de parcelamento aparecem nessa página.
               </p>
               <p>
-                Nenhum dado de cartão é digitado ou armazenado neste site — quem cuida disso é o
+                Nenhum dado de cartão é digitado ou armazenado neste site. Quem cuida disso é o
                 parceiro de pagamento, em ambiente próprio.
               </p>
               <div className="notice mt-6">
@@ -202,7 +202,7 @@ export default function PaginaAjuda() {
               <ul role="list">
                 <li>
                   <strong>Cadastro:</strong> nome e e-mail. Se você entrar com o Google, recebemos do
-                  Google seu nome, e-mail e foto de perfil — nada além disso, e só quando você
+                  Google seu nome, e-mail e foto de perfil, nada além disso, e só quando você
                   escolhe esse caminho.
                 </li>
                 <li>
@@ -231,24 +231,24 @@ export default function PaginaAjuda() {
               <h3>Com quem compartilhamos</h3>
               <ul role="list">
                 <li>
-                  <strong>Provedor de infraestrutura</strong> (Supabase) — hospeda o banco de dados
+                  <strong>Provedor de infraestrutura</strong> (Supabase): hospeda o banco de dados
                   da conta e dos pedidos. Os servidores podem estar fora do Brasil; a transferência
                   segue as bases legais da LGPD.
                 </li>
                 <li>
-                  <strong>Meio de pagamento</strong> — recebe o valor e os dados necessários para a
+                  <strong>Meio de pagamento</strong>: recebe o valor e os dados necessários para a
                   cobrança quando você vai pagar.
                 </li>
                 <li>
-                  <strong>Transportadora</strong> — recebe nome e endereço para a entrega.
+                  <strong>Transportadora</strong>: recebe nome e endereço para a entrega.
                 </li>
                 <li>
-                  <strong>Google</strong> — apenas se você usar &ldquo;Entrar com o Google&rdquo;,
+                  <strong>Google</strong>: apenas se você usar &ldquo;Entrar com o Google&rdquo;,
                   para autenticar o acesso.
                 </li>
               </ul>
 
-              <h3>Seus direitos (LGPD — Lei 13.709/2018)</h3>
+              <h3>Seus direitos (LGPD, Lei 13.709/2018)</h3>
               <p>
                 Você pode pedir a qualquer momento: acesso aos seus dados, correção, exclusão,
                 portabilidade, informação sobre com quem foram compartilhados, e a revogação do
@@ -260,8 +260,8 @@ export default function PaginaAjuda() {
                 Você mesma pode conferir e corrigir seus dados de contato e entrega na página{" "}
                 <Link className="link-underline" href="/conta">
                   Minha conta
-                </Link>{" "}
-                — a correção vale no próximo pedido.
+                </Link>
+                . A correção vale no próximo pedido.
               </p>
 
               <h3>Segurança</h3>
@@ -272,7 +272,7 @@ export default function PaginaAjuda() {
 
               <Preencher>
                 razão social, CNPJ, endereço da empresa, e-mail do encarregado de dados (DPO) e o
-                canal oficial para exercer os direitos da LGPD — obrigatórios antes de publicar.
+                canal oficial para exercer os direitos da LGPD, obrigatórios antes de publicar.
               </Preencher>
             </section>
 
@@ -296,7 +296,7 @@ export default function PaginaAjuda() {
                   venda, e o pedido é cancelado com reembolso integral
                 </li>
                 <li>
-                  Todo o conteúdo do site — textos, fotos e identidade visual — pertence à acbolsa
+                  Todo o conteúdo do site (textos, fotos e identidade visual) pertence à acbolsa
                 </li>
               </ul>
               <Preencher>

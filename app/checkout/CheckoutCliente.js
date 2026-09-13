@@ -62,7 +62,7 @@ function regrasPara(tipoPessoa) {
     ["nome", (v) => v.length >= 3 && v.includes(" "),
       pj ? "Escreva o nome do responsável pelo pedido." : "Escreva seu nome completo, como está no documento."],
     ...(pj
-      ? [["razaoSocial", (v) => v.length >= 3, "Informe a razão social — é o que vai na etiqueta e na nota."]]
+      ? [["razaoSocial", (v) => v.length >= 3, "Informe a razão social: é o que vai na etiqueta e na nota."]]
       : []),
     ["email", emailValido, "Esse e-mail parece incompleto. Confira se falta o @ ou o final do domínio."],
     ["tel", (v) => v.replace(/\D/g, "").length >= 10, "Informe DDD e número, com pelo menos 10 dígitos."],
@@ -284,7 +284,7 @@ export default function CheckoutCliente({ inicial }) {
                   rotulo="Razão social"
                   obrigatorio
                   erro={erros.razaoSocial}
-                  dica="Como está no cartão CNPJ — é o que vai na etiqueta e na nota."
+                  dica="Como está no cartão CNPJ: é o que vai na etiqueta e na nota."
                 >
                   <input
                     className="input"
@@ -367,7 +367,7 @@ export default function CheckoutCliente({ inicial }) {
                   className="input"
                   type="text"
                   autoComplete="address-line1"
-                  placeholder="Só o nome — sem 'Rua', 'Av.'…"
+                  placeholder="Só o nome, sem 'Rua', 'Av.'…"
                   {...campoProps("rua")}
                 />
               </Campo>
@@ -434,7 +434,7 @@ export default function CheckoutCliente({ inicial }) {
               <IconeAlerta />
               <p>
                 O pagamento é feito em uma página segura do nosso parceiro de checkout. Ao
-                registrar o pedido você é levada até lá — <strong>nenhum dado de cartão passa
+                registrar o pedido você é levada até lá: <strong>nenhum dado de cartão passa
                 por este site</strong>.
               </p>
             </div>
@@ -527,7 +527,7 @@ function Confirmacao({ pedido }) {
       <p className="lead mx-auto mt-4">
         Guardamos o pedido <strong>{pedido.codigo}</strong> na sua conta.{" "}
         {pedido.checkoutUrl
-          ? "Falta o pagamento — o botão abaixo leva à página segura do checkout."
+          ? "Falta o pagamento: o botão abaixo leva à página segura do checkout."
           : "O pagamento externo ainda não está configurado; a acbolsa entra em contato pelo e-mail informado para combinar o pagamento e o envio."}
       </p>
 
@@ -553,7 +553,7 @@ function Confirmacao({ pedido }) {
             <dd>
               {pedido.entrega.rua}, {pedido.entrega.numero}
               <br />
-              {pedido.entrega.bairro} — {pedido.entrega.cidade}/{pedido.entrega.uf}
+              {pedido.entrega.bairro}, {pedido.entrega.cidade}/{pedido.entrega.uf}
               <br />
               {pedido.entrega.cep}
             </dd>

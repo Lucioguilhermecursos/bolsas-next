@@ -199,7 +199,7 @@ function TelaCheia({ fotos, atual, setAtual, nome, aoFechar }) {
       className="lightbox"
       role="dialog"
       aria-modal="true"
-      aria-label={nome + " — foto em tela cheia"}
+      aria-label={nome + ": foto em tela cheia"}
     >
       <button
         type="button"

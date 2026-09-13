@@ -127,7 +127,7 @@ function ConfirmeEmail({ email }) {
       <h2>Confirme seu e-mail</h2>
       <p className="lead mx-auto mt-4">
         Enviamos um link para <strong>{email}</strong>. Abra a mensagem e clique
-        no link para ativar a conta — depois é só entrar.
+        no link para ativar a conta, depois é só entrar.
       </p>
 
       <form action={acao} className="mt-8">

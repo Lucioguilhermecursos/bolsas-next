@@ -69,7 +69,7 @@ export default function SlideshowProduto({ produto, selo, eager = false }) {
               key={f}
               className="slideshow-img"
               src={f}
-              alt={n === 0 ? produto.nome + " — " + produto.cor : ""}
+              alt={n === 0 ? produto.nome + " na cor " + produto.cor : ""}
               data-ativa={n === i || undefined}
               loading={eager && n === 0 ? "eager" : "lazy"}
               decoding="async"

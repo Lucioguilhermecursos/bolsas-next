@@ -53,7 +53,7 @@ export function MidiaProduto({ produto, proporcao = "portrait", eager = false })
             com `sizes` por breakpoint. Trocar aqui, num lugar só. */}
         <img
           src={foto}
-          alt={produto.nome + " — " + produto.cor}
+          alt={produto.nome + " na cor " + produto.cor}
           loading={eager ? "eager" : "lazy"}
           decoding="async"
         />

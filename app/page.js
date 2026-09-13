@@ -21,7 +21,7 @@ import {
 } from "@/components/Icones";
 
 export const metadata = {
-  title: "acbolsa — Bolsas de couro feitas para durar",
+  title: "acbolsa: Bolsas de couro feitas para durar",
   description:
     "Bolsas e acessórios de couro da acbolsa. Peças com ficha técnica aberta: material, medidas e construção antes do preço.",
 };
@@ -180,7 +180,7 @@ export default function Home() {
             </h2>
             <p className="lead">
               Um couro de curtimento vegetal chega claro e vai fechando o tom com o uso. Não é
-              desgaste — é o material fazendo o que se espera dele. Por isso a ficha técnica de cada
+              desgaste, é o material fazendo o que se espera dele. Por isso a ficha técnica de cada
               peça diz de que couro ela é feita.
             </p>
 
