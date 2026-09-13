@@ -9,10 +9,10 @@
    A lista é renderizada em cinco cópias idênticas. O cliente navega perto
    da cópia do meio e, quando a rolagem PARA, a faixa se recoloca no bloco
    central sem animação — como as cópias são iguais, o salto é invisível.
-   Recolocar só com a rolagem parada evita cortar a animação das setas, que
-   era o que fazia a rolagem para a esquerda "travar".
+   Recolocar só com a rolagem parada evita cortar a animação do avanço
+   automático, que era o que fazia a rolagem para a esquerda "travar".
 
-   As setas rolam um cartão por clique; arrastar e as setas do teclado (com
+   A faixa avança sozinha, sem parar; arrastar e as setas do teclado (com
    a faixa focada) também funcionam. O cartão em si é um link para a cor.
    ========================================================================= */
 
@@ -89,48 +89,19 @@ export default function ColecoesCarrossel({ colecoes }) {
     f.scrollBy({ left: direcao * (m ? m.passo : f.clientWidth * 0.8), behavior: "smooth" });
   }
 
-  /* Avança sozinho enquanto ninguém mexe no carrossel. Para com o mouse em
-     cima, com o foco no teclado, durante o arraste e some de vez para quem
-     pede menos animação — e some ao trocar de aba, pra não empilhar avanços
-     enquanto a página está em segundo plano. */
+  /* Avança sozinho sem parar. Só não roda para quem pede menos animação
+     no sistema (prefers-reduced-motion) e some ao trocar de aba, pra não
+     empilhar avanços enquanto a página está em segundo plano. */
   useEffect(() => {
     const f = faixaRef.current;
     if (!f || !colecoes.length) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    let intervalo;
-    let pausado = false;
+    const intervalo = setInterval(() => {
+      if (!document.hidden) rolar(1);
+    }, AUTOPLAY_INTERVALO);
 
-    const iniciar = () => {
-      clearInterval(intervalo);
-      intervalo = setInterval(() => {
-        if (!pausado && !document.hidden) rolar(1);
-      }, AUTOPLAY_INTERVALO);
-    };
-    const pausar = () => {
-      pausado = true;
-    };
-    const retomar = () => {
-      pausado = false;
-    };
-
-    f.addEventListener("mouseenter", pausar);
-    f.addEventListener("mouseleave", retomar);
-    f.addEventListener("focusin", pausar);
-    f.addEventListener("focusout", retomar);
-    f.addEventListener("pointerdown", pausar);
-    f.addEventListener("pointerup", retomar);
-
-    iniciar();
-    return () => {
-      clearInterval(intervalo);
-      f.removeEventListener("mouseenter", pausar);
-      f.removeEventListener("mouseleave", retomar);
-      f.removeEventListener("focusin", pausar);
-      f.removeEventListener("focusout", retomar);
-      f.removeEventListener("pointerdown", pausar);
-      f.removeEventListener("pointerup", retomar);
-    };
+    return () => clearInterval(intervalo);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colecoes.length]);
 
@@ -176,23 +147,6 @@ export default function ColecoesCarrossel({ colecoes }) {
           </Link>
         ))}
       </div>
-
-      <button
-        type="button"
-        className="carrossel-nav carrossel-nav--antes"
-        onClick={() => rolar(-1)}
-        aria-label="Cor anterior"
-      >
-        <IconeSeta />
-      </button>
-      <button
-        type="button"
-        className="carrossel-nav carrossel-nav--depois"
-        onClick={() => rolar(1)}
-        aria-label="Próxima cor"
-      >
-        <IconeSeta />
-      </button>
     </div>
   );
 }
