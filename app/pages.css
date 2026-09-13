@@ -198,32 +198,63 @@
 }
 
 /* ---------- Coleções — carrossel "Por cores" -----------------------------
-   Faixa horizontal com avanço automático contínuo. A foto domina o cartão;
-   a legenda é uma tira fina no rodapé, dentro do campo escuro (não sobre a
-   foto).
+   Loop infinito só de CSS: a lista é renderizada duas vezes (a segunda
+   cópia é decorativa — some do teclado e do leitor de tela via aria-hidden
+   / tabindex no componente) e a faixa desliza de 0% a -50% da própria
+   largura, que é sempre o dobro de uma cópia. Como as duas cópias são
+   idênticas, o instante em que a animação reinicia é invisível. Não há JS
+   no movimento; JS só entra pra pausar no toque (o mouse já pausa sozinho
+   pelo ":hover" abaixo). A legenda é uma tira fina no rodapé, dentro do
+   campo escuro (não sobre a foto).
    -------------------------------------------------------------------------- */
 
 .carrossel {
   position: relative;
+  overflow: hidden;
+  /* Esmaece as duas pontas em vez de cortar os cartões em seco. */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black var(--carrossel-fade, 48px),
+    black calc(100% - var(--carrossel-fade, 48px)),
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black var(--carrossel-fade, 48px),
+    black calc(100% - var(--carrossel-fade, 48px)),
+    transparent
+  );
 }
 
 .carrossel-faixa {
   display: flex;
+  width: max-content;
   gap: var(--s-4);
-  overflow-x: auto;
-  /* Sem scroll-snap: o avanço automático escreve em scrollLeft a cada
-     quadro, e o snap "mandatory" brigava com esses incrementos pequenos,
-     travando a faixa no lugar (cada micro-ajuste era desfeito na hora). */
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  padding-bottom: var(--s-2);
+  padding-block: 2px var(--s-2);
+  animation: carrossel-deslizar var(--carrossel-duracao, 32s) linear infinite;
 }
 
-.carrossel-faixa::-webkit-scrollbar { display: none; }
+/* Pausa com o mouse em cima (desktop) ou com o dedo tocando (a classe é
+   ligada por JS no touchstart/touchend — :active sozinho não é confiável
+   pra isso em todo navegador móvel). */
+.carrossel:hover .carrossel-faixa,
+.carrossel-faixa--pausado {
+  animation-play-state: paused;
+}
 
-/* Proporção do bloco de imagem do carrossel — mais alto que largo, a bolsa
-   aparece inteira. */
-.ph--colecao { --ph-ratio: 4 / 5; }
+@media (prefers-reduced-motion: reduce) {
+  .carrossel { overflow-x: auto; }
+  .carrossel-faixa { animation: none; }
+}
+
+@keyframes carrossel-deslizar {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.ph--colecao { --ph-ratio: 1 / 1; }
 
 /* Foto com modelo: escondida até o hover do cartão, quando faz um cross-fade
    por cima da foto da bolsa. */
@@ -245,20 +276,16 @@
 .collection {
   position: relative;
   flex: 0 0 auto;
-  /* Mostra um número inteiro de cartões por vez — 2 no celular, 3 no tablet,
-     4 no desktop — para nenhuma foto ficar cortada na borda direita. O -1px
-     absorve arredondamento e evita a "sobrinha" do próximo cartão. */
-  width: calc((100% - var(--s-4)) / 2 - 1px);
+  /* Fluido — encolhe no celular, cresce até um teto no desktop — sem
+     depender da largura do container (a faixa tem width: max-content). */
+  width: clamp(160px, 26vw, 300px);
   display: flex;
   flex-direction: column;
   text-decoration: none;
   color: inherit;
-  background: var(--paper-deep);
+  background: var(--paper);
   overflow: hidden;
 }
-
-@media (min-width: 640px) { .collection { width: calc((100% - 2 * var(--s-4)) / 3 - 1px); } }
-@media (min-width: 960px) { .collection { width: calc((100% - 3 * var(--s-4)) / 4 - 1px); } }
 
 .collection .ph { width: 100%; }
 

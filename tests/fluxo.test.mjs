@@ -39,13 +39,15 @@ t("home: cartões na vitrine", (await p.locator(".card").count()) >= 2,
 t("home: hero em campo verde", await p.locator(".hero").isVisible());
 t("home: régua de latão", (await p.locator(".label-rule-lg").count()) > 0);
 t("home: 4 garantias", (await p.locator(".promise").count()) === 4);
-t("home: carrossel de cores", (await p.locator(".carrossel .collection").count()) >= 6);
+t("home: carrossel de cores (lista duplicada p/ loop)", (await p.locator(".carrossel .collection").count()) >= 6);
+t("home: carrossel sem setas de navegação", (await p.locator(".carrossel-nav").count()) === 0);
 {
   const faixa = p.locator(".carrossel-faixa");
-  const antes = await faixa.evaluate((el) => el.scrollLeft);
-  await p.waitForTimeout(4000);
-  const depois = await faixa.evaluate((el) => el.scrollLeft);
-  t("home: carrossel avança sozinho", depois !== antes, "scrollLeft " + antes + " → " + depois);
+  const transformDe = (m) => (m === "none" ? 0 : parseFloat(m.split(",")[4]));
+  const antes = transformDe(await faixa.evaluate((el) => getComputedStyle(el).transform));
+  await p.waitForTimeout(1500);
+  const depois = transformDe(await faixa.evaluate((el) => getComputedStyle(el).transform));
+  t("home: carrossel desliza sozinho (CSS)", depois !== antes, "translateX " + antes + " → " + depois);
 }
 
 // ---------- 2. Adicionar à sacola ----------
