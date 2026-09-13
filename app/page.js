@@ -161,9 +161,10 @@ export default function Home() {
               <p className="lead">Escolha pelo tom que combina com você, não pela estação.</p>
             </div>
           </div>
-
-          <ColecoesCarrossel colecoes={colecoes} />
         </div>
+
+        {/* Fora do .container: o carrossel encosta nas duas bordas da tela. */}
+        <ColecoesCarrossel colecoes={colecoes} />
       </section>
 
       {/* ==== Faixa editorial — o argumento do material ==== */}
