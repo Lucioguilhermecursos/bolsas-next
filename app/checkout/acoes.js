@@ -22,6 +22,7 @@ import { obterUsuario } from "@/lib/auth/sessao";
 import { porId } from "@/lib/catalog";
 import { calcularFrete } from "@/lib/formulario";
 import { criarSessaoCheckout, stripeAtivo } from "@/lib/pagamento/stripe";
+import { criarPagamento, mercadoPagoAtivo } from "@/lib/pagamento/mercadopago";
 
 function codigoPedido() {
   return "AC" + Date.now().toString().slice(-8);
@@ -38,7 +39,7 @@ export async function criarPedido(dados) {
   const usuario = await obterUsuario();
   if (!usuario) return { erro: "Sua sessão expirou. Entre de novo para finalizar." };
 
-  const { itens = [], contato = {}, entrega = {} } = dados || {};
+  const { itens = [], contato = {}, entrega = {}, provedor: escolhido } = dados || {};
 
   /* Resolve cada item pelo catálogo; descarta o que não existe mais. */
   const linhas = itens
@@ -61,11 +62,11 @@ export async function criarPedido(dados) {
   const total = subtotal + frete.valor;
   const codigo = codigoPedido();
 
-  const provedor = stripeAtivo()
-    ? "stripe"
-    : process.env.EXTERNAL_CHECKOUT_BASE_URL
-      ? "externo"
-      : null;
+  const provedor = 
+    escolhido === "stripe" && stripeAtivo() ? "stripe"
+    : escolhido === "mercadopago" && mercadoPagoAtivo() ? "mercadopago"
+    : process.env.EXTERNAL_CHECKOUT_BASE_URL ? "externo"
+    : null;
 
   const supabase = await criarClienteServidor();
   const { error } = await supabase.from("pedidos").insert({
@@ -109,7 +110,7 @@ export async function criarPedido(dados) {
   let checkoutUrl = null;
   let stripeSessionId = null;
 
-  try {
+ if (provedor === "stripe"){ try {
     const s = await criarSessaoCheckout({
       codigo,
       userId: usuario.id,
@@ -126,9 +127,9 @@ export async function criarPedido(dados) {
     }
   } catch (e) {
     console.error("[stripe] criar sessão:", e?.message || e);
-  }
+  }}
 
-  if (!checkoutUrl && process.env.EXTERNAL_CHECKOUT_BASE_URL) {
+  if (!checkoutUrl && provedor !== "mercadopago" && process.env.EXTERNAL_CHECKOUT_BASE_URL) {
     const b = process.env.EXTERNAL_CHECKOUT_BASE_URL;
     checkoutUrl = b + (b.includes("?") ? "&" : "?") + "pedido=" + codigo;
   }
@@ -222,4 +223,36 @@ export async function criarPedido(dados) {
       checkoutUrl,
     },
   };
+}
+
+export async function pagarComMercadoPago( {codigo, formData}) {
+  const usuario = await obterUsuario()
+  if (!usuario) return {erro: "Sua sessão expirou"}
+
+const supabase = await criarClienteServidor();
+  const { data: pedido } = await supabase
+    .from("pedidos")
+    .select("codigo, status, valores, cliente")
+    .eq("codigo", codigo)
+    .maybeSingle();
+
+if (!pedido) return {erro: "Pedido não encontrado"}
+if(pedido.status === "pago") return {erro: "pedido já pago."};
+
+let resultado;
+
+try {
+  resultado = await criarPagamento({
+    codigo, 
+    valorTotal: pedido.valores.total,
+    email: pedido.cliente.email,
+    formData,
+  });
+} catch (e) {
+  console.error("[mercadopago] criar pagamento: ", e?.message || e);
+  return {erro: "Não foi possível processar o pagamento. Tente de novo."};
+}
+
+if (!resultado) return {erro: "pagamento pelo Mercado Pago não está disponível"};
+
 }
