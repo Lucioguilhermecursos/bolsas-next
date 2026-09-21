@@ -1652,6 +1652,15 @@
   max-width: 420px;
 }
 
+/* Busca + filtro de status no painel do vendedor. */
+.painel-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  margin-block: var(--s-7) var(--s-4);
+}
+.painel-filtros .field:last-child { min-width: 200px; }
+
 .account {
   display: grid;
   grid-template-columns: 1fr;
