@@ -33,7 +33,7 @@ export default async function PaginaPainel() {
   await exigirUsuario("/painel"); // TEMPORÁRIO — ver aviso no topo do arquivo
 
   const supabase = await criarClienteServidor(); // TEMPORÁRIO — ver aviso no topo do arquivo
-  const { data: pedidosDb } = await supabase
+  const { data: pedidosDb, error: erroBusca } = await supabase
     .from("pedidos")
     .select(
       "codigo, status, cliente, entrega, itens, valores, checkout_provider, criado_em, pago_em, " +
@@ -41,6 +41,8 @@ export default async function PaginaPainel() {
         "fornecedor_status, rastreio_transportadora, rastreio_codigo, despachado_em"
     )
     .order("criado_em", { ascending: false });
+
+  if (erroBusca) console.error("[painel] buscar pedidos:", erroBusca.message);
 
   const pedidos = (pedidosDb || []).map((p) => ({
     codigo: p.codigo,
@@ -79,6 +81,11 @@ export default async function PaginaPainel() {
       </div>
 
       <div className="container">
+        {erroBusca && (
+          <p className="notice mb-6" role="alert">
+            Erro ao buscar pedidos (diagnóstico temporário): {erroBusca.message}
+          </p>
+        )}
         <PainelVendedor pedidos={pedidos} />
       </div>
     </>
