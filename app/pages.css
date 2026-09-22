@@ -1661,6 +1661,13 @@
 }
 .painel-filtros .field:last-child { min-width: 200px; }
 
+/* No mobile, a busca some espremida junto do status/datas na mesma linha —
+   o <input> não quebra texto, só corta o que não coube. Sozinha na própria
+   linha, sobra largura pro placeholder inteiro. */
+@media (max-width: 620px) {
+  .painel-filtros .field.flex-1 { flex-basis: 100%; }
+}
+
 /* Campos De/Até: sem isso, o <input type="date"> nativo se ajusta ao
    próprio conteúdo — o texto "dd/mm/aaaa" vazio mede diferente de uma data
    preenchida — e no mobile, onde os campos quebram de linha, um fica maior
