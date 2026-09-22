@@ -142,7 +142,7 @@ export default function PainelVendedor({ pedidos }) {
                 ))}
               </select>
             </div>
-            <div className="field">
+            <div className="field field-data">
               <label className="sr-only" htmlFor="data-de">
                 De
               </label>
@@ -156,7 +156,7 @@ export default function PainelVendedor({ pedidos }) {
                 onClick={(e) => e.currentTarget.showPicker?.()}
               />
             </div>
-            <div className="field">
+            <div className="field field-data">
               <label className="sr-only" htmlFor="data-ate">
                 Até
               </label>

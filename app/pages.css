@@ -1661,6 +1661,15 @@
 }
 .painel-filtros .field:last-child { min-width: 200px; }
 
+/* Campos De/Até: sem isso, o <input type="date"> nativo se ajusta ao
+   próprio conteúdo — o texto "dd/mm/aaaa" vazio mede diferente de uma data
+   preenchida — e no mobile, onde os campos quebram de linha, um fica maior
+   que o outro. flex-basis igual pros dois resolve. */
+.field-data {
+  flex: 1 1 150px;
+  min-width: 130px;
+}
+
 /* ---- Painel do vendedor: métricas ------------------------------------------ */
 
 .metric-hero-label {

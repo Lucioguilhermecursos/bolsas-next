@@ -195,7 +195,7 @@ export default function Metricas({ pedidos }) {
           decide QUAIS pedidos entram na conta, granularidade decide COMO
           agrupar esses pedidos nos gráficos. */}
       <div className="painel-filtros mt-9">
-        <div className="field">
+        <div className="field field-data">
           <label className="sr-only" htmlFor="metricas-data-de">
             De
           </label>
@@ -209,7 +209,7 @@ export default function Metricas({ pedidos }) {
             onClick={(e) => e.currentTarget.showPicker?.()}
           />
         </div>
-        <div className="field">
+        <div className="field field-data">
           <label className="sr-only" htmlFor="metricas-data-ate">
             Até
           </label>
