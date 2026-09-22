@@ -6,21 +6,15 @@
    e busca TODOS os pedidos com o cliente admin (ignora a RLS, que só deixa
    cada cliente ver o próprio pedido — aqui é o vendedor vendo os de todos).
 
-   TEMPORÁRIO, enquanto a página é construída — dois desvios, os dois
-   marcados abaixo, PRECISAM voltar antes de publicar ou mostrar o site pra
-   alguém:
-     1. exigirAdmin() → exigirUsuario(): qualquer pessoa logada acessa, não
-        só o vendedor.
-     2. cliente admin → cliente normal: sem SUPABASE_SERVICE_ROLE_KEY
-        configurada ainda, a busca usa o cliente comum, que respeita a RLS —
-        então só aparecem OS PEDIDOS DE QUEM ESTIVER LOGADO, não os de
-        todo mundo. Serve só para testar o layout.
+   Depende de duas variáveis em produção (Vercel) e local (.env.local):
+     ADMIN_EMAILS              e-mail(s) do vendedor, separados por vírgula
+     SUPABASE_SERVICE_ROLE_KEY mesma chave que o webhook do Stripe usa
+   Sem elas: ADMIN_EMAILS vazio barra todo mundo (ver lib/auth/admin — nega
+   por padrão); sem a service role, criarClienteAdmin() lança erro.
    ========================================================================= */
 
-import { exigirUsuario } from "@/lib/auth/sessao";
-// import { exigirAdmin } from "@/lib/auth/admin";
-import { criarClienteServidor } from "@/lib/supabase/server";
-// import { criarClienteAdmin } from "@/lib/supabase/admin";
+import { exigirAdmin } from "@/lib/auth/admin";
+import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { sair } from "@/app/auth/acoes";
 import PainelVendedor from "./PainelVendedor";
 
@@ -30,10 +24,9 @@ export const metadata = {
 };
 
 export default async function PaginaPainel() {
-  await exigirUsuario("/painel"); // TEMPORÁRIO — ver aviso no topo do arquivo
+  await exigirAdmin();
 
-  const supabase = await criarClienteServidor(); // TEMPORÁRIO — ver aviso no topo do arquivo
-  const { data: pedidosDb, error: erroBusca } = await supabase
+  const { data: pedidosDb, error: erroBusca } = await criarClienteAdmin()
     .from("pedidos")
     .select(
       "codigo, status, cliente, entrega, itens, valores, checkout_provider, criado_em, pago_em, " +
@@ -83,7 +76,7 @@ export default async function PaginaPainel() {
       <div className="container">
         {erroBusca && (
           <p className="notice mb-6" role="alert">
-            Erro ao buscar pedidos (diagnóstico temporário): {erroBusca.message}
+            Erro ao buscar pedidos: {erroBusca.message}
           </p>
         )}
         <PainelVendedor pedidos={pedidos} />
