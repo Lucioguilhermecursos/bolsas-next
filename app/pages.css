@@ -1661,11 +1661,17 @@
 }
 .field-status { flex: 0 1 auto; min-width: 200px; }
 
-/* No mobile, a busca some espremida junto do status/datas na mesma linha —
-   o <input> não quebra texto, só corta o que não coube. Sozinha na própria
-   linha, sobra largura pro placeholder inteiro. */
+/* Campo de busca: cresce pra preencher o que sobrar (é o único que deve
+   crescer, ver .field-data abaixo). Classe própria, não a `flex-1` do
+   Tailwind — utilitários do Tailwind moram numa camada CSS que sempre
+   vence a camada deste arquivo (pages.css), então sobrescrever `.flex-1`
+   aqui simplesmente não tem efeito nenhum, não importa a especificidade do
+   seletor (mesma regra do comentário no topo do globals.css). No mobile,
+   sozinha na própria linha — senão o <input> corta o placeholder por
+   falta de espaço, e não quebra o texto (é campo de uma linha só). */
+.field-busca { flex: 1 1 0%; }
 @media (max-width: 620px) {
-  .painel-filtros .field.flex-1 { flex-basis: 100%; }
+  .field-busca { flex-basis: 100%; }
 }
 
 /* Campos De/Até: sem isso, o <input type="date"> nativo se ajusta ao

@@ -111,7 +111,7 @@ export default function PainelVendedor({ pedidos }) {
           </h2>
 
           <div className="painel-filtros">
-            <div className="field flex-1">
+            <div className="field field-busca">
               <label className="sr-only" htmlFor="busca">
                 Buscar pedido
               </label>
