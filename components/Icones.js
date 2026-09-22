@@ -119,3 +119,10 @@ export const IconeAtendimento = (p) => (
     <path d="M4 13v3a2 2 0 0 0 2 2h1v-5H6a2 2 0 0 0-2 2ZM20 13v3a2 2 0 0 1-2 2h-1v-5h1a2 2 0 0 1 2 2Z" />
   </Svg>
 );
+
+export const IconeGrafico = (p) => (
+  <Svg {...p}>
+    <path d="M4 4v16h16" />
+    <path d="M8 16v-4M12.5 16V7M17 16v-7" />
+  </Svg>
+);

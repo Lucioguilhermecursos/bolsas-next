@@ -1661,6 +1661,182 @@
 }
 .painel-filtros .field:last-child { min-width: 200px; }
 
+/* ---- Painel do vendedor: métricas ------------------------------------------ */
+
+.metric-hero-label {
+  font-size: 13px;
+  color: var(--muted-local, var(--muted));
+}
+
+/* Único número >=48px da tela, em sans (nunca a serifada de título) —
+   ver "hero figure" no guia de dataviz do projeto. */
+.metric-hero {
+  font-family: var(--font-sans);
+  font-size: clamp(2.25rem, 5vw, 3rem);
+  font-weight: 600;
+  line-height: 1.1;
+  margin-top: 2px;
+}
+
+.metric-titulo {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s-3);
+}
+@media (min-width: 640px) {
+  .kpi-row { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1100px) {
+  .kpi-row { grid-template-columns: repeat(6, 1fr); }
+}
+
+.kpi-tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-4) var(--s-5);
+  background: var(--paper-deep);
+}
+
+.kpi-tile .rotulo {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: 12.5px;
+  color: var(--muted-local, var(--muted));
+}
+
+.kpi-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+
+/* Número grande: nunca a cor do status — a identidade já vem do ponto ao
+   lado do rótulo (texto nunca carrega a cor do dado, ver marks-and-anatomy). */
+.kpi-tile .valor {
+  font-family: var(--font-sans);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* Mesma disposição de .tipo-pessoa (fieldset de PF/PJ no checkout), pra
+   selecionar a granularidade do gráfico. */
+.periodo-filtro {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+}
+
+.bar-chart-escala {
+  font-size: 12.5px;
+  color: var(--muted-local, var(--muted));
+  margin-bottom: var(--s-4);
+}
+
+/* Substitui o gráfico quando só há um período (ver GraficoLinha). */
+.bar-chart-unico {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  font-size: 15px;
+  padding-block: var(--s-3);
+}
+.bar-chart-unico strong { font-family: var(--font-sans); font-size: 17px; }
+
+.linha-dot-inline {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.bar-chart-track {
+  /* Padding nas 4 bordas é a folga pra um rótulo/tooltip de ponta nunca ser
+     cortado. O de cima é essencial: `overflow-y: visible` abaixo NÃO
+     funciona de verdade aqui — a regra do CSS é que, se um eixo não é
+     "visible" (overflow-x é "auto", pro scroll horizontal), o outro eixo
+     "visible" vira "auto" escondido. Sem esse respiro em cima, o tooltip
+     do ponto mais alto ficava com o topo cortado. */
+  padding: 48px 48px 0;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+/* Área de desenho: largura/altura exatas em pixel (via style inline no
+   componente), não porcentagem de viewBox — assim o <svg> da linha nunca
+   estica de forma não uniforme e os pontos continuam círculos. */
+.linha-plot {
+  position: relative;
+}
+
+.linha-svg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.linha-ponto {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  outline: none;
+}
+
+.linha-dot {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform var(--t);
+}
+
+.linha-dot--ativo,
+.linha-ponto:focus-visible .linha-dot {
+  transform: translate(-50%, -50%) scale(1.3);
+}
+
+/* Valor fixo ao lado do ponto (poucos períodos — ver mostrarRotulos). Ink,
+   nunca a cor da série: número não pode virar texto ilegível numa hue clara,
+   a identidade já vem do ponto colorido ao lado (ver marks-and-anatomy). */
+.linha-valor {
+  position: absolute;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.bar-label {
+  position: absolute;
+  font-size: 10.5px;
+  color: var(--muted-local, var(--muted));
+  white-space: nowrap;
+}
+
+.bar-tooltip {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: var(--s-2) var(--s-3);
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+}
+.bar-tooltip strong { font-size: 13px; }
+.bar-tooltip span { color: var(--muted-forest); font-size: 11px; }
+
 .account {
   display: grid;
   grid-template-columns: 1fr;
