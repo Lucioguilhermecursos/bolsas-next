@@ -16,12 +16,14 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCarrinho } from "./CarrinhoContexto";
 import { useSessao } from "./SessaoContexto";
 import { sair } from "@/app/auth/acoes";
+import { souAdmin } from "@/app/painel/verificarAdmin";
 import {
   IconeBusca,
   IconeCaixa,
   IconeCaminhao,
   IconeConta,
   IconeFechar,
+  IconeGrafico,
   IconeMenu,
   IconeSacola,
   IconeSeta,
@@ -49,6 +51,19 @@ export default function Header() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { usuario } = useSessao();
+
+  /* Sem ADMIN_EMAILS no bundle do cliente (não é NEXT_PUBLIC_), então quem
+     decide é o servidor — ver app/painel/verificarAdmin.js. */
+  const [admin, setAdmin] = useState(false);
+  useEffect(() => {
+    let vivo = true;
+    Promise.resolve(usuario ? souAdmin() : false).then((r) => {
+      if (vivo) setAdmin(r);
+    });
+    return () => {
+      vivo = false;
+    };
+  }, [usuario]);
 
   const fecharMenu = useCallback(() => {
     setMenuAberto(false);
@@ -217,6 +232,12 @@ export default function Header() {
               <IconeConta />
             </Link>
 
+            {admin && (
+              <Link className="icon-btn" href="/painel" aria-label="Painel do vendedor">
+                <IconeGrafico />
+              </Link>
+            )}
+
             <ContadorSacola />
 
             <button
@@ -319,6 +340,12 @@ export default function Header() {
                 <IconeCaixa />
                 <span>Meus pedidos</span>
               </Link>
+              {admin && (
+                <Link href="/painel">
+                  <IconeGrafico />
+                  <span>Painel</span>
+                </Link>
+              )}
               <form action={sair}>
                 <button type="submit">
                   <IconeConta />
