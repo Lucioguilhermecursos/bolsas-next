@@ -126,3 +126,15 @@ export const IconeGrafico = (p) => (
     <path d="M8 16v-4M12.5 16V7M17 16v-7" />
   </Svg>
 );
+
+export const IconeChevronEsquerda = (p) => (
+  <Svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" {...p}>
+    <path d="M8 2 3 6l5 4" />
+  </Svg>
+);
+
+export const IconeChevronDireita = (p) => (
+  <Svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" {...p}>
+    <path d="M4 2l5 4-5 4" />
+  </Svg>
+);

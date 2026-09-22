@@ -1661,8 +1661,8 @@
 }
 .field-status { flex: 0 1 auto; min-width: 200px; }
 
-/* Campo de busca: cresce pra preencher o que sobrar (é o único que deve
-   crescer, ver .field-data abaixo). Classe própria, não a `flex-1` do
+/* Campo de busca: cresce pra preencher o que sobrar (é o único campo da
+   fileira que deve crescer). Classe própria, não a `flex-1` do
    Tailwind — utilitários do Tailwind moram numa camada CSS que sempre
    vence a camada deste arquivo (pages.css), então sobrescrever `.flex-1`
    aqui simplesmente não tem efeito nenhum, não importa a especificidade do
@@ -1674,20 +1674,100 @@
   .field-busca { flex-basis: 100%; }
 }
 
-/* Campos De/Até: sem isso, o <input type="date"> nativo se ajusta ao
-   próprio conteúdo — o texto "dd/mm/aaaa" vazio mede diferente de uma data
-   preenchida — e no mobile, onde os campos quebram de linha, um fica maior
-   que o outro. flex-basis igual pros dois resolve.
+/* ---- Seletor de período (calendário De/Até num campo só) ------------------ */
 
-   flex-GROW fica em 0 de propósito: as datas não precisam esticar numa tela
-   larga (um <input type="date"> de 360px é só espaço vazio), e crescer
-   competiria com a busca — os dois cresciam na mesma proporção, e como a
-   busca começa de largura zero (flex-1 do Tailwind) e a data de 150px, a
-   data sempre ganhava a disputa e sobrava pouco pro placeholder da busca. */
-.field-data {
-  flex: 0 1 150px;
-  min-width: 130px;
+.seletor-periodo {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
+
+.seletor-periodo-botao {
+  text-align: left;
+  min-width: 200px;
+  cursor: pointer;
+  background: #FFF;
+}
+
+.seletor-periodo-painel {
+  position: absolute;
+  top: calc(100% + var(--s-2));
+  left: 0;
+  z-index: var(--z-index-panel, 170);
+  width: 280px;
+  padding: var(--s-4);
+  background: #FFF;
+  border: 1px solid var(--line);
+  box-shadow: 0 8px 24px rgba(26, 23, 20, .12);
+}
+
+.seletor-periodo-cabeca {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--s-3);
+}
+.seletor-periodo-cabeca strong { font-size: 14px; text-transform: capitalize; }
+.seletor-periodo-cabeca .icon-btn { width: 32px; height: 32px; }
+.seletor-periodo-cabeca .icon-btn svg { width: 12px; height: 12px; }
+
+.seletor-periodo-semana {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: var(--s-2);
+}
+.seletor-periodo-semana span {
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted-local, var(--muted));
+}
+
+.seletor-periodo-grade {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.seletor-periodo-dia {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  font-size: 13px;
+  color: var(--ink);
+  cursor: pointer;
+  position: relative;
+  transition: background-color var(--t);
+}
+.seletor-periodo-dia:hover { background: var(--paper-deep); }
+
+/* Dia de hoje, quando não está selecionado nem no intervalo. */
+.seletor-periodo-dia[data-hoje]::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--cognac);
+  transform: translateX(-50%);
+}
+
+/* Dentro do intervalo: banda suave (mesmo tom do .status--ok, rgba da cor
+   de destaque), sem virar círculo cheio — isso fica só pras pontas. */
+.seletor-periodo-dia[data-intervalo] {
+  background: rgba(164, 98, 47, .14);
+  border-radius: 6px;
+}
+
+/* Ponta do intervalo (o dia clicado): círculo cheio, texto claro por cima —
+   nunca texto colorido sobre fundo claro, aqui é o inverso: fundo colorido
+   com texto claro, que sempre tem contraste. */
+.seletor-periodo-dia[data-extremidade] {
+  background: var(--cognac);
+  color: var(--paper);
+  border-radius: 50%;
+}
+.seletor-periodo-dia[data-extremidade][data-hoje]::after { background: var(--paper); }
 
 /* ---- Painel do vendedor: métricas ------------------------------------------ */
 

@@ -13,6 +13,7 @@ import { useMemo, useState } from "react";
 import { formatarPreco } from "@/lib/catalog";
 import { IconeCaixa, IconeGrafico } from "@/components/Icones";
 import Metricas from "./Metricas";
+import SeletorPeriodo from "./SeletorPeriodo";
 
 export const STATUS_ROTULO = {
   registrado: "Registrado",
@@ -142,34 +143,14 @@ export default function PainelVendedor({ pedidos }) {
                 ))}
               </select>
             </div>
-            <div className="field field-data">
-              <label className="sr-only" htmlFor="data-de">
-                De
-              </label>
-              <input
-                className="input"
-                id="data-de"
-                type="date"
-                value={dataDe}
-                max={dataAte || undefined}
-                onChange={(e) => setDataDe(e.target.value)}
-                onClick={(e) => e.currentTarget.showPicker?.()}
-              />
-            </div>
-            <div className="field field-data">
-              <label className="sr-only" htmlFor="data-ate">
-                Até
-              </label>
-              <input
-                className="input"
-                id="data-ate"
-                type="date"
-                value={dataAte}
-                min={dataDe || undefined}
-                onChange={(e) => setDataAte(e.target.value)}
-                onClick={(e) => e.currentTarget.showPicker?.()}
-              />
-            </div>
+            <SeletorPeriodo
+              dataDe={dataDe}
+              dataAte={dataAte}
+              onMudar={(de, ate) => {
+                setDataDe(de);
+                setDataAte(ate);
+              }}
+            />
           </div>
 
           <p className="field-hint mb-4">

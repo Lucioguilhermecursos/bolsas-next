@@ -23,6 +23,7 @@
 import { useMemo, useState } from "react";
 import { formatarPreco } from "@/lib/catalog";
 import { STATUS_ROTULO, dataLocalISO } from "./PainelVendedor";
+import SeletorPeriodo from "./SeletorPeriodo";
 
 const MESES_ABREV = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
@@ -195,47 +196,14 @@ export default function Metricas({ pedidos }) {
           decide QUAIS pedidos entram na conta, granularidade decide COMO
           agrupar esses pedidos nos gráficos. */}
       <div className="painel-filtros mt-9">
-        <div className="field field-data">
-          <label className="sr-only" htmlFor="metricas-data-de">
-            De
-          </label>
-          <input
-            className="input"
-            id="metricas-data-de"
-            type="date"
-            value={dataDe}
-            max={dataAte || undefined}
-            onChange={(e) => setDataDe(e.target.value)}
-            onClick={(e) => e.currentTarget.showPicker?.()}
-          />
-        </div>
-        <div className="field field-data">
-          <label className="sr-only" htmlFor="metricas-data-ate">
-            Até
-          </label>
-          <input
-            className="input"
-            id="metricas-data-ate"
-            type="date"
-            value={dataAte}
-            min={dataDe || undefined}
-            onChange={(e) => setDataAte(e.target.value)}
-            onClick={(e) => e.currentTarget.showPicker?.()}
-          />
-        </div>
-        {(dataDe || dataAte) && (
-          <button
-            type="button"
-            className="link-underline"
-            style={{ background: "none", border: 0, padding: 0, font: "inherit", cursor: "pointer" }}
-            onClick={() => {
-              setDataDe("");
-              setDataAte("");
-            }}
-          >
-            Limpar período
-          </button>
-        )}
+        <SeletorPeriodo
+          dataDe={dataDe}
+          dataAte={dataAte}
+          onMudar={(de, ate) => {
+            setDataDe(de);
+            setDataAte(ate);
+          }}
+        />
       </div>
 
       <div className="mt-9">
