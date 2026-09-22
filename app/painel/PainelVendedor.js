@@ -124,7 +124,7 @@ export default function PainelVendedor({ pedidos }) {
                 onChange={(e) => setBusca(e.target.value)}
               />
             </div>
-            <div className="field">
+            <div className="field field-status">
               <label className="sr-only" htmlFor="status-filtro">
                 Filtrar por status
               </label>

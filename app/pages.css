@@ -1659,7 +1659,7 @@
   gap: var(--s-3);
   margin-block: var(--s-7) var(--s-4);
 }
-.painel-filtros .field:last-child { min-width: 200px; }
+.field-status { flex: 0 1 auto; min-width: 200px; }
 
 /* No mobile, a busca some espremida junto do status/datas na mesma linha —
    o <input> não quebra texto, só corta o que não coube. Sozinha na própria
@@ -1671,9 +1671,15 @@
 /* Campos De/Até: sem isso, o <input type="date"> nativo se ajusta ao
    próprio conteúdo — o texto "dd/mm/aaaa" vazio mede diferente de uma data
    preenchida — e no mobile, onde os campos quebram de linha, um fica maior
-   que o outro. flex-basis igual pros dois resolve. */
+   que o outro. flex-basis igual pros dois resolve.
+
+   flex-GROW fica em 0 de propósito: as datas não precisam esticar numa tela
+   larga (um <input type="date"> de 360px é só espaço vazio), e crescer
+   competiria com a busca — os dois cresciam na mesma proporção, e como a
+   busca começa de largura zero (flex-1 do Tailwind) e a data de 150px, a
+   data sempre ganhava a disputa e sobrava pouco pro placeholder da busca. */
 .field-data {
-  flex: 1 1 150px;
+  flex: 0 1 150px;
   min-width: 130px;
 }
 
